@@ -17,10 +17,15 @@
   nixpkgs.config.allowUnfree = true;
 
   environment.systemPackages = with pkgs; [
-    discord
+    vesktop
     firefox
     zed-editor
     nixd
     nil
   ];
+
+  # Add Home Manager module
+  home-manager.useGlobalPkgs = true;
+  home-manager.useUserPackages = true;
+  home-manager.users.aperso = import ./home.nix;
 }
