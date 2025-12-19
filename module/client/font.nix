@@ -9,6 +9,10 @@
     ];
     fontconfig = {
       defaultFonts = {
+        serif = [
+          "Inter"
+          "Freesentation"
+        ];
         sansSerif = [
           "Inter"
           "Freesentation"
@@ -27,7 +31,7 @@
           </edit>
         </match>
       '';
-
+      useEmbeddedBitmaps = true;
       subpixel = {
         lcdfilter = "default";
         rgba = "rgb";

@@ -10,7 +10,7 @@ pkgs.stdenv.mkDerivation rec {
 
   src = fetchurl {
     url = "https://raw.githubusercontent.com/Freesentation/freesentation/refs/heads/main/Freesentation-${version}.zip";
-    sha256 = "sha256-c8hZyUTJfaxjktpVIKMDQUEmt36lIjWOPOUT7zGqzYQ=";
+    sha256 = "c8hZyUTJfaxjktpVIKMDQUEmt36lIjWOPOUT7zGqzYQ=";
   };
 
   nativeBuildInputs = [ unzip ];
