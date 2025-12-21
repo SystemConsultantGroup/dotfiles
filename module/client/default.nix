@@ -12,12 +12,13 @@ in
     (import "${home-manager}/nixos")
   ];
 
+  services.gnome.gnome-keyring.enable = true;
+
   services.xserver.xkb.layout = "us";
 
   i18n.inputMethod = {
     enable = true;
     type = "kime";
-    kime.iconColor = "White";
   };
 
   nixpkgs.config.allowUnfree = true;
@@ -26,9 +27,22 @@ in
     vesktop
     firefox
     zed-editor
+    vscode-fhs
     nixd
     nil
   ];
+
+  # Enable PipeWire audio
+  services.pipewire = {
+    enable = true;
+    alsa.enable = true;
+    alsa.support32Bit = true;
+    pulse.enable = true;
+    jack.enable = true;
+  };
+
+  # Enable audio control media keys
+  services.xserver.xkb.options = "terminate:ctrl_alt_bksp";
 
   home-manager.users.aperso.home.stateVersion = "25.11";
 }

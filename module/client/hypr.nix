@@ -3,6 +3,7 @@
   ...
 }:
 {
+  environment.systemPackages = with pkgs; [ pavucontrol ];
   environment.variables.HYPRLAND_CONFIG = "/home/aperso/dotfiles/config/hypr/hyprland.conf";
   programs.hyprland.enable = true;
   home-manager.users.aperso = {
