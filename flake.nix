@@ -31,6 +31,14 @@
             home-manager.nixosModules.home-manager
           ];
         };
+        "scg-server" = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          specialArgs = { inherit self; };
+          modules = [
+            ./host/scg-server/configuration.nix
+            home-manager.nixosModules.home-manager
+          ];
+        };
       };
     };
 }
