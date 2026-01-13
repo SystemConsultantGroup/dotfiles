@@ -40,5 +40,10 @@
   home-manager.users.aperso = {
     home.file.".bashrc".source = "${self}/config/bash/.bashrc";
     home.stateVersion = "25.11";
+    programs.git = {
+      enable = true;
+      userName = "apersomany";
+      userEmail = "aperso@aperso.dev";
+    };
   };
 }
