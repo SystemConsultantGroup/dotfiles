@@ -1,15 +1,8 @@
-{ pkgs, ... }:
-let
-  home-manager = builtins.fetchTarball {
-    url = "https://github.com/nix-community/home-manager/archive/release-25.11.tar.gz";
-    sha256 = "03cjglf896q8cwx3x4j0q08yf9di0xzd0f52qz4v3gd6lva7zgzy";
-  };
-in
+{ pkgs, self, ... }:
 {
   imports = [
     ./font.nix
     ./hypr.nix
-    (import "${home-manager}/nixos")
   ];
 
   services.gnome.gnome-keyring.enable = true;
@@ -44,5 +37,8 @@ in
   # Enable audio control media keys
   services.xserver.xkb.options = "terminate:ctrl_alt_bksp";
 
-  home-manager.users.aperso.home.stateVersion = "25.11";
+  home-manager.users.aperso = {
+    home.file.".bashrc".source = "${self}/config/bash/.bashrc";
+    home.stateVersion = "25.11";
+  };
 }

@@ -1,12 +1,17 @@
 {
   pkgs,
+  self,
   ...
 }:
 {
-  environment.systemPackages = with pkgs; [ pavucontrol ];
+  environment.systemPackages = with pkgs; [ pavucontrol bibata-cursors ];
   environment.variables.HYPRLAND_CONFIG = "/home/aperso/dotfiles/config/hypr/hyprland.conf";
   programs.hyprland.enable = true;
   home-manager.users.aperso = {
+    home.sessionVariables = {
+      XCURSOR_THEME = "Bibata-Modern-Ice";
+      XCURSOR_SIZE = "24";
+    };
     programs.alacritty = {
       enable = true;
       settings = {

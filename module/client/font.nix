@@ -38,7 +38,6 @@
       };
     };
   };
-
   programs.dconf.profiles.user = {
     enableUserDb = true;
     databases = [

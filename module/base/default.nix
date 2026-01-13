@@ -20,11 +20,14 @@
   };
 
   environment.systemPackages = with pkgs; [
+    zip
+    unzip
     git
     gh
     nh
-    claude-code
+    opencode
   ];
 
   environment.variables.NH_OS_FLAKE = "/home/aperso/dotfiles";
+
 }
