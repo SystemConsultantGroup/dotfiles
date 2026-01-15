@@ -46,7 +46,7 @@
       Group = "cloudflare";
       Restart = "always";
       RestartSec = "5s";
-      ExecStart = "${pkgs.cloudflared}/bin/cloudflared tunnel run --token $(cat ${config.sops.secrets.cloudflare_tunnel_token.path})";
+      ExecStart = "${pkgs.bash}/bin/bash -c '${pkgs.cloudflared}/bin/cloudflared tunnel run --token $(cat ${config.sops.secrets.cloudflare_tunnel_token.path})'";
     };
   };
 
