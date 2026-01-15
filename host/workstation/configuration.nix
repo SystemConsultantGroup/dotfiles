@@ -11,7 +11,6 @@
   boot.loader.efi.canTouchEfiVariables = true;
 
   networking.hostName = "workstation";
-  networking.networkmanager.enable = true;
 
   time.timeZone = "Asia/Seoul";
 

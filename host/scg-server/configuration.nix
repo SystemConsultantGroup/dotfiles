@@ -11,15 +11,11 @@
   boot.loader.efi.canTouchEfiVariables = true;
 
   networking.hostName = "scg-server";
-  networking.networkmanager.enable = true;
-  networking.nftables.enable = true;
-  networking.firewall.enable = false;
   networking.interfaces.enp5s0.ipv4.addresses = [{
     address = "115.145.150.218";
     prefixLength = 24;
   }];
   networking.defaultGateway = "115.145.150.1";
-  networking.nameservers = [ "1.1.1.1" "8.8.8.8" "1.0.0.1" "8.8.4.4" ];
 
   time.timeZone = "Asia/Seoul";
 
