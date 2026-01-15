@@ -20,7 +20,7 @@
   sops.defaultSopsFile = ../../secret/secrets.yaml;
   sops.defaultSopsFormat = "yaml";
   sops.age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
-  sops.secrets.cloudflare_tunnel_token = {
+  sops.secrets."cloudflare_tunnel/scg_server" = {
      owner = "cloudflare";
   };
 
@@ -46,7 +46,7 @@
       Group = "cloudflare";
       Restart = "always";
       RestartSec = "5s";
-      ExecStart = "${pkgs.bash}/bin/bash -c '${pkgs.cloudflared}/bin/cloudflared tunnel run --token $(cat ${config.sops.secrets.cloudflare_tunnel_token.path})'";
+      ExecStart = "${pkgs.bash}/bin/bash -c '${pkgs.cloudflared}/bin/cloudflared tunnel run --token $(cat ${config.sops.secrets."cloudflare_tunnel/scg_server".path})'";
     };
   };
 
