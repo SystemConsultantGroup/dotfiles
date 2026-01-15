@@ -42,8 +42,12 @@
     home.stateVersion = "25.11";
     programs.git = {
       enable = true;
-      userName = "apersomany";
-      userEmail = "aperso@aperso.dev";
+      settings = {
+        user = {
+          name = "apersomany";
+          email = "aperso@aperso.dev";
+        };
+      };
     };
   };
 }
