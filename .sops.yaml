@@ -1,7 +1,7 @@
 keys:
   - &admin_aperso age14nxmyrxddyes9wm2mpz5atssq238y5ym8hu9lstcht4s2dlcff9qsy979f
-  - &host_scg_client ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILM0eD3Y2i+02tpiSJ0qbisZm+SToesSbT8JvkYz2qAN
-  - &host_scg_server ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEbKJ6aP3/IrIAEGWVMiPig4t/bBjjfmCp1IFn+R+wDF
+  - &host_scg_client age1nc5a7flsmeww4ww4syzadg2kue6ema6syfpexzmnm8gmzmz2yv0qfkwyls # ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILM0eD3Y2i+02tpiSJ0qbisZm+SToesSbT8JvkYz2qAN
+  - &host_scg_server age1kwnsxj89r3d0pgmcr0yg8ywfverdj55jrtggzp428twsqgzm4fsqffw5fh # ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEbKJ6aP3/IrIAEGWVMiPig4t/bBjjfmCp1IFn+R+wDF
 
 creation_rules:
   - path_regex: secret/secrets.yaml$
