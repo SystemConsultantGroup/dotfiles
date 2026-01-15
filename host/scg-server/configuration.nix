@@ -17,6 +17,13 @@
   }];
   networking.defaultGateway = "115.145.150.1";
 
+  sops.defaultSopsFile = ../../secret/secrets.yaml;
+  sops.defaultSopsFormat = "yaml";
+  sops.age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
+  sops.secrets.cloudflare_tunnel_token = {
+     owner = "cloudflare";
+  };
+
   time.timeZone = "Asia/Seoul";
 
   environment.systemPackages = with pkgs; [
@@ -39,7 +46,7 @@
       Group = "cloudflare";
       Restart = "always";
       RestartSec = "5s";
-      ExecStart = "${pkgs.cloudflared}/bin/cloudflared tunnel run --token eyJhIjoiYTNlMWE3ZDlmMjI0ZTQyYmQ0MWIzMDM5ZDZiMDg2YjkiLCJ0IjoiNDIyNzNiYzEtODdiMi00MzUxLWExYTQtNGM1OWEwMWY0MGJlIiwicyI6Ik56TXhOVE13TkdRdE5qa3daUzAwTmpZd0xUZzBaRGt0TkRneE1XUTVPRFJrWm1ZMyJ9";
+      ExecStart = "${pkgs.cloudflared}/bin/cloudflared tunnel run --token $(cat ${config.sops.secrets.cloudflare_tunnel_token.path})";
     };
   };
 

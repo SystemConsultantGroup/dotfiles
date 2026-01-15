@@ -31,6 +31,9 @@
     gh
     nh
     opencode
+    sops
+    age
+    ssh-to-age
   ];
 
   environment.variables.NH_OS_FLAKE = "/home/aperso/dotfiles";
