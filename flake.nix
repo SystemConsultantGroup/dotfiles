@@ -39,6 +39,14 @@
             home-manager.nixosModules.home-manager
           ];
         };
+        "laptop" = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          specialArgs = { inherit self; };
+          modules = [
+            ./host/laptop/configuration.nix
+            home-manager.nixosModules.home-manager
+          ];
+        };
       };
     };
 }
