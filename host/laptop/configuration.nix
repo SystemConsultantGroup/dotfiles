@@ -13,13 +13,14 @@
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
   networking.hostName = "laptop";
-  
+
   hardware.sensor.iio.enable = true;
 
-  services.asusd = {
-    enable = true;
-    enableUserService = true;
-  };
+  services.asusd.enable = true;
+
+  environment.systemPackages = with pkgs; [
+    rnote
+  ];
 
   time.timeZone = "Asia/Seoul";
 

@@ -31,6 +31,7 @@
     gh
     nh
     opencode
+    yazi
   ];
 
   environment.variables.NH_OS_FLAKE = "/home/aperso/dotfiles";
