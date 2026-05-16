@@ -1,10 +1,15 @@
 { pkgs, ... }:
 {
-  networking.hostName = "workstation";
+  networking.hostName = "laptop";
+  programs.iio-hyprland.enable = true;
+  services.asusd.enable = true;
+  environment.systemPackages = [
+    pkgs.rnote
+  ];
   imports = [
     ./hardware-configuration.nix
-    ../../module/base
-    ../../module/client
+    ../../modules/base
+    ../../modules/client
   ];
   boot.kernelPackages = pkgs.linuxPackages_latest;
   boot.loader.systemd-boot.enable = true;

@@ -8,6 +8,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     kime.url = "github:apersomany/kime";
+    agenix = {
+      url = "github:ryantm/agenix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -15,11 +19,13 @@
     let
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
-      mkHost = name: nixpkgs.lib.nixosSystem {
-        inherit system;
-        specialArgs = { inherit self inputs; };
-        modules = [ (./. + "/host/${name}/configuration.nix") ];
-      };
+      mkHost =
+        name:
+        nixpkgs.lib.nixosSystem {
+          inherit system;
+          specialArgs = { inherit self inputs; };
+          modules = [ (./. + "/hosts/${name}/configuration.nix") ];
+        };
     in
     {
       inherit (inputs.self) description;
@@ -30,9 +36,9 @@
       };
 
       nixosModules = {
-        base = ./module/base;
-        client = ./module/client;
-        server = ./module/server;
+        base = ./modules/base;
+        client = ./modules/client;
+        server = ./modules/server;
       };
 
       formatter.${system} = pkgs.nixfmt-rfc-style;

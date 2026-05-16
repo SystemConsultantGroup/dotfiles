@@ -1,5 +1,9 @@
-{ pkgs, ... }:
+{ inputs, pkgs, ... }:
 {
+  imports = [ inputs.agenix.nixosModules.default ];
+
+  age.identityPaths = [ "/home/aperso/.config/age/keys.txt" ];
+
   nix = {
     settings = {
       experimental-features = [

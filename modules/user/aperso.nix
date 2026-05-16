@@ -1,7 +1,7 @@
 { pkgs, self, ... }:
 {
   home-manager.users.aperso = {
-    home.file.".bashrc".source = "${self}/config/bash/.bashrc";
+    home.file.".bashrc".source = "${self}/dynamic/bash/.bashrc";
     home.stateVersion = "25.11";
 
     home.sessionVariables = {
