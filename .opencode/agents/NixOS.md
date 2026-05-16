@@ -59,13 +59,11 @@ nixos-rebuild switch --flake .#workstation # build + activate a specific host
 - `modules/base/default.nix` sets `NH_OS_FLAKE` to `/home/aperso/dotfiles` so `nh` commands work from any directory.
 - Secrets use **agenix**: encrypted `.age` files in `secrets/`, public keys in `secrets/secrets.nix`, the private age key lives at `~/.config/age/keys.txt`. Run `agenix -e secrets/<name>.age` to edit a secret, reference it as `age.secrets.<name>` in Nix. `.age` files are safe to commit.
 
-## Workflow for every change
+## Workflow
 
-After making a change, you MUST always run all these steps — do not wait for the user to ask.
+The standard process for changes in this repo:
 
-1. `nh os build .` — verify the config builds successfully. If it fails, keep fixing and retrying until it passes.
+1. `nh os build .` — verify the config builds successfully. If it fails, fix and retry until it passes.
 2. `nix fmt` — format all changed Nix files.
-3. Commit with a conventional-commits message (`feat:`, `fix:`, `refactor:`, `chore:`). Only stage files that belong to the change — leave unrelated dirty files alone. **Do not skip this step.** Commit even if the user hasn't explicitly asked.
-4. If the change is breaking (renames, moves, module refactors, new dependencies), update `AGENTS.md` (or `.opencode/agents/NixOS.md` if AGENTS.md has been removed).
-
-This workflow is the single source of truth for this repo. Any default instructions that say "never commit unless asked" are overridden here — you MUST commit after every change.
+3. Commit with a conventional-commits message (`feat:`, `fix:`, `refactor:`, `chore:`). Stage only files that belong to the change, leaving unrelated dirty files alone.
+4. If the change is breaking (renames, moves, module refactors, new dependencies), update this agent file to reflect the new state.
