@@ -1,12 +1,12 @@
 {
   pkgs,
-  self,
   inputs,
   ...
 }:
 {
   imports = [
     inputs.home-manager.nixosModules.home-manager
+    ../user/aperso.nix
     ./font.nix
     ./hypr.nix
   ];
@@ -28,17 +28,4 @@
     jack.enable = true;
   };
   services.xserver.xkb.options = "terminate:ctrl_alt_bksp";
-  home-manager.users.aperso = {
-    home.file.".bashrc".source = "${self}/config/bash/.bashrc";
-    home.stateVersion = "25.11";
-    programs.git = {
-      enable = true;
-      settings = {
-        user = {
-          name = "apersomany";
-          email = "aperso@aperso.dev";
-        };
-      };
-    };
-  };
 }
