@@ -1,0 +1,12 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "default_agent": "NixOS",
+  "permission": {
+    "external_directory": {
+      "/nix/store": "allow",
+      "/run/current-system": "allow",
+      "/etc/nixos": "allow",
+      "/home/aperso/.config/age": "allow"
+    }
+  }
+}
