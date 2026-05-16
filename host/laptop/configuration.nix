@@ -3,8 +3,8 @@
   networking.hostName = "laptop";
   programs.iio-hyprland.enable = true;
   services.asusd.enable = true;
-  environment.systemPackages = with pkgs; [
-    rnote
+  environment.systemPackages = [
+    pkgs.rnote
   ];
   imports = [
     ./hardware-configuration.nix

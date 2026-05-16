@@ -12,13 +12,13 @@
   ];
   services.gnome.gnome-keyring.enable = true;
   services.xserver.xkb.layout = "us";
-  environment.systemPackages = with pkgs; [
-    vesktop
-    firefox
-    zed-editor
-    vscode-fhs
-    nixd
-    nil
+  environment.systemPackages = [
+    pkgs.vesktop
+    pkgs.firefox
+    pkgs.zed-editor
+    pkgs.vscode-fhs
+    pkgs.nixd
+    pkgs.nil
   ];
   services.pipewire = {
     enable = true;

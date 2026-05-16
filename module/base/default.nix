@@ -43,14 +43,14 @@
     ];
   };
 
-  environment.systemPackages = with pkgs; [
-    zip
-    unzip
-    git
-    gh
-    nh
-    opencode
-    yazi
+  environment.systemPackages = [
+    pkgs.zip
+    pkgs.unzip
+    pkgs.git
+    pkgs.gh
+    pkgs.nh
+    pkgs.opencode
+    pkgs.yazi
   ];
 
   environment.variables.NH_OS_FLAKE = "/home/aperso/dotfiles";

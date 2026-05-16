@@ -2,10 +2,10 @@
 {
   fonts = {
     enableDefaultPackages = true;
-    packages = with pkgs; [
-      (callPackage ./pkgs/freesentation.nix { })
-      inter
-      cascadia-code
+    packages = [
+      (pkgs.callPackage ./pkgs/freesentation.nix { })
+      pkgs.inter
+      pkgs.cascadia-code
     ];
     fontconfig = {
       defaultFonts = {

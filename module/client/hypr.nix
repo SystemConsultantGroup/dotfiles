@@ -1,9 +1,9 @@
 { pkgs, ... }:
 {
-  environment.systemPackages = with pkgs; [
-    pavucontrol
-    bibata-cursors
-    brightnessctl
+  environment.systemPackages = [
+    pkgs.pavucontrol
+    pkgs.bibata-cursors
+    pkgs.brightnessctl
   ];
   environment.variables.HYPRLAND_CONFIG = "/home/aperso/dotfiles/config/hypr/hyprland.conf";
   programs.hyprland = {
@@ -49,7 +49,7 @@
     };
     programs.rofi = {
       enable = true;
-      plugins = with pkgs; [ rofi-calc ];
+      plugins = [ pkgs.rofi-calc ];
     };
     services.flameshot = {
       enable = true;
