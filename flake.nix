@@ -17,13 +17,17 @@
   outputs =
     { self, nixpkgs, ... }@inputs:
     let
+      username = "aperso";
+      userFullName = "Donghyun Shin";
+      gitUserName = "apersomany";
+      gitUserEmail = "aperso@aperso.dev";
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
       mkHost =
         name:
         nixpkgs.lib.nixosSystem {
           inherit system;
-          specialArgs = { inherit self inputs; };
+          specialArgs = { inherit self inputs username userFullName gitUserName gitUserEmail; };
           modules = [ (./. + "/hosts/${name}/configuration.nix") ];
         };
     in

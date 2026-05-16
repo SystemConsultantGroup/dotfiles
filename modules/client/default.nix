@@ -8,7 +8,7 @@
 {
   imports = [
     inputs.home-manager.nixosModules.home-manager
-    ../user/aperso.nix
+    ./home.nix
     ./font.nix
     ./hypr.nix
   ];

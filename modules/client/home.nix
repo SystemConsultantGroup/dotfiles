@@ -1,7 +1,10 @@
-{ pkgs, self, ... }:
+{ pkgs, self, username, gitUserName, gitUserEmail, ... }:
+let
+  flakeDir = "${self}";
+in
 {
-  home-manager.users.aperso = {
-    home.file.".bashrc".source = "${self}/dynamic/bash/.bashrc";
+  home-manager.users.${username} = {
+    home.file.".bashrc".source = "${flakeDir}/dynamic/bash/.bashrc";
     home.stateVersion = "25.11";
 
     home.sessionVariables = {
@@ -22,8 +25,8 @@
       enable = true;
       settings = {
         user = {
-          name = "apersomany";
-          email = "aperso@aperso.dev";
+          name = gitUserName;
+          email = gitUserEmail;
         };
       };
     };

@@ -1,8 +1,9 @@
 { inputs, pkgs, ... }:
 {
-  imports = [ inputs.agenix.nixosModules.default ];
-
-  age.identityPaths = [ "/home/aperso/.config/age/keys.txt" ];
+  imports = [
+    inputs.agenix.nixosModules.default
+    ./home.nix
+  ];
 
   nix = {
     settings = {
@@ -37,16 +38,6 @@
     firewall.enable = false;
   };
 
-  users.users.aperso = {
-    isNormalUser = true;
-    description = "Donghyun Shin";
-    extraGroups = [
-      "networkmanager"
-      "wheel"
-      "kvm"
-    ];
-  };
-
   environment.systemPackages = [
     pkgs.zip
     pkgs.unzip
@@ -57,5 +48,4 @@
     pkgs.yazi
   ];
 
-  environment.variables.NH_OS_FLAKE = "/home/aperso/dotfiles";
 }

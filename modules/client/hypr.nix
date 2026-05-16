@@ -5,7 +5,6 @@
     pkgs.bibata-cursors
     pkgs.brightnessctl
   ];
-  environment.variables.HYPRLAND_CONFIG = "/home/aperso/dotfiles/dynamic/hypr/hyprland.conf";
   programs.hyprland = {
     enable = true;
     withUWSM = true;
