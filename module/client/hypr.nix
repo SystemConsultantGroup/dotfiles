@@ -1,8 +1,4 @@
-{
-  pkgs,
-  self,
-  ...
-}:
+{ pkgs, ... }:
 {
   environment.systemPackages = with pkgs; [
     pavucontrol
@@ -30,7 +26,6 @@
       QT_AUTO_SCREEN_SCALE_FACTOR = "0";
       QT_SCALE_FACTOR = "1.5";
     };
-
     gtk = {
       enable = true;
       cursorTheme = {
@@ -39,7 +34,6 @@
         size = 24;
       };
     };
-
     qt = {
       enable = true;
       platformTheme.name = "gtk";

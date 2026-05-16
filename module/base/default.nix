@@ -1,5 +1,4 @@
 { pkgs, ... }:
-
 {
   nix.settings.experimental-features = [
     "nix-command"
@@ -10,10 +9,17 @@
     defaultLocale = "en_US.UTF-8";
   };
 
-  networking.nameservers = [ "1.1.1.1" "8.8.8.8" "1.0.0.1" "8.8.4.4" ];
-  networking.networkmanager.enable = true;
-  networking.nftables.enable = true;
-  networking.firewall.enable = false;
+  networking = {
+    nameservers = [
+      "1.1.1.1"
+      "8.8.8.8"
+      "1.0.0.1"
+      "8.8.4.4"
+    ];
+    networkmanager.enable = true;
+    nftables.enable = true;
+    firewall.enable = false;
+  };
 
   users.users.aperso = {
     isNormalUser = true;
