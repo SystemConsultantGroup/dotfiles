@@ -70,7 +70,7 @@ Outputs: `nixosConfigurations.{workstation,laptop}`, `nixosModules.{base,client,
 
 ```
 nix develop          # enter shell with nixfmt, statix, deadnix, nil, nixd, direnv
-nix fmt              # format with nixfmt-rfc-style (now aliased as pkgs.nixfmt)
+nix fmt              # format with pkgs.nixfmt
 nh os build .        # build current host config (NH_OS_FLAKE is already set)
 nh os switch .       # build and activate
 nixos-rebuild build --flake .#laptop      # build a specific host
@@ -80,7 +80,7 @@ nixos-rebuild switch --flake .#workstation # build + activate a specific host
 ## Nix conventions
 
 - **No `with pkgs;` or `with lib;`** — always use explicit `pkgs.` / `lib.` prefixes.
-- **Formatter is `nixfmt-rfc-style`** (now aliased to `pkgs.nixfmt`), not alejandra or nixpkgs-fmt. Run `nix fmt` before committing.
+- **Formatter is `pkgs.nixfmt`** (formerly `nixfmt-rfc-style`). Run `nix fmt` before committing.
 - **flake-parts is not used** — the flake uses a raw `outputs` function. Do not restructure into flake-parts.
 - Branch is **`master`**, not `main`.
 - **`result/`** is the build output symlink, git-ignored.
@@ -103,7 +103,7 @@ nixos-rebuild switch --flake .#workstation # build + activate a specific host
 
 The standard process for changes in this repo:
 
-1. `nh os build .` — verify the config builds successfully with **no warnings**. If there are evaluation warnings, investigate and fix them before proceeding.
-2. `nix fmt` — format all changed Nix files. If any **evaluation warnings** are produced (e.g. deprecated package names), fix the source of the warning (e.g. rename the package reference) and re-run until clean.
+1. `nh os build .` — verify the config builds successfully with **no warnings from our code**. If there are evaluation warnings, investigate: if the warning originates from our modules (deprecated option usage, renamed packages, etc.), fix it; if it originates from nixpkgs internals (e.g. `'system' has been renamed to/replaced by 'stdenv.hostPlatform.system'`), it's an upstream deprecation that cannot be suppressed from the flake — proceed.
+2. `nix fmt` — format all changed Nix files. If any **evaluation warnings** are produced from our code (e.g. deprecated package names), fix the source of the warning and re-run until clean.
 3. Commit with a conventional-commits message (`feat:`, `fix:`, `refactor:`, `chore:`). Stage only files that belong to the change, leaving unrelated dirty files alone.
 4. If the change is breaking (renames, moves, module refactors, new dependencies), update this agent file to reflect the new state.

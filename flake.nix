@@ -21,14 +21,24 @@
       userFullName = "Donghyun Shin";
       gitUserName = "apersomany";
       gitUserEmail = "aperso@aperso.dev";
-      system = "x86_64-linux";
-      pkgs = nixpkgs.legacyPackages.${system};
+      pkgs = nixpkgs.legacyPackages.x86_64-linux;
       mkHost =
         name:
         nixpkgs.lib.nixosSystem {
-          inherit system;
-          specialArgs = { inherit self inputs username userFullName gitUserName gitUserEmail; };
-          modules = [ (./. + "/hosts/${name}/configuration.nix") ];
+          specialArgs = {
+            inherit
+              self
+              inputs
+              username
+              userFullName
+              gitUserName
+              gitUserEmail
+              ;
+          };
+          modules = [
+            { nixpkgs.hostPlatform = "x86_64-linux"; }
+            (./. + "/hosts/${name}/configuration.nix")
+          ];
         };
     in
     {
@@ -45,11 +55,11 @@
         server = ./modules/server;
       };
 
-      formatter.${system} = pkgs.nixfmt-rfc-style;
+      formatter.x86_64-linux = pkgs.nixfmt;
 
-      devShells.${system}.default = pkgs.mkShell {
+      devShells.x86_64-linux.default = pkgs.mkShell {
         packages = with pkgs; [
-          nixfmt-rfc-style
+          nixfmt
           nil
           nixd
           statix
