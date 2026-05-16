@@ -50,6 +50,7 @@
           nixd
           statix
           deadnix
+          direnv
         ];
       };
     };
