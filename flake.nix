@@ -7,6 +7,7 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    kime.url = "github:apersomany/kime";
   };
 
   outputs =

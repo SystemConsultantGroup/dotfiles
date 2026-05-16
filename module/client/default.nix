@@ -1,6 +1,8 @@
 {
   pkgs,
   inputs,
+  config,
+  lib,
   ...
 }:
 {
@@ -10,6 +12,14 @@
     ./font.nix
     ./hypr.nix
   ];
+  i18n = {
+    defaultLocale = "en_US.UTF-8";
+    inputMethod = {
+      enable = true;
+      type = "kime";
+      package = lib.mkForce inputs.kime.packages.${pkgs.system}.default;
+    };
+  };
   services.gnome.gnome-keyring.enable = true;
   services.xserver.xkb.layout = "us";
   environment.systemPackages = [
