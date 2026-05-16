@@ -103,7 +103,7 @@ nixos-rebuild switch --flake .#workstation # build + activate a specific host
 
 The standard process for changes in this repo:
 
-1. `nh os build .` — verify the config builds successfully. If it fails, fix and retry until it passes.
-2. `nix fmt` — format all changed Nix files.
+1. `nh os build .` — verify the config builds successfully with **no warnings**. If there are evaluation warnings, investigate and fix them before proceeding.
+2. `nix fmt` — format all changed Nix files. If any **evaluation warnings** are produced (e.g. deprecated package names), fix the source of the warning (e.g. rename the package reference) and re-run until clean.
 3. Commit with a conventional-commits message (`feat:`, `fix:`, `refactor:`, `chore:`). Stage only files that belong to the change, leaving unrelated dirty files alone.
 4. If the change is breaking (renames, moves, module refactors, new dependencies), update this agent file to reflect the new state.
