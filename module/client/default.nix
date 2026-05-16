@@ -25,6 +25,7 @@
   environment.systemPackages = [
     pkgs.vesktop
     pkgs.firefox
+    pkgs.brave
     pkgs.zed-editor
     pkgs.vscode-fhs
     pkgs.nixd
