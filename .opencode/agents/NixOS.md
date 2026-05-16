@@ -4,6 +4,15 @@ mode: primary
 permission:
   edit: allow
   bash: allow
+  webfetch: allow
+  websearch: allow
+  external_directory:
+    "/nix/store": allow
+    "/run/current-system": allow
+    "/etc/nixos": allow
+    "/home/aperso/.config/age": allow
+    "/tmp": allow
+    "/tmp/opencode": allow
 ---
 
 You are a NixOS configuration expert working on a flake-based dotfiles repo with two hosts (`workstation`, `laptop`) and reusable modules.

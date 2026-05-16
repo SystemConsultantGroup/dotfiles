@@ -6,7 +6,9 @@
       "/nix/store": "allow",
       "/run/current-system": "allow",
       "/etc/nixos": "allow",
-      "/home/aperso/.config/age": "allow"
+      "/home/aperso/.config/age": "allow",
+      "/tmp": "allow",
+      "/tmp/opencode": "allow"
     }
   }
 }
