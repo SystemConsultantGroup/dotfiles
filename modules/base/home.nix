@@ -23,14 +23,6 @@ in
     ];
   };
 
-  # Age identity and secrets
-  age.identityPaths = [ "${homeDir}/.config/age/keys.txt" ];
-  age.secrets.openrouter = {
-    file = ../../secrets/openrouter.age;
-    path = "${homeDir}/.config/openrouter/api-key";
-    owner = username;
-  };
-
   # Environment variables referencing user paths
   environment.variables = {
     NH_OS_FLAKE = flakeDir;
