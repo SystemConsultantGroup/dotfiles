@@ -1,11 +1,20 @@
-{ pkgs, self, username, gitUserName, gitUserEmail, ... }:
-let
-  flakeDir = "${self}";
-in
+{
+  pkgs,
+  username,
+  gitUserName,
+  gitUserEmail,
+  ...
+}:
 {
   home-manager.users.${username} = {
-    home.file.".bashrc".source = "${flakeDir}/dynamic/bash/.bashrc";
     home.stateVersion = "25.11";
+
+    programs.bash = {
+      enable = true;
+      bashrcExtra = ''
+        export PS1="\[\033[1;32m\][\[\e]0;\u@\h: \w\a\]\u@\h:\w]\$\[\033[0m\] "
+      '';
+    };
 
     home.sessionVariables = {
       XCURSOR_THEME = "Bibata-Modern-Ice";
