@@ -1,4 +1,9 @@
-{ inputs, pkgs, lib, ... }:
+{
+  inputs,
+  pkgs,
+  lib,
+  ...
+}:
 {
   imports = [
     inputs.agenix.nixosModules.default
@@ -43,6 +48,7 @@
     pkgs.unzip
     pkgs.git
     pkgs.gh
+    pkgs.devenv
     pkgs.nh
     pkgs.opencode
     pkgs.yazi
