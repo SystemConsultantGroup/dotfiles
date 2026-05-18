@@ -1,4 +1,4 @@
-{ inputs, pkgs, ... }:
+{ inputs, pkgs, lib, ... }:
 {
   imports = [
     inputs.agenix.nixosModules.default
@@ -33,7 +33,7 @@
       "1.0.0.1"
       "8.8.4.4"
     ];
-    networkmanager.enable = true;
+    networkmanager.enable = lib.mkDefault true;
     nftables.enable = true;
     firewall.enable = false;
   };
