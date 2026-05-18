@@ -9,7 +9,7 @@
 }:
 let
   homeDir = config.users.users.${username}.home;
-  flakeDir = "${self}";
+  dotfiles = "${self}";
 in
 {
   # System-level user definition
@@ -25,7 +25,7 @@ in
 
   # Environment variables referencing user paths
   environment.variables = {
-    NH_OS_FLAKE = flakeDir;
-    HYPRLAND_CONFIG = "${flakeDir}/dynamic/hypr/hyprland.conf";
+    NH_OS_FLAKE = dotfiles;
+    HYPRLAND_CONFIG = "${dotfiles}/dynamic/hypr/hyprland.conf";
   };
 }
