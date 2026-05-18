@@ -25,7 +25,7 @@ in
 
   # Environment variables referencing user paths
   environment.variables = {
-    NH_OS_FLAKE = flakeDir;
+    NH_OS_FLAKE = "/home/scg/dotfiles";
     HYPRLAND_CONFIG = "${flakeDir}/dynamic/hypr/hyprland.conf";
   };
 }
