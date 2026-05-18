@@ -77,6 +77,7 @@
                 "/run/current-system": "allow",
                 "/etc/nixos": "allow",
                 "/home/${username}/.config/age": "allow",
+                "/home/${username}/.local/share/opencode": "allow",
                 "/tmp": "allow",
                 "/tmp/opencode": "allow"
               }
