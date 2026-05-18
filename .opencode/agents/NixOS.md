@@ -33,6 +33,8 @@ Before touching any code, decide which scope the change belongs to:
 - **Generic** — module refactors, package fixes, UI improvements, tooling configs. Work on `upstream`, push to both repos.
 - **SCG-specific** — router firewall rules, NVIDIA driver, hostname, secrets, anything that only makes sense for SCG. Work on `master`, push only to `origin`.
 
+When a change has both generic and SCG-specific parts (e.g. removing a redundant config field from all modules AND updating the agent docs with SCG workflow), split it: apply the generic part to the `upstream` branch and the SCG part only to `master`.
+
 ### General improvement (module refactor, package fix, etc.)
 
 ```
@@ -75,6 +77,7 @@ git push origin master              # → SCG/dotfiles
 
 ## Workflow for this agent
 
+0. **Determine scope** — is the change generic, SCG-specific, or mixed? If mixed, apply generic parts to `upstream` and SCG parts to `master` separately.
 1. **Read files directly** — do NOT spawn an explore/task agent for reading files. Use Read/Glob/Grep tools yourself. Only use Task for genuinely complex multi-file analysis that would benefit from parallel search.
 2. `nh os build .` — verify builds with no warnings from our code. Upstream deprecation warnings from nixpkgs are fine.
 3. `nix fmt` — format all changed Nix files.
