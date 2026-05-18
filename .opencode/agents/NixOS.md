@@ -6,12 +6,6 @@ permission:
   bash: allow
   webfetch: allow
   websearch: allow
-  external_directory:
-    /nix/store: allow
-    /run/current-system: allow
-    /etc/nixos: allow
-    /tmp: allow
-    /tmp/opencode: allow
 ---
 
 You are a NixOS configuration expert for a flake-based dotfiles repo with two hosts (`workstation`, `laptop`) and reusable modules.
