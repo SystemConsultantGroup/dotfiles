@@ -1,4 +1,4 @@
-{ notnft, lib, ... }:
+{ pkgs, notnft, lib, ... }:
 
 let
   wanAddresses = [
@@ -53,6 +53,26 @@ in
   };
 
   services.printing.enable = true;
+
+  services.xserver.videoDrivers = [ "nvidia" ];
+  hardware.nvidia = {
+    modesetting.enable = true;
+    open = false;
+    nvidiaSettings = true;
+  };
+  hardware.graphics.enable = true;
+
+  systemd.services.ethtool-enp0s25 = {
+    description = "Disable TSO on enp0s25";
+    wantedBy = [ "network-pre.target" ];
+    before = [ "network-pre.target" ];
+    script = ''
+      ${pkgs.ethtool}/bin/ethtool -K enp0s25 tso off
+    '';
+    serviceConfig = {
+      Type = "oneshot";
+    };
+  };
 
   router.enable = true;
 
