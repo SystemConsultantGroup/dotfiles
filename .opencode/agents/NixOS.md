@@ -27,7 +27,7 @@ Two local branches manage this split:
 | `upstream` | `upstream/master` (remote) | `upstream master` | Curate general improvements for the template |
 | `master` | `origin/master` | `origin master` | SCG-specific config + merged upstream changes |
 
-> **Note:** The `upstream` branch is local-only and never pushed to `origin`. On a fresh clone, recreate it with:\
+> **Note:** The `upstream` branch is local-only and never pushed to `origin` (SCG/dotfiles). On a fresh clone, recreate it with:\
 > `git branch upstream upstream/master`
 
 ## Workflow
