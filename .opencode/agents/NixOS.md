@@ -70,6 +70,15 @@ nh os build .
 git push origin master              # → SCG/dotfiles
 ```
 
+### Merge conflict resolution
+
+When merging `upstream` into `master`, conflicts may arise. Resolve them as follows:
+
+- **SCG-specific files** (`hosts/router/`, `hosts/woodstock/`, `secrets/`) → preserve the SCG (`master`) version.
+- **Generic files** (`modules/`, `home/`, `lib/`, `flake.nix`) → favor the upstream version, then re-apply any SCG customizations on top.
+- **Hybrid files** (files with both generic and SCG sections, e.g. `hosts/woodstock/configuration.nix` which imports from both `modules/` and SCG-specific config) → manually merge, keeping SCG-only blocks intact while accepting upstream improvements to the generic portions.
+- When in doubt, resolve in favor of upstream for generic code paths and SCG for host-specific code paths.
+
 ## Nix conventions
 
 - **No `with pkgs;` or `with lib;`** — always explicit `pkgs.` / `lib.` prefixes.
@@ -84,7 +93,8 @@ git push origin master              # → SCG/dotfiles
 2. **Switch to the correct branch first.** Never stage or edit files on the wrong branch. The branch switch comes before any `git rm`, `git add`, or file modification. If you make a mistake, undo with `git reset HEAD <file>` and `git checkout -- <file>` before proceeding.
 3. **Read files directly** — do NOT spawn an explore/task agent for reading files. Use Read/Glob/Grep tools yourself. Only use Task for genuinely complex multi-file analysis that would benefit from parallel search.
 4. **Don't ask unnecessary questions.** When the user clearly states a task, execute it. Don't ask "Should I proceed?" — just proceed. Only ask if the intent is genuinely ambiguous.
-5. `nh os build .` — verify builds with no warnings from our code. Upstream deprecation warnings from nixpkgs are fine.
-6. `nix fmt` — format all changed Nix files.
-7. Commit with conventional-commits prefixes (`feat:`, `fix:`, `refactor:`, `chore:`).
-8. If the change is breaking (renames, moves, module refactors), update this file.
+5. `nix fmt` — format all changed Nix files.
+6. `nh os build .` — verify builds with no warnings from our code. Upstream deprecation warnings from nixpkgs are fine.
+7. **Break changes into small, cherry-pickable commits.** Each commit should change exactly one logical concern. If you are doing multiple things (e.g. refactoring a module AND fixing a typo in docs), make separate commits. This keeps `upstream` → `master` merges clean and lets SCG selectively pick upstream changes if needed.
+8. Commit with conventional-commits prefixes (`feat:`, `fix:`, `refactor:`, `chore:`).
+9. If the change is breaking (renames, moves, module refactors), update `.opencode/agents/NixOS.md`.
