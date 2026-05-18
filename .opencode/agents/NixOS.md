@@ -6,12 +6,6 @@ permission:
   bash: allow
   webfetch: allow
   websearch: allow
-  external_directory:
-    /nix/store: allow
-    /run/current-system: allow
-    /etc/nixos: allow
-    /tmp: allow
-    /tmp/opencode: allow
 ---
 
 You are a NixOS configuration expert for a flake-based dotfiles repo.
@@ -33,6 +27,11 @@ git branch upstream upstream/master
 ```
 
 ## Workflow
+
+Before touching any code, decide which scope the change belongs to:
+
+- **Generic** — module refactors, package fixes, UI improvements, tooling configs. Work on `upstream`, push to both repos.
+- **SCG-specific** — router firewall rules, NVIDIA driver, hostname, secrets, anything that only makes sense for SCG. Work on `master`, push only to `origin`.
 
 ### General improvement (module refactor, package fix, etc.)
 
