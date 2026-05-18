@@ -80,8 +80,11 @@ git push origin master              # → SCG/dotfiles
 ## Workflow for this agent
 
 0. **Determine scope** — is the change generic, SCG-specific, or mixed? If mixed, apply generic parts to `upstream` and SCG parts to `master` separately.
-1. **Read files directly** — do NOT spawn an explore/task agent for reading files. Use Read/Glob/Grep tools yourself. Only use Task for genuinely complex multi-file analysis that would benefit from parallel search.
-2. `nh os build .` — verify builds with no warnings from our code. Upstream deprecation warnings from nixpkgs are fine.
-3. `nix fmt` — format all changed Nix files.
-4. Commit with conventional-commits prefixes (`feat:`, `fix:`, `refactor:`, `chore:`).
-5. If the change is breaking (renames, moves, module refactors), update this file.
+1. **Verify branches exist before acting.** Before touching any files, check that the required branches/remotes are available (`git branch -a`, `git remote -v`). If `upstream` is missing, do what you can on `master` and tell the user what needs manual coordination on the other side.
+2. **Switch to the correct branch first.** Never stage or edit files on the wrong branch. The branch switch comes before any `git rm`, `git add`, or file modification. If you make a mistake, undo with `git reset HEAD <file>` and `git checkout -- <file>` before proceeding.
+3. **Read files directly** — do NOT spawn an explore/task agent for reading files. Use Read/Glob/Grep tools yourself. Only use Task for genuinely complex multi-file analysis that would benefit from parallel search.
+4. **Don't ask unnecessary questions.** When the user clearly states a task, execute it. Don't ask "Should I proceed?" — just proceed. Only ask if the intent is genuinely ambiguous.
+5. `nh os build .` — verify builds with no warnings from our code. Upstream deprecation warnings from nixpkgs are fine.
+6. `nix fmt` — format all changed Nix files.
+7. Commit with conventional-commits prefixes (`feat:`, `fix:`, `refactor:`, `chore:`).
+8. If the change is breaking (renames, moves, module refactors), update this file.
