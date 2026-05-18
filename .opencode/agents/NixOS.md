@@ -21,8 +21,10 @@ Two local branches handle this:
 | `master` | `origin master` → `SCG/dotfiles` | SCG config + merged upstream changes |
 | `upstream` | `upstream master` → `apersomany/dotfiles` | General improvements for the template |
 
-On a fresh clone, `master` exists automatically. Recreate `upstream` with:
+On a fresh clone, `master` exists automatically. Set up the upstream remote and local branch with:
 ```
+git remote add upstream https://github.com/apersomany/dotfiles.git
+git fetch upstream
 git branch upstream upstream/master
 ```
 
