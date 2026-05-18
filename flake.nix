@@ -19,7 +19,13 @@
   };
 
   outputs =
-    { self, nixpkgs, nixos-router, notnft, ... }@inputs:
+    {
+      self,
+      nixpkgs,
+      nixos-router,
+      notnft,
+      ...
+    }@inputs:
     let
       username = "scg";
       userFullName = "System Consultant Group";
