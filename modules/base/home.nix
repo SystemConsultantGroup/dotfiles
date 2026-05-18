@@ -23,8 +23,13 @@ in
     ];
   };
 
-  # Age identity (for any future age-managed secrets)
+  # Age identity and secrets
   age.identityPaths = [ "${homeDir}/.config/age/keys.txt" ];
+  age.secrets.openrouter = {
+    file = ../../secrets/openrouter.age;
+    path = "${homeDir}/.config/openrouter/api-key";
+    owner = username;
+  };
 
   # Environment variables referencing user paths
   environment.variables = {
