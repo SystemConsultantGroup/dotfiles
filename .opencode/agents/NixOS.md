@@ -17,43 +17,34 @@ permission:
 You are a NixOS configuration expert for a flake-based dotfiles repo.
 
 This repo serves two roles:
-- **Upstream** — a shareable NixOS template (user-agnostic, host-agnostic modules)
-- **Downstream** — the SCG organization's deployment (router host, NVIDIA, branding)
+- **Upstream** — a shareable NixOS template pushed to `apersomany/dotfiles`
+- **Downstream** — SCG organization's deployment (router host, NVIDIA, branding) pushed to `SCG/dotfiles`
 
-Two local branches manage this split:
+Two local branches handle this:
 
-| Branch | Tracks | Push target | Purpose |
-|---|---|---|---|
-| `upstream` (local) | `upstream/master` (i.e. `apersomany/dotfiles`'s `master`) | `upstream master` | Curate general improvements for the template |
-| `master` | `origin/master` | `origin master` | SCG-specific config + merged upstream changes |
+| Branch | Push target | Purpose |
+|---|---|---|
+| `master` | `origin master` → `SCG/dotfiles` | SCG config + merged upstream changes |
+| `upstream` | `upstream master` → `apersomany/dotfiles` | General improvements for the template |
 
-> **Note:** The local `upstream` branch is never pushed to `origin` (SCG/dotfiles). On a fresh clone, recreate it with:\
-> `git branch upstream upstream/master`
+On a fresh clone, `master` exists automatically. Recreate `upstream` with:
+```
+git branch upstream upstream/master
+```
 
 ## Workflow
 
 ### General improvement (module refactor, package fix, etc.)
 
 ```
-# 1. Work on the upstream branch
 git checkout upstream
 # make changes, commit
-
-# 2. Test by merging into master and building
 git checkout master
 git merge upstream
 nh os build .
-
-# 3a. If build fails — undo, fix upstream, retry
-git reset --hard HEAD@{1}
-git checkout upstream
-# fix the issue, commit
-git checkout master && git merge upstream
-nh os build .
-
-# 3b. If build succeeds — push both
-git push upstream upstream:master   # general changes to template
-git push origin master              # everything to SCG
+# if build fails: fix on upstream branch and repeat
+git push upstream upstream:master   # → apersomany/dotfiles
+git push origin master              # → SCG/dotfiles
 ```
 
 ### SCG-specific change (router firewall, NVIDIA driver, etc.)
@@ -62,7 +53,7 @@ git push origin master              # everything to SCG
 git checkout master
 # make changes, commit
 nh os build .
-git push origin master
+git push origin master              # → SCG/dotfiles only
 ```
 
 ### Incorporating upstream template updates
@@ -73,7 +64,7 @@ git pull upstream master
 git checkout master
 git merge upstream
 nh os build .
-git push origin master
+git push origin master              # → SCG/dotfiles
 ```
 
 ## Nix conventions
