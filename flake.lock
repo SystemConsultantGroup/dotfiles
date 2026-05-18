@@ -124,6 +124,26 @@
         "type": "github"
       }
     },
+    "nixos-router": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1763533732,
+        "narHash": "sha256-iXSBJjxZNrQPHtaPXlwHAk/n5H4L4PID8cRDrD130Fo=",
+        "owner": "chayleaf",
+        "repo": "nixos-router",
+        "rev": "3455070b0aaadfa884c1e31df7aef732c17cf4ac",
+        "type": "github"
+      },
+      "original": {
+        "owner": "chayleaf",
+        "repo": "nixos-router",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1769049916,
@@ -171,12 +191,34 @@
         "type": "github"
       }
     },
+    "notnft": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1742709880,
+        "narHash": "sha256-TLyT/8sbE3XT8WuiXWEcsddPT22YhakGMwlr3jNshyY=",
+        "owner": "chayleaf",
+        "repo": "notnft",
+        "rev": "f827912c850cb66cf489a69078ff55658f59b96f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "chayleaf",
+        "repo": "notnft",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "agenix": "agenix",
         "home-manager": "home-manager_2",
         "kime": "kime",
-        "nixpkgs": "nixpkgs_3"
+        "nixos-router": "nixos-router",
+        "nixpkgs": "nixpkgs_3",
+        "notnft": "notnft"
       }
     },
     "rust-overlay": {
