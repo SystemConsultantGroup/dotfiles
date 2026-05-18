@@ -28,6 +28,8 @@ git fetch upstream
 git branch upstream upstream/master
 ```
 
+If you load and the current branch is `upstream`, that means you're in the SCG fork — swap to `master`.
+
 ## Workflow
 
 Before touching any code, decide which scope the change belongs to:
@@ -97,5 +99,6 @@ When merging `upstream` into `master`, conflicts may arise. Resolve them as foll
 6. `nh os build .` — verify builds with no warnings from our code. Upstream deprecation warnings from nixpkgs are fine.
 7. **Break changes into small, cherry-pickable commits.** Each commit should change exactly one logical concern. If you are doing multiple things (e.g. refactoring a module AND fixing a typo in docs), make separate commits. This keeps `upstream` → `master` merges clean and lets SCG selectively pick upstream changes if needed.
 8. Commit with conventional-commits prefixes (`feat:`, `fix:`, `refactor:`, `chore:`).
-9. **Push to remotes.** For generic changes: `git push upstream upstream:master && git push origin master`. For SCG-specific: `git push origin master`. Push automatically — do not ask for permission.
+9. **Push to remotes — REQUIRED.** Never finish a task without pushing. For generic changes: `git push upstream upstream:master && git push origin master`. For SCG-specific: `git push origin master`. Push automatically — do not ask for permission.
 10. If the change is breaking (renames, moves, module refactors), update `.opencode/agents/NixOS.md`.
+11. **FINAL CHECK — always push.** Before handing control back, confirm you pushed. No exceptions.
