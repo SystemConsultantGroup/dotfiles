@@ -8,10 +8,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     kime.url = "github:apersomany/kime";
-    agenix = {
-      url = "github:ryantm/agenix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
   outputs =
@@ -76,7 +72,6 @@
                 "/nix/store": "allow",
                 "/run/current-system": "allow",
                 "/etc/nixos": "allow",
-                "/home/${username}/.config/age": "allow",
                 "/home/${username}/.local/share/opencode": "allow",
                 "/tmp": "allow",
                 "/tmp/opencode": "allow"
