@@ -1,20 +1,10 @@
 {
   pkgs,
-<<<<<<< HEAD
-=======
-  self,
->>>>>>> f0bb386 (refactor: rebrand to SCG, drop workstation/laptop hosts, keep router as sole host)
   username,
   gitUserName,
   gitUserEmail,
   ...
 }:
-<<<<<<< HEAD
-=======
-let
-  flakeDir = "${self}";
-in
->>>>>>> f0bb386 (refactor: rebrand to SCG, drop workstation/laptop hosts, keep router as sole host)
 {
   home-manager.users.${username} = {
     home.stateVersion = "25.11";
