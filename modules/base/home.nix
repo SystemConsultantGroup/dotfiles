@@ -1,4 +1,12 @@
-{ config, pkgs, self, inputs, username, userFullName, ... }:
+{
+  config,
+  pkgs,
+  self,
+  inputs,
+  username,
+  userFullName,
+  ...
+}:
 let
   homeDir = config.users.users.${username}.home;
   flakeDir = "${self}";
@@ -15,13 +23,8 @@ in
     ];
   };
 
-  # Age identity and secrets
+  # Age identity (for any future age-managed secrets)
   age.identityPaths = [ "${homeDir}/.config/age/keys.txt" ];
-  age.secrets.opencode = {
-    file = ../../secrets/opencode.age;
-    path = "${homeDir}/.local/share/opencode/auth.json";
-    owner = username;
-  };
 
   # Environment variables referencing user paths
   environment.variables = {
