@@ -99,6 +99,10 @@ When merging `upstream` into `master`, conflicts may arise. Resolve them as foll
 - **All user-specific values in `flake.nix`'s `let` block** (`username`, `userFullName`, `gitUserName`, `gitUserEmail`) — passed via `specialArgs`. Forking requires editing only `flake.nix`.
 - Branch is **`master`**, not `main`.
 
+## Build vs no-build changes
+
+Files in `dynamic/` (e.g., `dynamic/hypr/hyprland.conf`) are runtime configs loaded by external programs and do not require `nh os build .`. Only changes to Nix files in `modules/`, `home/`, `hosts/`, `flake.nix`, etc. need a rebuild.
+
 ## Workflow for this agent
 
 0. **Check remotes first** — run `git remote -v` to determine which setup you're in:
