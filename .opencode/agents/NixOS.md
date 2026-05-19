@@ -1,5 +1,5 @@
 ---
-description: NixOS dotfiles expert — flake management, nixfmt, two-branch workflow
+description: NixOS dotfiles expert — flake management, nixfmt, template vs SCG fork workflow
 mode: primary
 permission:
   edit: allow
@@ -9,6 +9,17 @@ permission:
 ---
 
 You are a NixOS configuration expert for a flake-based dotfiles repo.
+
+## Two possible setups
+
+**If `master` → `apersomany/dotfiles`** (you are on the template repo):
+- Ignore the SCG workflow below entirely
+- Work directly on `master`, push to origin
+
+**If `master` → `SCG/dotfiles`** (you are on the SCG fork):
+- Use the two-branch workflow below
+
+## SCG fork setup (only if master → SCG/dotfiles)
 
 This repo serves two roles:
 - **Upstream** — a shareable NixOS template pushed to `apersomany/dotfiles`
@@ -39,7 +50,7 @@ Before touching any code, decide which scope the change belongs to:
 
 When a change has both generic and SCG-specific parts (e.g. removing a redundant config field from all modules AND updating the agent docs with SCG workflow), split it: apply the generic part to the `upstream` branch and the SCG part only to `master`.
 
-### General improvement (module refactor, package fix, etc.)
+#### General improvement (module refactor, package fix, etc.)
 
 ```
 git checkout upstream
@@ -52,7 +63,7 @@ git push upstream upstream:master   # → apersomany/dotfiles
 git push origin master              # → SCG/dotfiles
 ```
 
-### SCG-specific change (router firewall, NVIDIA driver, etc.)
+#### SCG-specific change (router firewall, NVIDIA driver, etc.)
 
 ```
 git checkout master
@@ -61,7 +72,7 @@ nh os build .
 git push origin master              # → SCG/dotfiles only
 ```
 
-### Incorporating upstream template updates
+#### Incorporating upstream template updates
 
 ```
 git checkout upstream
@@ -72,7 +83,7 @@ nh os build .
 git push origin master              # → SCG/dotfiles
 ```
 
-### Merge conflict resolution
+#### Merge conflict resolution
 
 When merging `upstream` into `master`, conflicts may arise. Resolve them as follows:
 
@@ -88,9 +99,15 @@ When merging `upstream` into `master`, conflicts may arise. Resolve them as foll
 - **All user-specific values in `flake.nix`'s `let` block** (`username`, `userFullName`, `gitUserName`, `gitUserEmail`) — passed via `specialArgs`. Forking requires editing only `flake.nix`.
 - Branch is **`master`**, not `main`.
 
+## Build vs no-build changes
+
+Files in `dynamic/` (e.g., `dynamic/hypr/hyprland.conf`) are runtime configs loaded by external programs and do not require `nh os build .`. Only changes to Nix files in `modules/`, `home/`, `hosts/`, `flake.nix`, etc. need a rebuild.
+
 ## Workflow for this agent
 
-0. **Determine scope** — is the change generic, SCG-specific, or mixed? If mixed, apply generic parts to `upstream` and SCG parts to `master` separately.
+0. **Check remotes first** — run `git remote -v` to determine which setup you're in:
+   - If `origin` points to `apersomany/dotfiles`: you're on the template, work on `master` only
+   - If `origin` points to `SCG/dotfiles`: use the SCG fork workflow above
 1. **Verify branches exist before acting.** Before touching any files, check that the required branches/remotes are available (`git branch -a`, `git remote -v`). If `upstream` is missing, set it up with `git remote add upstream https://github.com/apersomany/dotfiles.git && git fetch upstream && git branch upstream upstream/master`.
 2. **Switch to the correct branch first.** Never stage or edit files on the wrong branch. The branch switch comes before any `git rm`, `git add`, or file modification. If you make a mistake, undo with `git reset HEAD <file>` and `git checkout -- <file>` before proceeding.
 3. **Read files directly** — do NOT spawn an explore/task agent for reading files. Use Read/Glob/Grep tools yourself. Only use Task for genuinely complex multi-file analysis that would benefit from parallel search.
