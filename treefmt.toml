@@ -1,0 +1,8 @@
+[treefmt]
+  package = "nixfmt"
+
+[treefmt.settings]
+  exclude = [".git", ".direnv", "result"]
+
+[program.nixfmt]
+  options = "--nix"
