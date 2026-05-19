@@ -66,11 +66,11 @@
         server = ./modules/server;
       };
 
-      formatter.x86_64-linux = pkgs.nixfmt;
+      formatter.x86_64-linux = pkgs.treefmt;
 
       devShells.x86_64-linux.default = pkgs.mkShell {
         packages = with pkgs; [
-          nixfmt
+          treefmt
           nil
           nixd
           statix
