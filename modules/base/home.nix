@@ -9,7 +9,8 @@
 }:
 let
   homeDir = config.users.users.${username}.home;
-  dotfiles = "${self}";
+  # Use home directory path instead of store path for runtime access
+  dotfiles = "${homeDir}/dotfiles";
 in
 {
   # System-level user definition
