@@ -102,6 +102,7 @@ in
         fi
       '';
       AmbientCapabilities = [ "CAP_NET_RAW" ];
+      StartLimitIntervalSec = 0;
     };
   };
 
