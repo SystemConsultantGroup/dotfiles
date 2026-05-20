@@ -85,6 +85,36 @@ in
     };
   };
 
+  # ARP cache warming: fping sweep of all DHCP-leased IPs every second.
+  # Resolves a client logic bug where ARP entries go stale after router reboot.
+  systemd.services.fping-lease-sweep = {
+    description = "fping sweep of DHCP leased IPs to warm ARP cache";
+    after = [ "kea-dhcp4-server-enp5s0.service" ];
+    requires = [ "kea-dhcp4-server-enp5s0.service" ];
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = pkgs.writeShellScript "fping-lease-sweep" ''
+        leasefile="/var/lib/private/kea/dhcp4-enp5s0.leases"
+        if [ -s "$leasefile" ]; then
+          ${pkgs.gawk}/bin/awk -F, '!/^#/ && NF > 1 {print $1}' "$leasefile" \
+            | ${pkgs.findutils}/bin/xargs -r \
+                ${pkgs.fping}/bin/fping -c 1 -t 500 -q 2>/dev/null || true
+        fi
+      '';
+      AmbientCapabilities = [ "CAP_NET_RAW" ];
+    };
+  };
+
+  systemd.timers.fping-lease-sweep = {
+    description = "Run fping sweep of DHCP leased IPs every 1s";
+    wantedBy = [ "timers.target" ];
+    timerConfig = {
+      OnBootSec = "15s";
+      OnUnitActiveSec = "1s";
+      AccuracySec = "500ms";
+    };
+  };
+
   router.enable = true;
 
   router.interfaces.enp0s25 = {
