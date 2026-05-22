@@ -91,10 +91,10 @@ hl.bind("SUPER + SHIFT + UP",    hl.dsp.window.move({ direction = "up" }))
 hl.bind("SUPER + SHIFT + DOWN",  hl.dsp.window.move({ direction = "down" }))
 
 -- Resize window (Super + Ctrl + Arrow)
-hl.bind("SUPER + CTRL + LEFT",  hl.dsp.window.resize({ width = -20 }),   { repeating = true })
-hl.bind("SUPER + CTRL + RIGHT", hl.dsp.window.resize({ width = 20 }),    { repeating = true })
-hl.bind("SUPER + CTRL + UP",    hl.dsp.window.resize({ height = -20 }),  { repeating = true })
-hl.bind("SUPER + CTRL + DOWN",  hl.dsp.window.resize({ height = 20 }),   { repeating = true })
+hl.bind("SUPER + CTRL + LEFT",  hl.dsp.window.resize({ x = -20, y = 0 }),   { repeating = true })
+hl.bind("SUPER + CTRL + RIGHT", hl.dsp.window.resize({ x = 20, y = 0 }),    { repeating = true })
+hl.bind("SUPER + CTRL + UP",    hl.dsp.window.resize({ x = 0, y = -20 }),   { repeating = true })
+hl.bind("SUPER + CTRL + DOWN",  hl.dsp.window.resize({ x = 0, y = 20 }),    { repeating = true })
 
 -- Workspaces 1-5
 for i = 1, 5 do
