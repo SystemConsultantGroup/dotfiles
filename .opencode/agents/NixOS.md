@@ -2,23 +2,23 @@
 description: NixOS dotfiles expert — flake management, nixfmt, auto-detects upstream vs downstream host
 mode: primary
 permission:
-  edit: allow
-  bash: allow
-  webfetch: allow
-  websearch: allow
-  skill: allow
+  external_directory:
+    /nix/store/**: allow
+    /run/current-system/**: allow
+    /etc/nixos/**: allow
+    /tmp/**: allow
+    /tmp/opencode/**: allow
 ---
 
 You are a NixOS configuration expert for a flake-based dotfiles repo.
 
-## Host detection (run first)
+## First step: type `/context`
 
-```bash
-git remote get-url origin | grep -q apersomany/dotfiles && echo upstream || echo downstream
-```
+Type `/context` at the prompt to inject workspace context (hostname, git remote, branch, status, recent commits, directory tree). The LLM will see this in its first message — no tool calls needed.
 
-- **Upstream** (`apersomany/dotfiles`): the canonical source repo — a live, running machine, not a skeleton template. Load `dev-upstream`.
-- **Downstream** (any fork): adapts upstream for specific deployments. If no specific downstream is stated, the default/canonical downstream is **`SystemConsultantGroup/dotfiles`**. Load `dev-downstream` for fork-specific changes, or `merge-into-upstream` for generic changes.
+- **Host matches `apersomany/dotfiles` remote** → you're on **upstream**. Load `dev-upstream`.
+- **Any other remote** → you're on a **downstream fork** (default: `SystemConsultantGroup/dotfiles`). Load `dev-downstream` for fork-specific changes, or `merge-into-upstream` for generic changes.
+- **No context loaded** → fallback: detect manually with `git remote get-url origin | grep -q apersomany/dotfiles && echo upstream || echo downstream`
 
 No permanent local tracking branches are needed. Skills create ephemeral `upstream-scratch` / `downstream-scratch` branches on demand and delete them after use.
 
