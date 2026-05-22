@@ -1,9 +1,11 @@
 ---
 name: dev-downstream
-description: Downstream fork host — make fork-specific changes (router, firewall, NVIDIA, branding, secrets) that never leave the fork
+description: Downstream fork host — make fork-specific changes (router, firewall, NVIDIA, branding, secrets) that stay on the fork
 ---
 
-Make fork-specific changes on a downstream host. For generic changes that should go upstream, use `merge-into-upstream` instead.
+Make fork-specific changes on a downstream host. Works directly on `master` — no scratch branches needed.
+
+For generic changes that should go upstream, use `merge-into-upstream` instead. For pulling external upstream changes, use `merge-from-upstream`.
 
 ## Decision: fork-specific or generic?
 
@@ -29,10 +31,3 @@ If Hyprland Lua was changed, validate first:
 ```bash
 Hyprland --verify-config -c dynamic/hypr/hyprland.lua
 ```
-
----
-
-## Notes
-
-- Never reference fork-specific paths or values when working on generic changes. Fork-specific code stays on `master` only.
-- For pulling upstream changes someone else made into your fork, use `merge-from-upstream`.
