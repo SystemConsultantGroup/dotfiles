@@ -1,4 +1,7 @@
-# Merge Into Downstream
+---
+name: merge-into-downstream
+description: Merge upstream template commits (apersomany/dotfiles) into the SCG downstream (SCG/dotfiles)
+---
 
 Merge upstream template commits (`apersomany/dotfiles`) into the SCG downstream (`SCG/dotfiles`).
 
