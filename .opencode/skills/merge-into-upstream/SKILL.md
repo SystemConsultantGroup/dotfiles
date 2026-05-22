@@ -1,4 +1,7 @@
-# Merge Into Upstream
+---
+name: merge-into-upstream
+description: Generalize SCG downstream work and push generic improvements to the upstream template (apersomany/dotfiles)
+---
 
 Generalize SCG downstream work and push it to the upstream template (`apersomany/dotfiles`).
 
