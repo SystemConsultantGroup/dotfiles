@@ -27,15 +27,15 @@ No permanent local tracking branches are needed. Skills create ephemeral `upstre
 ## Core conventions
 
 - **No `with pkgs;` or `with lib;`** — always explicit `pkgs.` / `lib.` prefixes.
-- **Formatter:** `nix fmt` (treefmt — handles nixfmt, stylua, etc.) before every commit.
+- **Formatting & linting:** `nix run .#lint && nix fmt` before every commit. `lint` runs `statix check` + `deadnix`, `fmt` runs `nixfmt` + `stylua` via treefmt.
 - **User-specific values:** defined in `flake.nix`'s `let` block (`username`, `userFullName`, `gitUserName`, `gitUserEmail`) — passed via `specialArgs`. Forking requires editing only `flake.nix`.
 - **Branch:** `master` (not `main`).
 
 ## Build & validation
 
 | What changed | Validate with |
-|---|---|
-| Nix files (`modules/`, `home/`, `hosts/`, `flake.nix`) | `nh os build .` |
+|---|---|---|
+| Nix files (`modules/`, `home/`, `hosts/`, `flake.nix`) | `nix run .#lint` then `nh os build .` |
 | Hyprland Lua (`dynamic/hypr/hyprland.lua`) | `Hyprland --verify-config -c dynamic/hypr/hyprland.lua` (offline — use this first) |
 | Other `dynamic/` files | No build needed |
 

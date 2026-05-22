@@ -50,6 +50,7 @@ nh os build .
 ### 5. Format and commit
 
 ```bash
+nix run .#lint
 nix fmt
 git add -A
 git commit -m "refactor: pull <description> from <downstream>"
