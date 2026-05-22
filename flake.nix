@@ -76,8 +76,8 @@
           deadnix
         ];
         text = ''
-          statix check .
-          deadnix .
+          statix check --fail .
+          deadnix --fail .
         '';
       };
 
