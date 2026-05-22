@@ -2,6 +2,7 @@
 hl.env("MOZ_ENABLE_WAYLAND", "1")
 hl.env("GDK_DPI_SCALE", "1")
 hl.env("QT_QPA_PLATFORM", "wayland;xcb")
+hl.env("QT_SCALE_FACTOR", "1")
 
 hl.env("XCURSOR_THEME", "Bibata-Modern-Ice")
 hl.env("XCURSOR_SIZE", "24")
@@ -112,10 +113,4 @@ end
 hl.window_rule({
   match = { class = "xdg-desktop-portal-gtk" },
   max_size = { 10000, 600 },
-})
-hl.config({
-  windowrulev2 = {
-    "float, class:^(flameshot)$",
-    "nomaxsize, class:^(flameshot)$",
-  },
 })
