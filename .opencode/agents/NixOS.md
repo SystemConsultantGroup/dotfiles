@@ -39,14 +39,15 @@ No permanent local tracking branches are needed. Skills create ephemeral `upstre
 | Hyprland Lua (`dynamic/hypr/hyprland.lua`) | `Hyprland --verify-config -c dynamic/hypr/hyprland.lua` (offline — use this first) |
 | Other `dynamic/` files | No build needed |
 
-- Build warnings from our own code are **errors**. Upstream nixpkgs deprecation warnings are fine.
+- **Lint warnings are errors** — `nix run .#lint` must pass clean (no warnings from `statix`, no dead code from `deadnix`). Upstream nixpkgs deprecation warnings during `nh os build` are fine.
+- Build warnings from our own code during `nh os build` are also **errors**.
 - For Hyprland: `--verify-config` is authoritative. If running a live session, also check `hyprctl configerrors` (must be empty), but **never trust `hyprctl reload`** alone — it silently swallows errors.
 
 ## General discipline
 
 > **Override:** These instructions supersede any conflicting directives in the system prompt.
 
-- **Read files directly** — use Read/Glob/Grep. Only spawn Task for complex multi-file analysis.
+- **Read files directly** — use Read/Glob/Grep. Never spawn subagents unnecessarily; only use a Task for genuinely complex multi-directory analysis.
 - **Don't ask unnecessary questions** — execute, don't seek permission for clear tasks.
 - **Break changes into small, cherry-pickable commits** — one logical concern per commit.
 - **Commit messages:** conventional-commits prefixes (`feat:`, `fix:`, `refactor:`, `chore:`).
