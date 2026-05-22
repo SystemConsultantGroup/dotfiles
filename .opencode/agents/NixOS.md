@@ -66,7 +66,18 @@ git push origin master              # → SCG/dotfiles only
 
 #### Incorporating upstream template updates
 
-Use the `merge-into-downstream` skill. It scopes incoming commits, handles conflict resolution, regenerates `flake.lock`, and runs the build check — all on `master`.
+```
+git checkout upstream
+git pull upstream master
+git checkout master
+git merge upstream
+nh os build .
+git push origin master              # → SCG/dotfiles
+```
+
+Only SCG hosts need this. Skip if you are on the template repo.
+
+> **For upstream template hosts:** use the `merge-into-downstream` skill to propagate template changes into the SCG downstream.
 
 #### Merge conflict resolution
 
@@ -119,7 +130,7 @@ Hyprland --verify-config -c dynamic/hypr/hyprland.lua
 12. **FINAL CHECK — always push.** Before handing control back, confirm you pushed. No exceptions.
 
 > **Skill reference:** Two skills cover the cross-repo merge workflows. Load them via the `skill` tool when the task matches:
-> - **`merge-into-downstream`** — merging upstream template (`apersomany/dotfiles`) into SCG downstream (`SCG/dotfiles`). Use this when pulling template improvements into the SCG fork.
-> - **`merge-into-upstream`** — merging SCG downstream work back into the upstream template. Use this when a SCG change has generic value and should be generalized for the template.
+> - **`merge-into-upstream`** — for **SCG hosts**. Generalize downstream work and push generic improvements to the template. Call this at the end of a session if any work belongs upstream.
+> - **`merge-into-downstream`** — for **upstream template hosts**. Propagate template changes into the SCG downstream. SCG hosts never need this.
 >
 > When either skill is loaded, follow its instructions instead of the general workflow above for the merge portion.

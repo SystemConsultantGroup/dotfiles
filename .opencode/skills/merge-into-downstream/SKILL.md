@@ -1,9 +1,11 @@
 ---
 name: merge-into-downstream
-description: Merge upstream template commits (apersomany/dotfiles) into the SCG downstream (SCG/dotfiles)
+description: For upstream template hosts — propagate template changes (apersomany/dotfiles) into the SCG downstream (SCG/dotfiles)
 ---
 
 Merge upstream template commits (`apersomany/dotfiles`) into the SCG downstream (`SCG/dotfiles`).
+
+> **Intended for:** upstream template hosts (`apersomany/dotfiles`). SCG hosts never need this — they pull upstream updates with a simple `git merge upstream`.
 
 Use this when you've been working on the upstream template repo (or upstream has received new commits) and need to bring those improvements into the SCG fork.
 
