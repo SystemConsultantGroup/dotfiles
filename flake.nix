@@ -69,18 +69,6 @@
         '';
       };
 
-      packages.x86_64-linux.lint = pkgs.writeShellApplication {
-        name = "lint";
-        runtimeInputs = with pkgs; [
-          statix
-          deadnix
-        ];
-        text = ''
-          statix check --fail .
-          deadnix --fail .
-        '';
-      };
-
       devShells.x86_64-linux.default = pkgs.mkShell {
         packages = with pkgs; [
           statix
