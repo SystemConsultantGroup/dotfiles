@@ -6,6 +6,7 @@ permission:
   bash: allow
   webfetch: allow
   websearch: allow
+  skill: allow
 ---
 
 You are a NixOS configuration expert for a flake-based dotfiles repo.
@@ -133,4 +134,8 @@ Hyprland --verify-config -c dynamic/hypr/hyprland.lua
 11. If the change is breaking (renames, moves, module refactors), update `.opencode/agents/NixOS.md`.
 12. **FINAL CHECK — always push.** Before handing control back, confirm you pushed. No exceptions.
 
-> **Skill reference:** If a skill named `scg-downstream-merge` is loaded (via the `skill` tool) and the task involves merging upstream template commits into the SCG downstream, follow its instructions instead of the general workflow above for the merge portion.
+> **Skill reference:** Two skills cover the cross-repo merge workflows. Load them via the `skill` tool when the task matches:
+> - **`merge-into-downstream`** — merging upstream template (`apersomany/dotfiles`) into SCG downstream (`SCG/dotfiles`). Use this when pulling template improvements into the SCG fork.
+> - **`merge-into-upstream`** — merging SCG downstream work back into the upstream template. Use this when a SCG change has generic value and should be generalized for the template.
+>
+> When either skill is loaded, follow its instructions instead of the general workflow above for the merge portion.
