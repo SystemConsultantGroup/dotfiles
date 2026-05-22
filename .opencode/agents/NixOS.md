@@ -53,16 +53,7 @@ When a change has both generic and SCG-specific parts (e.g. removing a redundant
 
 #### General improvement (module refactor, package fix, etc.)
 
-```
-git checkout upstream
-# make changes, commit
-git checkout master
-git merge upstream
-nh os build .
-# if build fails: fix on upstream branch and repeat
-git push upstream upstream:master   # → apersomany/dotfiles
-git push origin master              # → SCG/dotfiles
-```
+Work directly on the `upstream` branch — make changes, commit. Then use the `merge-into-upstream` skill to handle the merge-back into `master` and push to both repos. The skill covers formatting, build verification, and stripping any accidental SCG-specific content.
 
 #### SCG-specific change (router firewall, NVIDIA driver, etc.)
 
@@ -75,14 +66,7 @@ git push origin master              # → SCG/dotfiles only
 
 #### Incorporating upstream template updates
 
-```
-git checkout upstream
-git pull upstream master
-git checkout master
-git merge upstream
-nh os build .
-git push origin master              # → SCG/dotfiles
-```
+Use the `merge-into-downstream` skill. It scopes incoming commits, handles conflict resolution, regenerates `flake.lock`, and runs the build check — all on `master`.
 
 #### Merge conflict resolution
 
@@ -130,7 +114,7 @@ Hyprland --verify-config -c dynamic/hypr/hyprland.lua
 7. If `dynamic/hypr/hyprland.lua` was changed: run `hyprctl reload && hyprctl configerrors` — verify empty output (no config errors). See **Hyprland Lua config validation** above.
 8. **Break changes into small, cherry-pickable commits.** Each commit should change exactly one logical concern. If you are doing multiple things (e.g. refactoring a module AND fixing a typo in docs), make separate commits. This keeps `upstream` → `master` merges clean and lets SCG selectively pick upstream changes if needed.
 9. Commit with conventional-commits prefixes (`feat:`, `fix:`, `refactor:`, `chore:`).
-10. **Push to remotes — REQUIRED.** Never finish a task without pushing. For generic changes: `git push upstream upstream:master && git push origin master`. For SCG-specific: `git push origin master`. Push automatically — do not ask for permission.
+10. **Push to remotes — REQUIRED.** Never finish a task without pushing. For SCG-specific changes on `master`: `git push origin master`. For generic changes, the merge skills handle pushing — but verify it happened. Push automatically — do not ask for permission.
 11. If the change is breaking (renames, moves, module refactors), update `.opencode/agents/NixOS.md`.
 12. **FINAL CHECK — always push.** Before handing control back, confirm you pushed. No exceptions.
 
