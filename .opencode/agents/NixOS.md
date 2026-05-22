@@ -41,7 +41,7 @@ git branch upstream upstream/master
 
 If you load and the current branch is `upstream`, that means you're in the SCG fork — swap to `master`.
 
-### Workflow for SCG fork
+## Workflow
 
 Before touching any code, decide which scope the change belongs to:
 
@@ -129,6 +129,6 @@ Hyprland --verify-config -c dynamic/hypr/hyprland.lua
 7. If `dynamic/hypr/hyprland.lua` was changed: run `hyprctl reload && hyprctl configerrors` — verify empty output (no config errors). See **Hyprland Lua config validation** above.
 8. **Break changes into small, cherry-pickable commits.** Each commit should change exactly one logical concern. If you are doing multiple things (e.g. refactoring a module AND fixing a typo in docs), make separate commits. This keeps `upstream` → `master` merges clean and lets SCG selectively pick upstream changes if needed.
 9. Commit with conventional-commits prefixes (`feat:`, `fix:`, `refactor:`, `chore:`).
-10. **Push to remotes — REQUIRED.** Never finish a task without pushing. Push to the appropriate remote(s) based on your setup. Push automatically — do not ask for permission.
+10. **Push to remotes — REQUIRED.** Never finish a task without pushing. For generic changes: `git push upstream upstream:master && git push origin master`. For SCG-specific: `git push origin master`. Push automatically — do not ask for permission.
 11. If the change is breaking (renames, moves, module refactors), update `.opencode/agents/NixOS.md`.
 12. **FINAL CHECK — always push.** Before handing control back, confirm you pushed. No exceptions.
