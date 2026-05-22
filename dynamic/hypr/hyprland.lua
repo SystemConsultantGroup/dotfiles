@@ -31,6 +31,7 @@ hl.config({
     gaps_in = 8,
     gaps_out = 16,
     border_size = 2,
+    resize_on_border = true,
     col = {
       active_border = "rgb(dddddd)",
       inactive_border = "rgb(444444)",
@@ -77,10 +78,6 @@ hl.bind("SUPER + P",           hl.dsp.exec_cmd("pavucontrol"))
 -- Brightness
 hl.bind("XF86MonBrightnessUp",   hl.dsp.exec_cmd("brightnessctl set 5%+"),   { repeating = true })
 hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl set 5%-"),   { repeating = true })
-
--- Mouse: drag floating windows (Super + left click), resize (Super + right click)
-hl.bind("SUPER + mouse:272", hl.dsp.window.drag(),   { mouse = true })
-hl.bind("SUPER + mouse:273", hl.dsp.window.resize(), { mouse = true })
 
 -- Focus (Super + Arrow)
 hl.bind("SUPER + LEFT",   hl.dsp.focus({ direction = "left" }))
