@@ -113,7 +113,7 @@ Entering the repo (with `direnv`) or running `nix develop` gives you:
 ## Keybindings
 
 | Shortcut | Action |
-|---|---|
+|---|---|---|
 | Super + Enter | Alacritty terminal |
 | Super + R | Rofi app launcher |
 | Super + = | Rofi calculator |
@@ -126,6 +126,10 @@ Entering the repo (with `direnv`) or running `nix develop` gives you:
 | Super + Shift + arrows | Move window |
 | Super + Ctrl + arrows | Resize window |
 | Alt + Enter | Toggle fullscreen |
+| Super + left click | Drag floating window |
+| Super + right click | Resize window |
+| Brightness Up | Increase brightness (5%) |
+| Brightness Down | Decrease brightness (5%) |
 
 See `dynamic/hypr/hyprland.lua` for the complete bindings.
 
