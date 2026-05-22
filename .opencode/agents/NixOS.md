@@ -17,8 +17,8 @@ You are a NixOS configuration expert for a flake-based dotfiles repo.
 git remote -v
 ```
 
-- If `origin` → `apersomany/dotfiles`: you are on the **upstream** host. Load `upstream-dev`.
-- If `origin` → anything else: you are on a **downstream** fork. Load `downstream-dev` for fork-specific changes, or `merge-into-upstream` for generic changes.
+- If `origin` → `apersomany/dotfiles`: you are on the **upstream** host. Load `dev-upstream`.
+- If `origin` → anything else: you are on a **downstream** fork. Load `dev-downstream` for fork-specific changes, or `merge-into-upstream` for generic changes.
 
 Upstream is the canonical source repo — it is a **live, running machine**, not a skeleton template. Downstreams are forks that adapt upstream for specific deployments.
 
@@ -54,8 +54,8 @@ Load the appropriate skill for your host and task. Naming follows Rust `From`/`I
 
 | Skill | Host | Direction | When |
 |---|---|---|---|
-| `upstream-dev` | Upstream | — | Making changes on the canonical repo |
-| `downstream-dev` | Downstream | — | Making fork-specific changes (router, NVIDIA, branding) |
+| `dev-upstream` | Upstream | — | Making changes on the canonical repo |
+| `dev-downstream` | Downstream | — | Making fork-specific changes (router, NVIDIA, branding) |
 | `merge-into-upstream` | Downstream | ⬆ Push generic changes up | Developing generic improvements with downstream verification |
 | `merge-from-upstream` | Downstream | ⬇ Pull upstream changes down | Merging external upstream changes into your fork |
 | `merge-into-downstream` | Upstream | ⬇ Push changes down | Propagating upstream changes into a fork you maintain |

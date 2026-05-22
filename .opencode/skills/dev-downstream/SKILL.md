@@ -1,5 +1,5 @@
 ---
-name: downstream-dev
+name: dev-downstream
 description: Downstream fork host — make fork-specific changes (router, firewall, NVIDIA, branding, secrets) that never leave the fork
 ---
 
