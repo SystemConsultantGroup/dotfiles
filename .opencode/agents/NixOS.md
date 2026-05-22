@@ -87,9 +87,9 @@ git push origin master              # → SCG/dotfiles
 
 When merging `upstream` into `master`, conflicts may arise. Resolve them as follows:
 
-- **SCG-specific files** (`hosts/router/`, `hosts/woodstock/`, `secrets/`) → preserve the SCG (`master`) version.
+- **SCG-specific files** (`hosts/router/`) → preserve the SCG (`master`) version.
 - **Generic files** (`modules/`, `home/`, `lib/`, `flake.nix`) → favor the upstream version, then re-apply any SCG customizations on top.
-- **Hybrid files** (files with both generic and SCG sections, e.g. `hosts/woodstock/configuration.nix` which imports from both `modules/` and SCG-specific config) → manually merge, keeping SCG-only blocks intact while accepting upstream improvements to the generic portions.
+- **Hybrid files** (files with both generic and SCG sections, e.g. `hosts/router/configuration.nix` which imports from both `modules/` and SCG-specific config) → manually merge, keeping SCG-only blocks intact while accepting upstream improvements to the generic portions.
 - When in doubt, resolve in favor of upstream for generic code paths and SCG for host-specific code paths.
 
 ## Nix conventions
