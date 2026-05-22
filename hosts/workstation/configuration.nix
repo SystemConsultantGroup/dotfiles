@@ -22,9 +22,11 @@
     enableImageGen = true;
     lemonade.user = username;
   };
-  boot.kernelPackages = pkgs.linuxPackages_latest;
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
+  boot = {
+    kernelPackages = pkgs.linuxPackages_latest;
+    loader.systemd-boot.enable = true;
+    loader.efi.canTouchEfiVariables = true;
+  };
   time.timeZone = "Asia/Seoul";
   system.stateVersion = "25.11";
 }

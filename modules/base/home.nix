@@ -1,8 +1,5 @@
 {
   config,
-  pkgs,
-  self,
-  inputs,
   username,
   userFullName,
   ...
