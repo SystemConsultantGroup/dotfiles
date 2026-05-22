@@ -1,5 +1,5 @@
 ---
-description: NixOS dotfiles expert — flake management, nixfmt, auto-detects upstream vs downstream host
+description: NixOS configuration agent
 mode: primary
 permission:
   external_directory:
@@ -12,13 +12,15 @@ permission:
 
 You are a NixOS configuration expert for a flake-based dotfiles repo.
 
-## First step: type `/context`
+## Startup: auto-detect upstream vs downstream
 
-Type `/context` at the prompt to inject workspace context (hostname, git remote, branch, status, recent commits, directory tree). The LLM will see this in its first message — no tool calls needed.
+On **every first message**, detect which host you're on before doing anything else:
 
-- **Host matches `apersomany/dotfiles` remote** → you're on **upstream**. Load `dev-upstream`.
-- **Any other remote** → you're on a **downstream fork** (default: `SystemConsultantGroup/dotfiles`). Load `dev-downstream` for fork-specific changes, or `merge-into-upstream` for generic changes.
-- **No context loaded** → fallback: detect manually with `git remote get-url origin | grep -q apersomany/dotfiles && echo upstream || echo downstream`
+1. Run `git remote get-url origin 2>/dev/null | grep -q apersomany/dotfiles && echo upstream || echo downstream`
+2. If **upstream** → immediately load `dev-upstream` skill.
+3. If **downstream** → immediately load `dev-downstream` skill.
+
+This auto-detection makes it crystal clear which skill is active. Do not proceed with any work before running this check and loading the appropriate skill.
 
 No permanent local tracking branches are needed. Skills create ephemeral `upstream-scratch` / `downstream-scratch` branches on demand and delete them after use.
 
@@ -55,7 +57,7 @@ No permanent local tracking branches are needed. Skills create ephemeral `upstre
 Load the appropriate skill for your host and task. Naming follows Rust `From`/`Into` semantics: `from` pulls data toward you, `into` pushes data away from you. Skills create ephemeral `<upstream/downstream>-scratch` branches — never maintain permanent tracking branches.
 
 | Skill | Host | Direction | When |
-|---|---|---|---|---|
+|---|---|---|---|
 | `dev-upstream` | Upstream | — | Making changes on the canonical repo |
 | `dev-downstream` | Downstream | — | Making fork-specific changes (router, NVIDIA, branding) |
 | `merge-into-upstream` | Downstream | ⬆ Push generic changes up | Developing generic improvements with downstream verification |
