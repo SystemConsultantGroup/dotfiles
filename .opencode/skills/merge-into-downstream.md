@@ -1,15 +1,15 @@
-# SCG Downstream Merge
+# Merge Into Downstream
 
-Merge relevant upstream template commits into the SCG downstream.
+Merge upstream template commits (`apersomany/dotfiles`) into the SCG downstream (`SCG/dotfiles`).
 
-Use this when you've been working on the upstream (`apersomany/dotfiles`) repo and now need to selectively bring those improvements into the SCG downstream (`SCG/dotfiles`).
+Use this when you've been working on the upstream template repo (or upstream has received new commits) and need to bring those improvements into the SCG fork.
 
 ## Prerequisites
 
 Already set up in SCG fork mode:
 - `origin` → `SCG/dotfiles` (downstream)
 - `upstream` → `apersomany/dotfiles` (template)
-- `upstream` branch tracking `upstream/master`
+- Local `upstream` branch tracking `upstream/master`
 
 If not, run:
 ```bash
@@ -27,6 +27,8 @@ git branch upstream upstream/master
 # See what upstream has that SCG doesn't
 git log --oneline --no-merges origin/master..upstream/master
 ```
+
+Review the list to understand what's coming. This helps anticipate conflicts.
 
 ### 2. Merge upstream into downstream
 
@@ -57,7 +59,7 @@ Common conflict patterns:
 
 ```bash
 # If flake.lock had conflicts:
-nix flake lock --update-input nix-amd-ai  # if applicable
+nix flake lock
 ```
 
 ### 5. Stage & commit
