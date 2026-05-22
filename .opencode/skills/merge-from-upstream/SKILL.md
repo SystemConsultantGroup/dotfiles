@@ -1,11 +1,11 @@
 ---
-name: downstream-merge
-description: For downstream fork hosts — merge upstream changes someone else made into your fork
+name: merge-from-upstream
+description: Downstream fork host — pull upstream changes someone else made into your fork. Simple merge workflow, works for anyone.
 ---
 
-Pull upstream commits that were made by someone else (or by you from the upstream host) into your downstream fork.
+Pull upstream commits (made by someone else, or by you from the upstream host) **from** upstream into your downstream fork.
 
-> This is for **external** upstream changes — commits you did not author in this session. For changes you are making yourself, use `downstream-dev` instead.
+> For changes you are authoring yourself, use `merge-into-upstream`. For fork-specific changes, use `downstream-dev`.
 
 ## Prerequisite
 
@@ -23,8 +23,6 @@ git branch upstream upstream/master
 ```bash
 git log --oneline --no-merges origin/master..upstream/master
 ```
-
-Understand the scope to anticipate conflicts.
 
 ### 2. Pull latest upstream
 
@@ -48,26 +46,16 @@ git merge --no-commit upstream      # stage, don't commit
 | **Fork-specific** (`hosts/<fork-name>/`, fork-specific flake inputs) | Keep `master` version |
 | **Generic** (`modules/`, `home/`, `lib/`) | Favor upstream, then re-apply fork customizations |
 | **Hybrid** (`flake.nix`) | Manual merge: keep fork-only blocks, accept upstream improvements |
-| **`flake.lock`** | Take upstream version as base, then `nix flake lock` |
+| **`flake.lock`** | Take upstream version, then `nix flake lock` |
 
-If `flake.lock` had conflicts:
 ```bash
-git checkout --theirs flake.lock
-nix flake lock
-git add flake.lock
+git checkout --theirs flake.lock && nix flake lock && git add flake.lock
 ```
 
 ### 5. Build
 
 ```bash
 nh os build .
-```
-
-If the build fails, fix the issues, stage them, then:
-```bash
-git merge --continue              # if still in merge state
-# or
-git commit -m "chore: merge upstream into downstream"
 ```
 
 ### 6. Commit and push
@@ -81,13 +69,11 @@ git push origin master
 
 ## Selective (cherry-pick) variant
 
-If you only want specific upstream commits rather than everything:
-
 ```bash
 git checkout master
 git pull origin master
 git cherry-pick <hash1> <hash2> ...
-# resolve conflicts per the table above
+# resolve conflicts per table above
 nh os build .
 git push origin master
 ```
@@ -97,7 +83,6 @@ git push origin master
 ## Recovery
 
 ```bash
-git merge --abort              # undo an in-progress merge
-git merge --continue           # resume after fixing conflicts
-git reset --hard ORIG_HEAD     # undo a committed merge (before pushing)
+git merge --abort              # undo staged merge
+git reset --hard ORIG_HEAD     # undo committed merge (before pushing)
 ```
