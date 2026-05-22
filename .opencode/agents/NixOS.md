@@ -27,7 +27,7 @@ No permanent local tracking branches are needed. Skills create ephemeral `upstre
 ## Core conventions
 
 - **No `with pkgs;` or `with lib;`** — always explicit `pkgs.` / `lib.` prefixes.
-- **Formatting & linting:** `nix run .#lint && nix fmt` before every commit. `lint` runs `statix check` + `deadnix`, `fmt` runs `nixfmt` + `stylua` via treefmt.
+- **Formatting & linting:** `statix check . && deadnix . && nix fmt` before every commit. `statix` checks for antipatterns, `deadnix` finds unused bindings, `fmt` runs `nixfmt` + `stylua` via treefmt. All are available from the devshell.
 - **User-specific values:** defined in `flake.nix`'s `let` block (`username`, `userFullName`, `gitUserName`, `gitUserEmail`) — passed via `specialArgs`. Forking requires editing only `flake.nix`.
 - **Branch:** `master` (not `main`).
 
@@ -35,11 +35,11 @@ No permanent local tracking branches are needed. Skills create ephemeral `upstre
 
 | What changed | Validate with |
 |---|---|---|
-| Nix files (`modules/`, `home/`, `hosts/`, `flake.nix`) | `nix run .#lint` then `nh os build .` |
+| Nix files (`modules/`, `home/`, `hosts/`, `flake.nix`) | `statix check . && deadnix .` then `nh os build .` |
 | Hyprland Lua (`dynamic/hypr/hyprland.lua`) | `Hyprland --verify-config -c dynamic/hypr/hyprland.lua` (offline — use this first) |
 | Other `dynamic/` files | No build needed |
 
-- **Lint warnings are errors** — `nix run .#lint` must pass clean (no warnings from `statix`, no dead code from `deadnix`). Upstream nixpkgs deprecation warnings during `nh os build` are fine.
+- **Lint warnings are errors** — `statix check . && deadnix .` must pass clean (no warnings from `statix`, no dead code from `deadnix`). Upstream nixpkgs deprecation warnings during `nh os build` are fine.
 - Build warnings from our own code during `nh os build` are also **errors**.
 - For Hyprland: `--verify-config` is authoritative. If running a live session, also check `hyprctl configerrors` (must be empty), but **never trust `hyprctl reload`** alone — it silently swallows errors.
 

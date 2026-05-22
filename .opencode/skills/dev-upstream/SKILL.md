@@ -10,7 +10,7 @@ Make changes on the upstream host. Simple, linear — works directly on `master`
 ```bash
 # make changes on master
 nh os build .
-nix run .#lint
+statix check . && deadnix .
 nix fmt
 git add -A
 git commit -m "<type>: <description>"

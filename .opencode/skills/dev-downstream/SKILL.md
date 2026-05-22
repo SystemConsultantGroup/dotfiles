@@ -21,7 +21,7 @@ For generic changes that should go upstream, use `merge-into-upstream` instead. 
 git checkout master
 # make fork-specific changes
 nh os build .
-nix run .#lint
+statix check . && deadnix .
 nix fmt
 git add -A
 git commit -m "fix: <conventional-commit message>"

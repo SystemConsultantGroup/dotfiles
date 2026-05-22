@@ -83,7 +83,7 @@ git commit -m "chore: merge upstream: <brief description>"
 
 ```bash
 git checkout upstream-scratch
-nix run .#lint
+statix check . && deadnix .
 nix fmt
 git add -A
 git commit -m "fix: <conventional-commit message>"
