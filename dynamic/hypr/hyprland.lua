@@ -74,7 +74,7 @@ hl.bind("SUPER + EQUAL", hl.dsp.exec_cmd("rofi -show calc -modi calc -no-show-ma
 -- Window management
 hl.bind("SUPER + Q", hl.dsp.window.close())
 hl.bind("ALT + RETURN", hl.dsp.window.fullscreen({ action = "toggle" }))
-hl.bind("SUPER + SHIFT + S", hl.dsp.exec_cmd("flameshot gui"))
+hl.bind("SUPER + SHIFT + S", hl.dsp.exec_cmd("[float] flameshot gui"))
 hl.bind("SUPER + P", hl.dsp.exec_cmd("pavucontrol"))
 
 -- Brightness
@@ -113,7 +113,4 @@ end
 hl.window_rule({
   match = { class = "xdg-desktop-portal-gtk" },
   max_size = { 10000, 600 },
-})
-hl.config({
-  windowrulev2 = { "float, class:^(flameshot)$" },
 })
