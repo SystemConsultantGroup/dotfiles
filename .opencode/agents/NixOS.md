@@ -132,3 +132,5 @@ Hyprland --verify-config -c dynamic/hypr/hyprland.lua
 10. **Push to remotes — REQUIRED.** Never finish a task without pushing. For generic changes: `git push upstream upstream:master && git push origin master`. For SCG-specific: `git push origin master`. Push automatically — do not ask for permission.
 11. If the change is breaking (renames, moves, module refactors), update `.opencode/agents/NixOS.md`.
 12. **FINAL CHECK — always push.** Before handing control back, confirm you pushed. No exceptions.
+
+> **Skill reference:** If a skill named `scg-downstream-merge` is loaded (via the `skill` tool) and the task involves merging upstream template commits into the SCG downstream, follow its instructions instead of the general workflow above for the merge portion.
