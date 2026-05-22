@@ -89,7 +89,11 @@
           spacing = 8;
           modules-left = [ "hyprland/workspaces" ];
           modules-center = [ "clock" ];
-          modules-right = [ "pulseaudio" "network" "battery" ];
+          modules-right = [
+            "pulseaudio"
+            "network"
+            "battery"
+          ];
 
           clock = {
             format = "{:%Y-%m-%d %H:%M}";

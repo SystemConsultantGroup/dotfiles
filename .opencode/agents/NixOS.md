@@ -95,7 +95,7 @@ When merging `upstream` into `master`, conflicts may arise. Resolve them as foll
 ## Nix conventions
 
 - **No `with pkgs;` or `with lib;`** — always explicit `pkgs.` / `lib.` prefixes.
-- **Formatter is `pkgs.nixfmt`**. Run `nix fmt` before committing.
+- **Formatter: `nix fmt`** (via `treefmt` — handles nixfmt, stylua, etc.). Run before committing.
 - **All user-specific values in `flake.nix`'s `let` block** (`username`, `userFullName`, `gitUserName`, `gitUserEmail`) — passed via `specialArgs`. Forking requires editing only `flake.nix`.
 - Branch is **`master`**, not `main`.
 
@@ -112,7 +112,7 @@ Files in `dynamic/` (e.g., `dynamic/hypr/hyprland.conf`) are runtime configs loa
 2. **Switch to the correct branch first.** Never stage or edit files on the wrong branch. The branch switch comes before any `git rm`, `git add`, or file modification. If you make a mistake, undo with `git reset HEAD <file>` and `git checkout -- <file>` before proceeding.
 3. **Read files directly** — do NOT spawn an explore/task agent for reading files. Use Read/Glob/Grep tools yourself. Only use Task for genuinely complex multi-file analysis that would benefit from parallel search.
 4. **Don't ask unnecessary questions.** When the user clearly states a task, execute it. Don't ask "Should I proceed?" — just proceed. Only ask if the intent is genuinely ambiguous.
-5. `nix fmt` — format all changed Nix files.
+5. `nix fmt` — format all changed files.
 6. `nh os build .` — verify builds with no warnings from our code. Upstream deprecation warnings from nixpkgs are fine.
 7. **Break changes into small, cherry-pickable commits.** Each commit should change exactly one logical concern. If you are doing multiple things (e.g. refactoring a module AND fixing a typo in docs), make separate commits. This keeps `upstream` → `master` merges clean and lets SCG selectively pick upstream changes if needed.
 8. Commit with conventional-commits prefixes (`feat:`, `fix:`, `refactor:`, `chore:`).

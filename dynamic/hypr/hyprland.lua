@@ -8,8 +8,8 @@ hl.env("HYPRCURSOR_THEME", "Bibata-Modern-Ice")
 hl.env("HYPRCURSOR_SIZE", "24")
 
 -- Monitors
-hl.monitor({ output = "DP-1",  mode = "highrr",     position = "auto", scale = 1.25 })
-hl.monitor({ output = "eDP-1", mode = "preferred",  position = "auto", scale = 1.25 })
+hl.monitor({ output = "DP-1", mode = "highrr", position = "auto", scale = 1.25 })
+hl.monitor({ output = "eDP-1", mode = "preferred", position = "auto", scale = 1.25 })
 
 -- Autostart
 hl.on("hyprland.start", function()
@@ -66,45 +66,45 @@ hl.config({
 -- Keybinds
 -- Launcher
 hl.bind("SUPER + RETURN", hl.dsp.exec_cmd("alacritty"))
-hl.bind("SUPER + R",       hl.dsp.exec_cmd("rofi -show drun"))
-hl.bind("SUPER + EQUAL",   hl.dsp.exec_cmd("rofi -show calc -modi calc -no-show-match -no-sort"))
+hl.bind("SUPER + R", hl.dsp.exec_cmd("rofi -show drun"))
+hl.bind("SUPER + EQUAL", hl.dsp.exec_cmd("rofi -show calc -modi calc -no-show-match -no-sort"))
 
 -- Window management
-hl.bind("SUPER + Q",           hl.dsp.window.close())
-hl.bind("ALT + RETURN",        hl.dsp.window.fullscreen({ action = "toggle" }))
-hl.bind("SUPER + SHIFT + S",   hl.dsp.exec_cmd("flameshot gui"))
-hl.bind("SUPER + P",           hl.dsp.exec_cmd("pavucontrol"))
+hl.bind("SUPER + Q", hl.dsp.window.close())
+hl.bind("ALT + RETURN", hl.dsp.window.fullscreen({ action = "toggle" }))
+hl.bind("SUPER + SHIFT + S", hl.dsp.exec_cmd("flameshot gui"))
+hl.bind("SUPER + P", hl.dsp.exec_cmd("pavucontrol"))
 
 -- Brightness
-hl.bind("XF86MonBrightnessUp",   hl.dsp.exec_cmd("brightnessctl set 5%+"),   { repeating = true })
-hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl set 5%-"),   { repeating = true })
+hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("brightnessctl set 5%+"), { repeating = true })
+hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl set 5%-"), { repeating = true })
 
 -- Mouse: drag floating windows (Super + left click), resize (Super + right click)
-hl.bind("SUPER + mouse:272", hl.dsp.window.drag(),   { mouse = true })
+hl.bind("SUPER + mouse:272", hl.dsp.window.drag(), { mouse = true })
 hl.bind("SUPER + mouse:273", hl.dsp.window.resize(), { mouse = true })
 
 -- Focus (Super + Arrow)
-hl.bind("SUPER + LEFT",   hl.dsp.focus({ direction = "left" }))
-hl.bind("SUPER + RIGHT",  hl.dsp.focus({ direction = "right" }))
-hl.bind("SUPER + UP",     hl.dsp.focus({ direction = "up" }))
-hl.bind("SUPER + DOWN",   hl.dsp.focus({ direction = "down" }))
+hl.bind("SUPER + LEFT", hl.dsp.focus({ direction = "left" }))
+hl.bind("SUPER + RIGHT", hl.dsp.focus({ direction = "right" }))
+hl.bind("SUPER + UP", hl.dsp.focus({ direction = "up" }))
+hl.bind("SUPER + DOWN", hl.dsp.focus({ direction = "down" }))
 
 -- Move window (Super + Shift + Arrow)
-hl.bind("SUPER + SHIFT + LEFT",  hl.dsp.window.move({ direction = "left" }))
+hl.bind("SUPER + SHIFT + LEFT", hl.dsp.window.move({ direction = "left" }))
 hl.bind("SUPER + SHIFT + RIGHT", hl.dsp.window.move({ direction = "right" }))
-hl.bind("SUPER + SHIFT + UP",    hl.dsp.window.move({ direction = "up" }))
-hl.bind("SUPER + SHIFT + DOWN",  hl.dsp.window.move({ direction = "down" }))
+hl.bind("SUPER + SHIFT + UP", hl.dsp.window.move({ direction = "up" }))
+hl.bind("SUPER + SHIFT + DOWN", hl.dsp.window.move({ direction = "down" }))
 
 -- Resize window (Super + Ctrl + Arrow)
-hl.bind("SUPER + CTRL + LEFT",  hl.dsp.window.resize({ x = -20, y = 0 }),   { repeating = true })
-hl.bind("SUPER + CTRL + RIGHT", hl.dsp.window.resize({ x = 20, y = 0 }),    { repeating = true })
-hl.bind("SUPER + CTRL + UP",    hl.dsp.window.resize({ x = 0, y = -20 }),   { repeating = true })
-hl.bind("SUPER + CTRL + DOWN",  hl.dsp.window.resize({ x = 0, y = 20 }),    { repeating = true })
+hl.bind("SUPER + CTRL + LEFT", hl.dsp.window.resize({ x = -20, y = 0 }), { repeating = true })
+hl.bind("SUPER + CTRL + RIGHT", hl.dsp.window.resize({ x = 20, y = 0 }), { repeating = true })
+hl.bind("SUPER + CTRL + UP", hl.dsp.window.resize({ x = 0, y = -20 }), { repeating = true })
+hl.bind("SUPER + CTRL + DOWN", hl.dsp.window.resize({ x = 0, y = 20 }), { repeating = true })
 
 -- Workspaces 1-5
 for i = 1, 5 do
-  hl.bind("SUPER + " .. i,      hl.dsp.focus({ workspace = i }))
-  hl.bind("SUPER + SHIFT + " .. i,  hl.dsp.window.move({ workspace = i }))
+  hl.bind("SUPER + " .. i, hl.dsp.focus({ workspace = i }))
+  hl.bind("SUPER + SHIFT + " .. i, hl.dsp.window.move({ workspace = i }))
 end
 
 -- Window rules

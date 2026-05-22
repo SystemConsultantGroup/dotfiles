@@ -1,8 +1,10 @@
 [treefmt]
-  package = "nixfmt"
+  excludes = [".git", ".direnv", "result"]
 
-[treefmt.settings]
-  exclude = [".git", ".direnv", "result"]
+[formatter.nixfmt]
+  command = "nixfmt"
+  includes = ["*.nix"]
 
-[program.nixfmt]
-  options = "--nix"
+[formatter.stylua]
+  command = "stylua"
+  includes = ["*.lua"]
