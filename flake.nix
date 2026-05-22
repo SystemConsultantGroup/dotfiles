@@ -12,8 +12,10 @@
   };
 
   nixConfig = {
-    extra-substituters = ["https://nix-amd-ai.cachix.org"];
-    extra-trusted-public-keys = ["nix-amd-ai.cachix.org-1:F4OU4vw/lV2oiG6SBHZ+nqjl4EFJuqI4X9A7pvaBmhQ="];
+    extra-substituters = [ "https://nix-amd-ai.cachix.org" ];
+    extra-trusted-public-keys = [
+      "nix-amd-ai.cachix.org-1:F4OU4vw/lV2oiG6SBHZ+nqjl4EFJuqI4X9A7pvaBmhQ="
+    ];
   };
 
   outputs =
@@ -55,11 +57,22 @@
         server = ./modules/server;
       };
 
-      formatter.x86_64-linux = pkgs.treefmt;
+      formatter.x86_64-linux = pkgs.writeShellApplication {
+        name = "treefmt";
+        runtimeInputs = [
+          pkgs.treefmt
+          pkgs.stylua
+          pkgs.nixfmt
+        ];
+        text = ''
+          exec treefmt "$@"
+        '';
+      };
 
       devShells.x86_64-linux.default = pkgs.mkShell {
         packages = with pkgs; [
           treefmt
+          stylua
           nil
           nixd
           statix
