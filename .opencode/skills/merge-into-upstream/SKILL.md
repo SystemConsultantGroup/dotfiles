@@ -1,9 +1,11 @@
 ---
 name: merge-into-upstream
-description: Generalize SCG downstream work and push generic improvements to the upstream template (apersomany/dotfiles)
+description: For SCG hosts — generalize downstream work and push generic improvements to the upstream template (apersomany/dotfiles). Call at end of session.
 ---
 
 Generalize SCG downstream work and push it to the upstream template (`apersomany/dotfiles`).
+
+> **Intended for:** SCG hosts (`SCG/dotfiles`). Call this at the end of a session to push any generic improvements upstream.
 
 Use this when you made changes on the SCG fork (`SCG/dotfiles`, `master` branch) and realize those changes have generic value that belongs in the template — e.g., a module refactor, a new tooling config, a bug fix, or a workflow improvement.
 
