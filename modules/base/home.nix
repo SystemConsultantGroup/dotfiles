@@ -21,6 +21,8 @@ in
       "networkmanager"
       "wheel"
       "kvm"
+      "video"
+      "render"
     ];
   };
 
