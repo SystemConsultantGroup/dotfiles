@@ -1,5 +1,5 @@
 {
-  description = "Donghyun Shin's NixOS configuration";
+  description = "System Consultant Group's NixOS configuration";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
@@ -9,6 +9,14 @@
     };
     kime.url = "github:apersomany/kime";
     nix-amd-ai.url = "github:noamsto/nix-amd-ai";
+    nixos-router = {
+      url = "github:chayleaf/nixos-router";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    notnft = {
+      url = "github:chayleaf/notnft";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   nixConfig = {
@@ -19,15 +27,21 @@
   };
 
   outputs =
-    { self, nixpkgs, ... }@inputs:
+    {
+      self,
+      nixpkgs,
+      nixos-router,
+      notnft,
+      ...
+    }@inputs:
     let
-      username = "aperso";
-      userFullName = "Donghyun Shin";
-      gitUserName = "apersomany";
-      gitUserEmail = "aperso@aperso.dev";
+      username = "scg";
+      userFullName = "System Consultant Group";
+      gitUserName = "scg";
+      gitUserEmail = "scg@scg.skku.ac.kr";
       pkgs = nixpkgs.legacyPackages.x86_64-linux;
       mkHost =
-        name:
+        name: extraModules:
         nixpkgs.lib.nixosSystem {
           specialArgs = {
             inherit
@@ -42,13 +56,16 @@
           modules = [
             { nixpkgs.hostPlatform = "x86_64-linux"; }
             (./. + "/hosts/${name}/configuration.nix")
-          ];
+          ]
+          ++ extraModules;
         };
     in
     {
       nixosConfigurations = {
-        workstation = mkHost "workstation";
-        laptop = mkHost "laptop";
+        router = mkHost "router" [
+          nixos-router.nixosModules.default
+          notnft.nixosModules.default
+        ];
       };
 
       nixosModules = {

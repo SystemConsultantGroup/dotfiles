@@ -43,11 +43,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1779336838,
-        "narHash": "sha256-n1+l78hJRABp4cQHKeD0BVByT0vZLPqd09Tvoq8Q+d8=",
+        "lastModified": 1779075347,
+        "narHash": "sha256-ZqttlFPw0meQMdABi8/vgle14OWQ3FkIqUkb4/Mrc+0=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "928d72376949e222ea4f07b44828a55b0136422e",
+        "rev": "08c9d01457badce151aa4a983c475042d9dec018",
         "type": "github"
       },
       "original": {
@@ -92,6 +92,26 @@
       "original": {
         "owner": "noamsto",
         "repo": "nix-amd-ai",
+        "type": "github"
+      }
+    },
+    "nixos-router": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1763533732,
+        "narHash": "sha256-iXSBJjxZNrQPHtaPXlwHAk/n5H4L4PID8cRDrD130Fo=",
+        "owner": "chayleaf",
+        "repo": "nixos-router",
+        "rev": "3455070b0aaadfa884c1e31df7aef732c17cf4ac",
+        "type": "github"
+      },
+      "original": {
+        "owner": "chayleaf",
+        "repo": "nixos-router",
         "type": "github"
       }
     },
@@ -173,12 +193,34 @@
         "type": "github"
       }
     },
+    "notnft": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1742709880,
+        "narHash": "sha256-TLyT/8sbE3XT8WuiXWEcsddPT22YhakGMwlr3jNshyY=",
+        "owner": "chayleaf",
+        "repo": "notnft",
+        "rev": "f827912c850cb66cf489a69078ff55658f59b96f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "chayleaf",
+        "repo": "notnft",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "home-manager": "home-manager",
         "kime": "kime",
         "nix-amd-ai": "nix-amd-ai",
-        "nixpkgs": "nixpkgs_4"
+        "nixos-router": "nixos-router",
+        "nixpkgs": "nixpkgs_4",
+        "notnft": "notnft"
       }
     },
     "rust-overlay": {
