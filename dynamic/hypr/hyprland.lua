@@ -110,6 +110,5 @@ end
 -- Window rules
 hl.window_rule({
   match = { class = "xdg-desktop-portal-gtk" },
-  size = { 1000, 800 },
-  move = { "monitor_w / 2 - 500", "monitor_h / 2 - 400" },
+  max_size = { 10000, 600 },
 })
