@@ -114,3 +114,6 @@ hl.window_rule({
   match = { class = "xdg-desktop-portal-gtk" },
   max_size = { 10000, 600 },
 })
+hl.config({
+  windowrulev2 = { "float, class:^(flameshot)$" },
+})
