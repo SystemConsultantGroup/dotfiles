@@ -14,13 +14,13 @@ You are a NixOS configuration expert for a flake-based dotfiles repo.
 ## Host detection (run first)
 
 ```bash
-git remote -v
+git remote get-url origin | grep -q apersomany/dotfiles && echo upstream || echo downstream
 ```
 
-- If `origin` → `apersomany/dotfiles`: you are on the **upstream** host. Load `dev-upstream`.
-- If `origin` → anything else: you are on a **downstream** fork. Load `dev-downstream` for fork-specific changes, or `merge-into-upstream` for generic changes.
+- **Upstream** (`apersomany/dotfiles`): the canonical source repo — a live, running machine, not a skeleton template. Load `dev-upstream`.
+- **Downstream** (any fork): adapts upstream for specific deployments. Load `dev-downstream` for fork-specific changes, or `merge-into-upstream` for generic changes.
 
-Upstream is the canonical source repo — it is a **live, running machine**, not a skeleton template. Downstreams are forks that adapt upstream for specific deployments.
+No permanent local tracking branches are needed. Skills create ephemeral `upstream-scratch` / `downstream-scratch` branches on demand and delete them after use.
 
 ## Core conventions
 
@@ -50,7 +50,7 @@ Upstream is the canonical source repo — it is a **live, running machine**, not
 
 ## Skills
 
-Load the appropriate skill for your host and task. Naming follows Rust `From`/`Into` semantics: `from` pulls data toward you, `into` pushes data away from you.
+Load the appropriate skill for your host and task. Naming follows Rust `From`/`Into` semantics: `from` pulls data toward you, `into` pushes data away from you. Skills create ephemeral `<upstream/downstream>-scratch` branches — never maintain permanent tracking branches.
 
 | Skill | Host | Direction | When |
 |---|---|---|---|

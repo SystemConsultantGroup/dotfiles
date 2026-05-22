@@ -1,36 +1,36 @@
 ---
 name: merge-into-upstream
-description: Downstream fork host — develop generic changes, verify on downstream before pushing upstream. PR fallback if no upstream write access.
+description: Downstream host — develop generic changes, verify on downstream before pushing upstream. PR fallback if no upstream write access. Uses ephemeral upstream-scratch branch.
 ---
 
-Push generic improvements from a downstream fork back **into** the upstream (`apersomany/dotfiles`).
+Push generic improvements from a downstream fork back **into** upstream (`apersomany/dotfiles`).
 
-Core principle: **develop on upstream, verify on downstream, only then push/PR upstream.** This ensures you never break any fork (including your own) with a change that looked good in isolation.
+Core principle: **develop on a scratch branch from upstream, verify on downstream, only then push/PR upstream.** This ensures you never break any fork with a change that looked good in isolation.
 
-> **Prerequisite:** The fork must have `upstream` remote and local `upstream` branch:
+Uses an ephemeral `upstream-scratch` branch — created, used, and deleted within this workflow. No permanent tracking branches needed.
+
+> **Prerequisite:** The fork must have `upstream` remote pointing to `apersomany/dotfiles`:
 > ```bash
 > git remote add upstream https://github.com/apersomany/dotfiles.git
-> git fetch upstream
-> git branch upstream upstream/master
 > ```
 
 ---
 
-## Step 1: Sync upstream branch
+## Step 1: Fetch upstream and create scratch branch
 
 ```bash
-git checkout upstream
-git pull upstream master
+git fetch upstream
+git checkout -b upstream-scratch upstream/master
 ```
 
 ## Step 2: Make changes
 
-Make all edits on the `upstream` branch. **Stay on this branch until both builds pass.**
+Make all edits on `upstream-scratch`. **Stay on this branch until both builds pass.**
 
 - Never reference fork-specific paths or configs (e.g. `hosts/<fork-name>/`, fork-specific flake inputs).
 - Write against the `username` variable from `flake.nix`'s `let` block, not a hardcoded fork user name.
 
-## Step 3: Build upstream
+## Step 3: Build scratch branch
 
 ```bash
 nh os build .
@@ -45,7 +45,7 @@ Hyprland --verify-config -c dynamic/hypr/hyprland.lua
 
 ```bash
 git checkout master
-git merge --no-commit upstream    # stage merge, do NOT create a commit
+git merge --no-commit upstream-scratch    # stage merge, do NOT create a commit
 nh os build .
 ```
 
@@ -55,34 +55,34 @@ nh os build .
 git commit -m "chore: merge upstream: <brief description>"
 ```
 
-Go to [Step 5](#step-5-format-and-commit-upstream).
+Go to [Step 5](#step-5-format-and-commit-scratch-branch).
 
 ### If downstream build fails:
 
 ```bash
 git merge --abort                 # cleanly undo the staged merge
-git checkout upstream             # go back to fix
+git checkout upstream-scratch     # go back to fix
 ```
 
 Fix the issue. Then loop:
 ```bash
-nh os build .                     # build upstream
+nh os build .                     # build scratch
 git checkout master
-git merge --no-commit upstream    # re-stage downstream merge
+git merge --no-commit upstream-scratch  # re-stage downstream merge
 nh os build .                     # build downstream
 ```
 
-If it fails again: `git merge --abort`, fix on upstream, repeat. Once both pass:
+If it fails again: `git merge --abort`, fix on `upstream-scratch`, repeat. Once both pass:
 ```bash
 git commit -m "chore: merge upstream: <brief description>"
 ```
 
-> **Why `--no-commit`?** It stages the merge without creating a commit, so `--abort` cleanly unwinds. No garbage merge commits accumulate during the fix loop.
+> **Why `--no-commit`?** Stages the merge without creating a commit, so `--abort` cleanly unwinds. No garbage merge commits accumulate during the fix loop.
 
-## Step 5: Format and commit upstream
+## Step 5: Format and commit scratch branch
 
 ```bash
-git checkout upstream
+git checkout upstream-scratch
 nix fmt
 git add -A
 git commit -m "fix: <conventional-commit message>"
@@ -91,7 +91,7 @@ git commit -m "fix: <conventional-commit message>"
 ## Step 6: Push upstream (or PR)
 
 ```bash
-git push upstream upstream:master
+git push upstream upstream-scratch:master
 ```
 
 ### If push succeeds:
@@ -104,7 +104,7 @@ Open a PR instead:
 
 ```bash
 PR_BRANCH="pr/upstream-$(date +%Y%m%d)"
-git push origin upstream:$PR_BRANCH
+git push origin upstream-scratch:$PR_BRANCH
 
 gh pr create \
   --repo apersomany/dotfiles \
@@ -128,18 +128,24 @@ git checkout master
 git push origin master
 ```
 
+## Step 8: Clean up
+
+```bash
+git branch -d upstream-scratch
+```
+
 ---
 
 ## Merge conflict handling
 
-During `git merge --no-commit upstream` on `master`:
+During `git merge --no-commit upstream-scratch` on `master`:
 
 | File type | Rule |
 |---|---|
 | **Fork-specific** (`hosts/<fork-name>/`, fork-specific flake inputs) | Keep `master` version |
-| **Generic** (`modules/`, `home/`, `lib/`) | Favor `upstream` version, then re-apply fork customizations |
+| **Generic** (`modules/`, `home/`, `lib/`) | Favor `upstream-scratch` version, then re-apply fork customizations |
 | **Hybrid** (`flake.nix`) | Manual merge: keep fork-only blocks, accept upstream improvements |
-| **`flake.lock`** | Take upstream version, then `nix flake lock` |
+| **`flake.lock`** | Take scratch version, then `nix flake lock` |
 
 ```bash
 git checkout --theirs flake.lock && nix flake lock && git add flake.lock
@@ -151,6 +157,6 @@ git checkout --theirs flake.lock && nix flake lock && git add flake.lock
 
 ```bash
 git merge --abort              # undo staged --no-commit merge
-git checkout -- .              # discard uncommitted workspace changes
-git reset --hard ORIG_HEAD     # undo committed merge (before pushing)
+git checkout master            # abandon scratch work
+git branch -D upstream-scratch # delete scratch and start over
 ```

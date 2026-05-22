@@ -1,50 +1,38 @@
 ---
 name: merge-into-downstream
-description: Upstream host — propagate upstream changes into a downstream fork you maintain. Optional — only if you have downstream push access.
+description: Upstream host — propagate upstream changes into a downstream fork you maintain. Uses ephemeral downstream-scratch branch.
 ---
 
-Push upstream commits **into** a specific downstream fork from the upstream host. Requires the upstream host to have a remote pointing to the downstream fork.
+Push upstream commits **into** a specific downstream fork from the upstream host. Uses an ephemeral `downstream-scratch` branch.
 
-> **This skill is optional.** Most upstream hosts don't maintain downstream forks directly. Downstreams can pull updates themselves using `merge-from-upstream`.
-
-## Prerequisite
-
-Add the downstream fork as a remote (one-time setup per downstream):
-
-```bash
-git remote add <downstream> https://github.com/<fork-org>/dotfiles.git
-git fetch <downstream>
-```
-
-Replace `<downstream>` with a short identifier (e.g. `scg`, `client-foo`). Replace `<fork-org>` with the GitHub org/user that owns the fork.
+> **Prerequisite:** Upstream host must have a remote pointing to the downstream fork:
+> ```bash
+> git remote add <downstream> https://github.com/<fork-org>/dotfiles.git
+> ```
+> Replace `<downstream>` with a short identifier (e.g. `scg`, `client-foo`).
 
 ## Workflow
 
 ### 1. Review what's new
 
 ```bash
+git fetch <downstream>
 git log --oneline --no-merges <downstream>/master..origin/master
 ```
 
-### 2. Fetch latest downstream state
+### 2. Create scratch branch from downstream
 
 ```bash
-git fetch <downstream>
+git checkout -b downstream-scratch <downstream>/master
 ```
 
-### 3. Create a merge branch from downstream
-
-```bash
-git checkout -b merge-to-<downstream> <downstream>/master
-```
-
-### 4. Merge upstream
+### 3. Merge upstream into scratch
 
 ```bash
 git merge --no-commit origin/master
 ```
 
-### 5. Resolve conflicts
+### 4. Resolve conflicts
 
 | File type | Rule |
 |---|---|
@@ -57,24 +45,24 @@ git merge --no-commit origin/master
 git checkout --theirs flake.lock && nix flake lock && git add flake.lock
 ```
 
-### 6. Build
+### 5. Build
 
 ```bash
 nh os build .
 ```
 
-### 7. Commit and push
+### 6. Commit and push
 
 ```bash
 git commit -m "chore: merge upstream into <downstream>"
-git push <downstream> merge-to-<downstream>:master
+git push <downstream> downstream-scratch:master
 ```
 
-### 8. Clean up
+### 7. Clean up
 
 ```bash
 git checkout master
-git branch -d merge-to-<downstream>
+git branch -d downstream-scratch
 ```
 
 ---
@@ -83,6 +71,6 @@ git branch -d merge-to-<downstream>
 
 ```bash
 git merge --abort              # undo staged merge
-git checkout master            # abandon merge branch
-git branch -D merge-to-<downstream>
+git checkout master            # abandon scratch
+git branch -D downstream-scratch
 ```
