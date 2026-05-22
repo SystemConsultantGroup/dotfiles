@@ -1,7 +1,6 @@
 {
   pkgs,
   inputs,
-  config,
   lib,
   ...
 }:
@@ -20,8 +19,6 @@
       package = lib.mkForce inputs.kime.packages.${pkgs.system}.default;
     };
   };
-  services.gnome.gnome-keyring.enable = true;
-  services.xserver.xkb.layout = "us";
   environment.systemPackages = [
     pkgs.vesktop
     pkgs.firefox
@@ -31,12 +28,18 @@
     pkgs.nixd
     pkgs.nil
   ];
-  services.pipewire = {
-    enable = true;
-    alsa.enable = true;
-    alsa.support32Bit = true;
-    pulse.enable = true;
-    jack.enable = true;
+  services = {
+    gnome.gnome-keyring.enable = true;
+    xserver.xkb = {
+      layout = "us";
+      options = "terminate:ctrl_alt_bksp";
+    };
+    pipewire = {
+      enable = true;
+      alsa.enable = true;
+      alsa.support32Bit = true;
+      pulse.enable = true;
+      jack.enable = true;
+    };
   };
-  services.xserver.xkb.options = "terminate:ctrl_alt_bksp";
 }
