@@ -53,7 +53,7 @@ No permanent local tracking branches are needed. Skills create ephemeral `upstre
 Load the appropriate skill for your host and task. Naming follows Rust `From`/`Into` semantics: `from` pulls data toward you, `into` pushes data away from you. Skills create ephemeral `<upstream/downstream>-scratch` branches — never maintain permanent tracking branches.
 
 | Skill | Host | Direction | When |
-|---|---|---|---|
+|---|---|---|---|---|
 | `dev-upstream` | Upstream | — | Making changes on the canonical repo |
 | `dev-downstream` | Downstream | — | Making fork-specific changes (router, NVIDIA, branding) |
 | `merge-into-upstream` | Downstream | ⬆ Push generic changes up | Developing generic improvements with downstream verification |
