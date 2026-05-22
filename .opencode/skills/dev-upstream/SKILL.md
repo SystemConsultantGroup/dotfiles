@@ -1,5 +1,5 @@
 ---
-name: upstream-dev
+name: dev-upstream
 description: Upstream host — make changes on the canonical repo (apersomany/dotfiles), build, format, commit, push. Simple linear workflow.
 ---
 
