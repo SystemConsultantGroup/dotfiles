@@ -18,7 +18,7 @@ git remote get-url origin | grep -q apersomany/dotfiles && echo upstream || echo
 ```
 
 - **Upstream** (`apersomany/dotfiles`): the canonical source repo — a live, running machine, not a skeleton template. Load `dev-upstream`.
-- **Downstream** (any fork): adapts upstream for specific deployments. Load `dev-downstream` for fork-specific changes, or `merge-into-upstream` for generic changes.
+- **Downstream** (any fork): adapts upstream for specific deployments. If no specific downstream is stated, the default/canonical downstream is **`SystemConsultantGroup/dotfiles`**. Load `dev-downstream` for fork-specific changes, or `merge-into-upstream` for generic changes.
 
 No permanent local tracking branches are needed. Skills create ephemeral `upstream-scratch` / `downstream-scratch` branches on demand and delete them after use.
 
@@ -60,5 +60,7 @@ Load the appropriate skill for your host and task. Naming follows Rust `From`/`I
 | `merge-from-upstream` | Downstream | ⬇ Pull upstream changes down | Merging external upstream changes into your fork |
 | `merge-into-downstream` | Upstream | ⬇ Push changes down | Propagating upstream changes into a fork you maintain |
 | `merge-from-downstream` | Upstream | ⬆ Pull innovations up | Bringing downstream improvements back upstream |
+
+> **Default downstream:** `SystemConsultantGroup/dotfiles`. When referencing a downstream without specifying which one, this is the assumed fork.
 
 If the change is breaking (renames, moves, module refactors), update the relevant skill file and this agent file.
