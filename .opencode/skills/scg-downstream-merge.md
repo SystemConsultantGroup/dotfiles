@@ -42,7 +42,7 @@ If the merge succeeds cleanly, skip to step 5.
 
 | File type | Rule | Examples |
 |---|---|---|
-| **SCG-specific** | Keep SCG (`master`) version | `hosts/router/*`, `hosts/woodstock/*`, `secrets/*` |
+| **SCG-specific** | Keep SCG (`master`) version | `hosts/router/*` |
 | **Generic** | Favor upstream, then re-apply SCG customizations | `modules/*`, `home/*`, `lib/*` |
 | **Hybrid** | Manual merge — keep SCG blocks, accept upstream generic improvements | `hosts/router/configuration.nix`, `flake.nix` |
 | **Auto-generated** | Regenerate rather than merge | `flake.lock` |
