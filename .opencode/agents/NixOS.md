@@ -101,7 +101,19 @@ When merging `upstream` into `master`, conflicts may arise. Resolve them as foll
 
 ## Build vs no-build changes
 
-Files in `dynamic/` (e.g., `dynamic/hypr/hyprland.conf`) are runtime configs loaded by external programs and do not require `nh os build .`. Only changes to Nix files in `modules/`, `home/`, `hosts/`, `flake.nix`, etc. need a rebuild.
+Files in `dynamic/` (e.g., `dynamic/hypr/hyprland.lua`) are runtime configs loaded by external programs and do not require `nh os build .`. Only changes to Nix files in `modules/`, `home/`, `hosts/`, `flake.nix`, etc. need a rebuild.
+
+### Hyprland Lua config validation
+
+Hyprland now natively parses Lua configs (`dynamic/hypr/hyprland.lua`). After making changes to this file:
+
+1. `hyprctl reload` — but **do NOT trust its "ok" output alone**; it silently swallows errors that only display through the compositor (which isn't visible in CLI sessions).
+2. **`hyprctl configerrors`** — the canonical validation check. Must produce empty output (no errors) before considering the change valid.
+
+Also works offline (without a running Hyprland session):
+```
+Hyprland --verify-config -c dynamic/hypr/hyprland.lua
+```
 
 ## Workflow for this agent
 
@@ -113,9 +125,10 @@ Files in `dynamic/` (e.g., `dynamic/hypr/hyprland.conf`) are runtime configs loa
 3. **Read files directly** — do NOT spawn an explore/task agent for reading files. Use Read/Glob/Grep tools yourself. Only use Task for genuinely complex multi-file analysis that would benefit from parallel search.
 4. **Don't ask unnecessary questions.** When the user clearly states a task, execute it. Don't ask "Should I proceed?" — just proceed. Only ask if the intent is genuinely ambiguous.
 5. `nix fmt` — format all changed files.
-6. `nh os build .` — verify builds with no warnings from our code. Upstream deprecation warnings from nixpkgs are fine.
-7. **Break changes into small, cherry-pickable commits.** Each commit should change exactly one logical concern. If you are doing multiple things (e.g. refactoring a module AND fixing a typo in docs), make separate commits. This keeps `upstream` → `master` merges clean and lets SCG selectively pick upstream changes if needed.
-8. Commit with conventional-commits prefixes (`feat:`, `fix:`, `refactor:`, `chore:`).
-9. **Push to remotes — REQUIRED.** Never finish a task without pushing. Push to the appropriate remote(s) based on your setup. Push automatically — do not ask for permission.
-10. If the change is breaking (renames, moves, module refactors), update `.opencode/agents/NixOS.md`.
-11. **FINAL CHECK — always push.** Before handing control back, confirm you pushed. No exceptions.
+6. If Nix files were changed: `nh os build .` — verify builds with no warnings from our code. Upstream deprecation warnings from nixpkgs are fine.
+7. If `dynamic/hypr/hyprland.lua` was changed: run `hyprctl reload && hyprctl configerrors` — verify empty output (no config errors). See **Hyprland Lua config validation** above.
+8. **Break changes into small, cherry-pickable commits.** Each commit should change exactly one logical concern. If you are doing multiple things (e.g. refactoring a module AND fixing a typo in docs), make separate commits. This keeps `upstream` → `master` merges clean and lets SCG selectively pick upstream changes if needed.
+9. Commit with conventional-commits prefixes (`feat:`, `fix:`, `refactor:`, `chore:`).
+10. **Push to remotes — REQUIRED.** Never finish a task without pushing. Push to the appropriate remote(s) based on your setup. Push automatically — do not ask for permission.
+11. If the change is breaking (renames, moves, module refactors), update `.opencode/agents/NixOS.md`.
+12. **FINAL CHECK — always push.** Before handing control back, confirm you pushed. No exceptions.
