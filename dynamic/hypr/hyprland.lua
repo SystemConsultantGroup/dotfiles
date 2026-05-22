@@ -78,6 +78,10 @@ hl.bind("SUPER + P",           hl.dsp.exec_cmd("pavucontrol"))
 hl.bind("XF86MonBrightnessUp",   hl.dsp.exec_cmd("brightnessctl set 5%+"),   { repeating = true })
 hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl set 5%-"),   { repeating = true })
 
+-- Mouse: drag floating windows (Super + left click), resize (Super + right click)
+hl.bind("SUPER + mouse:272", hl.dsp.window.drag(),   { mouse = true })
+hl.bind("SUPER + mouse:273", hl.dsp.window.resize(), { mouse = true })
+
 -- Focus (Super + Arrow)
 hl.bind("SUPER + LEFT",   hl.dsp.focus({ direction = "left" }))
 hl.bind("SUPER + RIGHT",  hl.dsp.focus({ direction = "right" }))
