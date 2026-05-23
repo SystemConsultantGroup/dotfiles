@@ -13,8 +13,11 @@
   ];
   boot = {
     kernelPackages = pkgs.linuxPackages_latest;
-    loader.systemd-boot.enable = true;
-    loader.efi.canTouchEfiVariables = true;
+    loader = {
+      systemd-boot.enable = true;
+      systemd-boot.consoleMode = "max";
+      efi.canTouchEfiVariables = true;
+    };
   };
   time.timeZone = "Asia/Seoul";
   system.stateVersion = "25.11";

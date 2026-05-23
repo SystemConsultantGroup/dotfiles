@@ -44,14 +44,21 @@
   };
 
   environment.systemPackages = [
-    pkgs.zip
-    pkgs.unzip
+    pkgs.bat
+    pkgs.bun
+    pkgs.fd
+    pkgs.fzf
     pkgs.git
     pkgs.gh
     pkgs.devenv
+    pkgs.jq
     pkgs.nh
+    pkgs.nodejs
     pkgs.opencode
+    pkgs.ripgrep
+    pkgs.unzip
     pkgs.yazi
+    pkgs.zip
   ];
 
 }
