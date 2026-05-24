@@ -14,8 +14,11 @@
   boot = {
     kernelPackages = pkgs.linuxPackages_latest;
     loader = {
-      systemd-boot.enable = true;
-      systemd-boot.consoleMode = "max";
+      systemd-boot = {
+        enable = true;
+        consoleMode = "max";
+        memtest86.enable = true;
+      };
       efi.canTouchEfiVariables = true;
     };
   };
