@@ -1,7 +1,6 @@
 {
   pkgs,
   inputs,
-  username,
   ...
 }:
 {
@@ -15,11 +14,13 @@
 
   hardware.amd-npu = {
     enable = true;
-    enableFastFlowLM = true;
-    enableLemonade = true;
     enableVulkan = true;
-    enableImageGen = true;
-    lemonade.user = username;
+    lemonade = {
+      port = 13305;
+      host = "localhost";
+      user = "root";
+      flashAttn = "off";
+    };
   };
   boot = {
     kernelPackages = pkgs.linuxPackages_latest;
