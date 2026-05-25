@@ -8,14 +8,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     kime.url = "github:apersomany/kime";
-    nix-amd-ai.url = "github:noamsto/nix-amd-ai";
-  };
-
-  nixConfig = {
-    extra-substituters = [ "https://nix-amd-ai.cachix.org" ];
-    extra-trusted-public-keys = [
-      "nix-amd-ai.cachix.org-1:F4OU4vw/lV2oiG6SBHZ+nqjl4EFJuqI4X9A7pvaBmhQ="
-    ];
   };
 
   outputs =
