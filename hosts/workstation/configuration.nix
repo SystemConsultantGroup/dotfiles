@@ -17,7 +17,6 @@
     enable = true;
     enableFastFlowLM = true;
     enableLemonade = true;
-    enableROCm = true;
     enableVulkan = true;
     enableImageGen = true;
     lemonade.user = username;
