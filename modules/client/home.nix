@@ -23,6 +23,12 @@
       platformTheme.name = "gtk";
     };
 
+    home.packages = [
+      pkgs.cliphist
+      pkgs.tessen
+      pkgs.wl-clipboard
+    ];
+
     services.flameshot = {
       enable = true;
       settings = {
