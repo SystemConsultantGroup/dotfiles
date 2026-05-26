@@ -68,6 +68,9 @@ hl.bind("SUPER + RETURN", hl.dsp.exec_cmd("alacritty"))
 hl.bind("SUPER + R", hl.dsp.exec_cmd("rofi -show drun"))
 hl.bind("SUPER + EQUAL", hl.dsp.exec_cmd("rofi -show calc -modi calc -no-show-match -no-sort"))
 
+-- Clipboard manager
+hl.bind("SUPER + V", hl.dsp.exec_cmd("tessen"))
+
 -- Window management
 hl.bind("SUPER + Q", hl.dsp.window.close())
 hl.bind("ALT + RETURN", hl.dsp.window.fullscreen({ action = "toggle" }))
