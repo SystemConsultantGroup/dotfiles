@@ -1,8 +1,6 @@
 -- Environment variables
 hl.env("MOZ_ENABLE_WAYLAND", "1")
-hl.env("GDK_DPI_SCALE", "1")
-hl.env("QT_QPA_PLATFORM", "wayland;xcb")
-hl.env("QT_SCALE_FACTOR", "1")
+hl.env("QT_QPA_PLATFORM", "wayland")
 
 hl.env("XCURSOR_THEME", "Bibata-Modern-Ice")
 hl.env("XCURSOR_SIZE", "24")
@@ -33,7 +31,6 @@ hl.config({
     gaps_in = 8,
     gaps_out = 16,
     border_size = 2,
-    resize_on_border = true,
     col = {
       active_border = "rgb(dddddd)",
       inactive_border = "rgb(444444)",
@@ -74,7 +71,12 @@ hl.bind("SUPER + EQUAL", hl.dsp.exec_cmd("rofi -show calc -modi calc -no-show-ma
 -- Window management
 hl.bind("SUPER + Q", hl.dsp.window.close())
 hl.bind("ALT + RETURN", hl.dsp.window.fullscreen({ action = "toggle" }))
-hl.bind("SUPER + SHIFT + S", hl.dsp.exec_cmd("[float] flameshot gui"))
+hl.bind(
+  "SUPER + SHIFT + S",
+  hl.dsp.exec_cmd(
+    "[float] sh -c 'QT_SCALE_FACTOR=$(hyprctl monitors -j | jq -r \".[] | select(.focused) | 1/.scale\") exec flameshot gui'"
+  )
+)
 hl.bind("SUPER + P", hl.dsp.exec_cmd("pavucontrol"))
 
 -- Brightness
