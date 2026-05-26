@@ -9,15 +9,6 @@
   home-manager.users.${username} = {
     home.stateVersion = "25.11";
 
-    home.sessionVariables = {
-      XCURSOR_THEME = "Bibata-Modern-Ice";
-      XCURSOR_SIZE = "24";
-      GDK_SCALE = "1";
-      GDK_DPI_SCALE = "1.5";
-      QT_AUTO_SCREEN_SCALE_FACTOR = "0";
-      QT_SCALE_FACTOR = "1.5";
-    };
-
     gtk = {
       enable = true;
       cursorTheme = {
