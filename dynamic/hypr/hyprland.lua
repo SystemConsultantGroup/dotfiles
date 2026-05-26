@@ -16,6 +16,7 @@ hl.monitor({ output = "HDMI-A-1", mode = "highrr", position = "auto", scale = 1.
 hl.on("hyprland.start", function()
   hl.exec_cmd("kime")
   hl.exec_cmd("waybar")
+  hl.exec_cmd("wl-paste --watch cliphist store")
 end)
 
 -- Input
@@ -69,8 +70,11 @@ hl.bind("SUPER + RETURN", hl.dsp.exec_cmd("alacritty"))
 hl.bind("SUPER + R", hl.dsp.exec_cmd("rofi -show drun"))
 hl.bind("SUPER + EQUAL", hl.dsp.exec_cmd("rofi -show calc -modi calc -no-show-match -no-sort"))
 
--- Clipboard manager
-hl.bind("SUPER + V", hl.dsp.exec_cmd("tessen"))
+-- Clipboard manager: list history with rofi, decode selection, copy to clipboard
+hl.bind(
+  "SUPER + V",
+  hl.dsp.exec_cmd("sh -c 'cliphist list | rofi -dmenu -display-columns 2 | cliphist decode | wl-copy'")
+)
 
 -- Window management
 hl.bind("SUPER + Q", hl.dsp.window.close())
@@ -78,7 +82,7 @@ hl.bind("ALT + RETURN", hl.dsp.window.fullscreen({ action = "toggle" }))
 hl.bind(
   "SUPER + SHIFT + S",
   hl.dsp.exec_cmd(
-    "[float] sh -c 'QT_SCALE_FACTOR=$(hyprctl monitors -j | jq -r \".[] | select(.focused) | 1/.scale\") exec flameshot gui'"
+    "[float] sh -c 'QT_SCALE_FACTOR=$(hyprctl monitors -j | jq -r \".[] | select(.focused) | 1/.scale\") exec flameshot gui -s -c'"
   )
 )
 hl.bind("SUPER + P", hl.dsp.exec_cmd("pavucontrol"))
