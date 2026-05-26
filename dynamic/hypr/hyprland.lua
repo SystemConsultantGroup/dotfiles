@@ -69,8 +69,11 @@ hl.bind("SUPER + RETURN", hl.dsp.exec_cmd("alacritty"))
 hl.bind("SUPER + R", hl.dsp.exec_cmd("rofi -show drun"))
 hl.bind("SUPER + EQUAL", hl.dsp.exec_cmd("rofi -show calc -modi calc -no-show-match -no-sort"))
 
--- Clipboard manager
-hl.bind("SUPER + V", hl.dsp.exec_cmd("tessen"))
+-- Clipboard manager: list history with rofi, decode selection, copy to clipboard
+hl.bind(
+  "SUPER + V",
+  hl.dsp.exec_cmd("sh -c 'cliphist list | rofi -dmenu -display-columns 2 | cliphist decode | wl-copy'")
+)
 
 -- Window management
 hl.bind("SUPER + Q", hl.dsp.window.close())
