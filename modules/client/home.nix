@@ -25,7 +25,6 @@
 
     home.packages = [
       pkgs.cliphist
-      pkgs.tessen
       pkgs.wl-clipboard
     ];
 
