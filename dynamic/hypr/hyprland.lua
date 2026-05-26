@@ -15,6 +15,7 @@ hl.monitor({ output = "eDP-1", mode = "preferred", position = "auto", scale = 1.
 hl.on("hyprland.start", function()
   hl.exec_cmd("kime")
   hl.exec_cmd("waybar")
+  hl.exec_cmd("wl-paste --watch cliphist store")
 end)
 
 -- Input
