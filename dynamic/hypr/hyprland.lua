@@ -1,8 +1,6 @@
 -- Environment variables
 hl.env("MOZ_ENABLE_WAYLAND", "1")
-hl.env("GDK_DPI_SCALE", "1")
-hl.env("QT_QPA_PLATFORM", "wayland;xcb")
-hl.env("QT_SCALE_FACTOR", "1")
+hl.env("QT_QPA_PLATFORM", "wayland")
 
 hl.env("XCURSOR_THEME", "Bibata-Modern-Ice")
 hl.env("XCURSOR_SIZE", "24")
@@ -33,7 +31,6 @@ hl.config({
     gaps_in = 8,
     gaps_out = 16,
     border_size = 2,
-    resize_on_border = true,
     col = {
       active_border = "rgb(dddddd)",
       inactive_border = "rgb(444444)",
