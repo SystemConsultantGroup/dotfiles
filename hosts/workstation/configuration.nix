@@ -20,6 +20,7 @@
       efi.canTouchEfiVariables = true;
     };
   };
+  services.cloudflare-warp.enable = true;
   time.timeZone = "Asia/Seoul";
   system.stateVersion = "25.11";
 }
