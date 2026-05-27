@@ -52,6 +52,7 @@
     pkgs.gh
     pkgs.devenv
     pkgs.jq
+    pkgs.mtr
     pkgs.nh
     pkgs.nodejs
     pkgs.opencode
