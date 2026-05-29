@@ -8,6 +8,7 @@
     ./hardware-configuration.nix
     ../../modules/base
     ../../modules/client
+    ../../modules/client/rocm.nix
   ];
   boot = {
     kernelPackages = pkgs.linuxPackages_latest;
