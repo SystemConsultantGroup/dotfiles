@@ -66,6 +66,7 @@
     pkgs.opencode
     pkgs.ripgrep
     pkgs.unzip
+    pkgs.uv
     pkgs.yazi
     pkgs.zip
   ];
