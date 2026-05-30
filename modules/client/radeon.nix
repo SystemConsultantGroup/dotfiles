@@ -8,8 +8,6 @@
   programs.nix-ld = {
     enable = true;
     libraries = with pkgs; [
-      rocmPackages.hipblas
-      rocmPackages.rocblas
       rocmPackages.rocm-runtime
       rocmPackages.hsakmt
     ];
