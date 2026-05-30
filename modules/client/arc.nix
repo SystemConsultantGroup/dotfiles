@@ -7,6 +7,7 @@
     extraPackages = with pkgs; [
       intel-compute-runtime
       intel-compute-runtime.drivers
+      intel-graphics-compiler
       level-zero
     ];
   };
@@ -14,6 +15,7 @@
   programs.nix-ld.libraries = with pkgs; [
     intel-compute-runtime
     intel-compute-runtime.drivers
+    intel-graphics-compiler
     level-zero
     ocl-icd
   ];
