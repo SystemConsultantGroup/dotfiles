@@ -27,5 +27,6 @@ in
   environment.variables = {
     NH_OS_FLAKE = dotfiles;
     HYPRLAND_CONFIG = "${dotfiles}/dynamic/hypr/hyprland.lua";
+    SSL_CERT_FILE = "/etc/ssl/certs/ca-certificates.crt";
   };
 }
