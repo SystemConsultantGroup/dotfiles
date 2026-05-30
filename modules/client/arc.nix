@@ -6,17 +6,16 @@
     enable = true;
     extraPackages = with pkgs; [
       intel-compute-runtime
-      intel-media-driver
+      intel-compute-runtime.drivers
+      level-zero
     ];
   };
 
-  programs.nix-ld = {
-    enable = true;
-    libraries = with pkgs; [
-      intel-compute-runtime
-      intel-ocl
-    ];
-  };
+  programs.nix-ld.libraries = with pkgs; [
+    intel-compute-runtime
+    intel-compute-runtime.drivers
+    level-zero
+  ];
 
   environment.systemPackages = with pkgs; [
     intel-gpu-tools
