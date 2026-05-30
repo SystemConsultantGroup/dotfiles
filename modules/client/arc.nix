@@ -15,9 +15,12 @@
     intel-compute-runtime
     intel-compute-runtime.drivers
     level-zero
+    ocl-icd
   ];
 
   environment.systemPackages = with pkgs; [
     intel-gpu-tools
+    ocl-icd
+    clinfo
   ];
 }
