@@ -8,7 +8,8 @@
     ./hardware-configuration.nix
     ../../modules/base
     ../../modules/client
-    ../../modules/client/rocm.nix
+    ../../modules/client/radeon.nix
+    ../../modules/client/arc.nix
   ];
   boot = {
     kernelPackages = pkgs.linuxPackages_latest;
