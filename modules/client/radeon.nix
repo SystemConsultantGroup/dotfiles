@@ -1,5 +1,7 @@
 { pkgs, ... }:
 {
+  boot.kernelParams = [ "amdgpu.ppfeaturemask=0xffffffff" ];
+
   hardware.amdgpu = {
     opencl.enable = true;
     initrd.enable = true;
