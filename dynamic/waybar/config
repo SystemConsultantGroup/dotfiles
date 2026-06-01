@@ -25,11 +25,11 @@
       "format": "VOL {volume}%",
       "format-muted": "MUTED",
       "scroll-step": 5,
-      "on-click": "hyprctl dispatch togglespecialworkspace pavucontrol"
+      "on-click": "pavucontrol"
     },
     "network": {
       "format": "{ifname} {ipaddr}",
-      "on-click": "hyprctl dispatch togglespecialworkspace nmtui"
+      "on-click": "alacritty --class nmtui --title nmtui -e nmtui"
     },
     "battery": {
       "format": "BAT {capacity}%",

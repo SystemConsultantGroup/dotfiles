@@ -39,6 +39,7 @@
       pkgs.cliphist
       pkgs.waybar
       pkgs.wl-clipboard
+      pkgs.wtype
     ];
 
     services.flameshot = {
