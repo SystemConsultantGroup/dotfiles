@@ -12,10 +12,12 @@ hl.monitor({ output = "eDP-1", mode = "preferred", position = "auto", scale = 1.
 -- Catch-all for any unconfigured monitor (DP-1, external docks, projectors, etc.)
 hl.monitor({ output = "", mode = "highrr", position = "auto", scale = "auto" })
 
--- Autostart
+-- Ashell: kill and restart on every config load (initial start + reload)
+hl.exec_cmd("pkill -x ashell 2>/dev/null; ashell --config-path /home/aperso/dotfiles/dynamic/ashell/config.toml")
+
+-- Autostart (runs once on initial start only)
 hl.on("hyprland.start", function()
   hl.exec_cmd("kime")
-  hl.exec_cmd("waybar -c /home/aperso/dotfiles/dynamic/waybar/config -s /home/aperso/dotfiles/dynamic/waybar/style.css")
   hl.exec_cmd("wl-paste --watch cliphist store")
 end)
 
@@ -65,6 +67,13 @@ hl.config({
   },
 })
 
+-- Binds
+hl.config({
+  binds = {
+    hide_special_on_workspace_change = true,
+  },
+})
+
 -- Keybinds
 -- Launcher
 hl.bind("SUPER + RETURN", hl.dsp.exec_cmd("alacritty"))
@@ -89,13 +98,12 @@ hl.bind(
 -- Transient apps in auto-hiding special workspaces (scratchpads)
 hl.bind("SUPER + P", function()
   hl.exec_cmd("sh -c 'pgrep -x pavucontrol || pavucontrol &'")
-  hl.dsp.workspace.toggle_special("audiostream")
+  hl.dispatch(hl.dsp.workspace.toggle_special("audiostream"))
 end)
 hl.bind("SUPER + N", function()
   hl.exec_cmd("sh -c 'pgrep -x nmtui || alacritty --class nmtui --title nmtui -e nmtui &'")
-  hl.dsp.workspace.toggle_special("network")
+  hl.dispatch(hl.dsp.workspace.toggle_special("network"))
 end)
-
 -- Brightness
 hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("brightnessctl set 5%+"), { repeating = true })
 hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl set 5%-"), { repeating = true })
