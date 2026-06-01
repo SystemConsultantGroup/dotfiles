@@ -95,15 +95,6 @@ hl.bind(
     "[float] sh -c 'QT_SCALE_FACTOR=$(hyprctl monitors -j | jq -r \".[] | select(.focused) | 1/.scale\") exec flameshot gui -s -c'"
   )
 )
--- Transient apps in auto-hiding special workspaces (scratchpads)
-hl.bind("SUPER + P", function()
-  hl.exec_cmd("sh -c 'pgrep -x pavucontrol || pavucontrol &'")
-  hl.dispatch(hl.dsp.workspace.toggle_special("audiostream"))
-end)
-hl.bind("SUPER + N", function()
-  hl.exec_cmd("sh -c 'pgrep -x nmtui || alacritty --class nmtui --title nmtui -e nmtui &'")
-  hl.dispatch(hl.dsp.workspace.toggle_special("network"))
-end)
 -- Brightness
 hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("brightnessctl set 5%+"), { repeating = true })
 hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl set 5%-"), { repeating = true })
@@ -137,16 +128,6 @@ for i = 1, 9 do
 end
 
 -- Window rules
-hl.window_rule({
-  match = { class = "org.pulseaudio.pavucontrol" },
-  workspace = "special:audiostream",
-  float = true,
-})
-hl.window_rule({
-  match = { class = "nmtui" },
-  workspace = "special:network",
-  float = true,
-})
 hl.window_rule({
   match = { class = "xdg-desktop-portal-gtk" },
   max_size = { 10000, 600 },
