@@ -125,7 +125,7 @@
         };
         style = ''
           * {
-            font-family: "JetBrainsMono Nerd Font";
+            font-family: "CaskaydiaCove Nerd Font";
             font-size: 13px;
           }
           window#waybar {

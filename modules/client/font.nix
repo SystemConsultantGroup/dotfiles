@@ -6,6 +6,7 @@
       (pkgs.callPackage ./pkgs/freesentation.nix { })
       pkgs.inter
       pkgs.cascadia-code
+      pkgs.nerd-fonts.caskaydia-cove
     ];
     fontconfig = {
       defaultFonts = {
