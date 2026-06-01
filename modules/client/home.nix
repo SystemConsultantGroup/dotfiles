@@ -37,6 +37,7 @@
 
     home.packages = [
       pkgs.cliphist
+      pkgs.waybar
       pkgs.wl-clipboard
     ];
 
@@ -82,73 +83,6 @@
       rofi = {
         enable = true;
         plugins = [ pkgs.rofi-calc ];
-      };
-      waybar = {
-        enable = true;
-        settings = {
-          mainBar = {
-            layer = "top";
-            position = "top";
-            height = 30;
-            spacing = 8;
-            modules-left = [ "hyprland/workspaces" ];
-            modules-center = [ "clock" ];
-            modules-right = [
-              "pulseaudio"
-              "network"
-              "battery"
-            ];
-
-            clock = {
-              format = "{:%Y-%m-%d %H:%M}";
-            };
-
-            "hyprland/workspaces" = {
-              format = "{name}";
-            };
-
-            pulseaudio = {
-              format = "VOL {volume}%";
-              format-muted = "MUTED";
-              scroll-step = 5;
-            };
-
-            network = {
-              format = "{ifname} {ipaddr}";
-            };
-
-            battery = {
-              format = "BAT {capacity}%";
-              format-charging = "CHR {capacity}%";
-            };
-          };
-        };
-        style = ''
-          * {
-            font-family: "CaskaydiaCove Nerd Font";
-            font-size: 13px;
-          }
-          window#waybar {
-            background: rgba(0, 0, 0, 0.9);
-            color: #dddddd;
-          }
-          #clock, #battery, #network, #pulseaudio {
-            padding: 0 12px;
-          }
-          #window {
-            color: #dddddd;
-          }
-          #workspaces {
-            margin: 0 4px;
-          }
-          #workspaces button {
-            color: #444444;
-            padding: 0 4px;
-          }
-          #workspaces button.active {
-            color: #dddddd;
-          }
-        '';
       };
     };
   };

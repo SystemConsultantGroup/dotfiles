@@ -15,7 +15,7 @@ hl.monitor({ output = "", mode = "highrr", position = "auto", scale = "auto" })
 -- Autostart
 hl.on("hyprland.start", function()
   hl.exec_cmd("kime")
-  hl.exec_cmd("waybar")
+  hl.exec_cmd("waybar -c /home/aperso/dotfiles/dynamic/waybar/config -s /home/aperso/dotfiles/dynamic/waybar/style.css")
   hl.exec_cmd("wl-paste --watch cliphist store")
 end)
 
@@ -85,7 +85,17 @@ hl.bind(
     "[float] sh -c 'QT_SCALE_FACTOR=$(hyprctl monitors -j | jq -r \".[] | select(.focused) | 1/.scale\") exec flameshot gui -s -c'"
   )
 )
-hl.bind("SUPER + P", hl.dsp.exec_cmd("pavucontrol"))
+-- Transient apps on special workspaces (scratchpad-style)
+hl.bind(
+  "SUPER + P",
+  hl.dsp.exec_cmd("sh -c 'hyprctl dispatch togglespecialworkspace pavucontrol; pgrep -x pavucontrol || pavucontrol &'")
+)
+hl.bind(
+  "SUPER + N",
+  hl.dsp.exec_cmd(
+    "sh -c 'hyprctl dispatch togglespecialworkspace nmtui; pgrep -x nmtui || alacritty --title nmtui -e nmtui &'"
+  )
+)
 
 -- Brightness
 hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("brightnessctl set 5%+"), { repeating = true })
@@ -120,6 +130,16 @@ for i = 1, 5 do
 end
 
 -- Window rules
+hl.window_rule({
+  match = { class = "pavucontrol" },
+  workspace = "special:pavucontrol",
+  float = true,
+})
+hl.window_rule({
+  match = { title = "nmtui" },
+  workspace = "special:nmtui",
+  float = true,
+})
 hl.window_rule({
   match = { class = "xdg-desktop-portal-gtk" },
   max_size = { 10000, 600 },
