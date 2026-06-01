@@ -85,17 +85,15 @@ hl.bind(
     "[float] sh -c 'QT_SCALE_FACTOR=$(hyprctl monitors -j | jq -r \".[] | select(.focused) | 1/.scale\") exec flameshot gui -s -c'"
   )
 )
--- Transient apps on special workspaces (scratchpad-style)
-hl.bind(
-  "SUPER + P",
-  hl.dsp.exec_cmd("sh -c 'hyprctl dispatch togglespecialworkspace pavucontrol; pgrep -x pavucontrol || pavucontrol &'")
-)
-hl.bind(
-  "SUPER + N",
-  hl.dsp.exec_cmd(
-    "sh -c 'hyprctl dispatch togglespecialworkspace nmtui; pgrep -x nmtui || alacritty --title nmtui -e nmtui &'"
-  )
-)
+-- Transient apps on dedicated workspaces (workspace 9 = pavucontrol, 8 = nmtui)
+hl.bind("SUPER + P", function()
+  hl.dsp.focus({ workspace = 9 })
+  hl.exec_cmd("sh -c 'pgrep -x pavucontrol || pavucontrol &'")
+end)
+hl.bind("SUPER + N", function()
+  hl.dsp.focus({ workspace = 8 })
+  hl.exec_cmd("sh -c 'pgrep -x nmtui || alacritty --class nmtui --title nmtui -e nmtui &'")
+end)
 
 -- Brightness
 hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("brightnessctl set 5%+"), { repeating = true })
@@ -123,21 +121,21 @@ hl.bind("SUPER + CTRL + RIGHT", hl.dsp.window.resize({ x = 20, y = 0 }), { repea
 hl.bind("SUPER + CTRL + UP", hl.dsp.window.resize({ x = 0, y = -20 }), { repeating = true })
 hl.bind("SUPER + CTRL + DOWN", hl.dsp.window.resize({ x = 0, y = 20 }), { repeating = true })
 
--- Workspaces 1-5
-for i = 1, 5 do
+-- Workspaces 1-9
+for i = 1, 9 do
   hl.bind("SUPER + " .. i, hl.dsp.focus({ workspace = i }))
   hl.bind("SUPER + SHIFT + " .. i, hl.dsp.window.move({ workspace = i }))
 end
 
 -- Window rules
 hl.window_rule({
-  match = { class = "pavucontrol" },
-  workspace = "special:pavucontrol",
+  match = { class = "org.pulseaudio.pavucontrol" },
+  workspace = "9",
   float = true,
 })
 hl.window_rule({
-  match = { title = "nmtui" },
-  workspace = "special:nmtui",
+  match = { class = "nmtui" },
+  workspace = "8",
   float = true,
 })
 hl.window_rule({
