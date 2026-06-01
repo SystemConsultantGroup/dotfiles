@@ -8,8 +8,6 @@
     ./hardware-configuration.nix
     ../../modules/base
     ../../modules/client
-    ../../modules/client/radeon.nix
-    ../../modules/client/arc.nix
   ];
   boot = {
     kernelPackages = pkgs.linuxPackages;
