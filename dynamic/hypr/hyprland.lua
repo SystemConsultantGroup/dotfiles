@@ -61,6 +61,7 @@ hl.config({
     disable_hyprland_logo = true,
     disable_splash_rendering = true,
     background_color = "rgb(000000)",
+    close_special_on_empty = true,
   },
 })
 
@@ -85,14 +86,14 @@ hl.bind(
     "[float] sh -c 'QT_SCALE_FACTOR=$(hyprctl monitors -j | jq -r \".[] | select(.focused) | 1/.scale\") exec flameshot gui -s -c'"
   )
 )
--- Transient apps on dedicated workspaces (workspace 9 = pavucontrol, 8 = nmtui)
+-- Transient apps in auto-hiding special workspaces (scratchpads)
 hl.bind("SUPER + P", function()
-  hl.dsp.focus({ workspace = 9 })
   hl.exec_cmd("sh -c 'pgrep -x pavucontrol || pavucontrol &'")
+  hl.dsp.workspace.toggle_special("audiostream")
 end)
 hl.bind("SUPER + N", function()
-  hl.dsp.focus({ workspace = 8 })
   hl.exec_cmd("sh -c 'pgrep -x nmtui || alacritty --class nmtui --title nmtui -e nmtui &'")
+  hl.dsp.workspace.toggle_special("network")
 end)
 
 -- Brightness
@@ -130,12 +131,12 @@ end
 -- Window rules
 hl.window_rule({
   match = { class = "org.pulseaudio.pavucontrol" },
-  workspace = "9",
+  workspace = "special:audiostream",
   float = true,
 })
 hl.window_rule({
   match = { class = "nmtui" },
-  workspace = "8",
+  workspace = "special:network",
   float = true,
 })
 hl.window_rule({
