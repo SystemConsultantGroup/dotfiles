@@ -11,6 +11,7 @@
     ./font.nix
     ./hypr.nix
   ];
+  hardware.graphics.enable = true;
   i18n = {
     defaultLocale = "en_US.UTF-8";
     inputMethod = {
