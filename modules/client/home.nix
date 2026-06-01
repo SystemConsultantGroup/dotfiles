@@ -36,8 +36,8 @@
     };
 
     home.packages = [
+      pkgs.ashell
       pkgs.cliphist
-      pkgs.waybar
       pkgs.wl-clipboard
       pkgs.wtype
     ];
