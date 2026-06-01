@@ -129,24 +129,24 @@
             font-size: 13px;
           }
           window#waybar {
-            background: rgba(30, 30, 46, 0.9);
-            color: #cdd6f4;
+            background: rgba(0, 0, 0, 0.9);
+            color: #dddddd;
           }
           #clock, #battery, #network, #pulseaudio {
             padding: 0 12px;
           }
           #window {
-            color: #f5c2e7;
+            color: #dddddd;
           }
           #workspaces {
             margin: 0 4px;
           }
           #workspaces button {
-            color: #f5c2e7;
+            color: #444444;
             padding: 0 4px;
           }
           #workspaces button.active {
-            color: #a6e3a1;
+            color: #dddddd;
           }
         '';
       };
