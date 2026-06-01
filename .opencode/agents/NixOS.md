@@ -58,13 +58,14 @@ No permanent local tracking branches are needed. Skills create ephemeral `upstre
 Load the appropriate skill for your host and task. Naming follows Rust `From`/`Into` semantics: `from` pulls data toward you, `into` pushes data away from you. Skills create ephemeral `<upstream/downstream>-scratch` branches — never maintain permanent tracking branches.
 
 | Skill | Host | Direction | When |
-|---|---|---|---|
+|---|---|---|---|---|
 | `dev-upstream` | Upstream | — | Making changes on the canonical repo |
 | `dev-downstream` | Downstream | — | Making fork-specific changes (router, NVIDIA, branding) |
 | `merge-into-upstream` | Downstream | ⬆ Push generic changes up | Developing generic improvements with downstream verification |
 | `merge-from-upstream` | Downstream | ⬇ Pull upstream changes down | Merging external upstream changes into your fork |
 | `merge-into-downstream` | Upstream | ⬇ Push changes down | Propagating upstream changes into a fork you maintain |
 | `merge-from-downstream` | Upstream | ⬆ Pull innovations up | Bringing downstream improvements back upstream |
+| `hyprland` | Any | — | Answering Hyprland questions or making config changes; provides wiki-backed references for keywords, variables, window rules, monitors, IPC, etc. |
 
 > **Default downstream:** `SystemConsultantGroup/dotfiles`. When referencing a downstream without specifying which one, this is the assumed fork.
 
