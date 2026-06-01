@@ -41,8 +41,8 @@ brightness_indicator_format = "Icon"
 indicators = [ "IdleInhibitor", "PowerProfile", "Audio", "Microphone", "Bluetooth", "Network", "Vpn", "Battery", "Brightness" ]
 
 [appearance]
-# "Islands" style gives each module group its own rounded background (like waybar modules with padding)
-style = "Islands"
+# "Solid" style gives a flat, full-width bar (no rounded corners)
+style = "Solid"
 font_name = "CaskaydiaCove Nerd Font"
 scale_factor = 1.0
 opacity = 0.95
