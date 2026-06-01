@@ -10,6 +10,8 @@ hl.env("HYPRCURSOR_SIZE", "24")
 -- Monitors
 hl.monitor({ output = "DP-1", mode = "highrr", position = "auto", scale = 1.0 })
 hl.monitor({ output = "eDP-1", mode = "preferred", position = "auto", scale = 1.25 })
+-- Catch-all for any unconfigured monitor
+hl.monitor({ output = "", mode = "highrr", position = "auto", scale = "auto" })
 
 -- Autostart
 hl.on("hyprland.start", function()
