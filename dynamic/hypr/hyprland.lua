@@ -14,6 +14,10 @@ hl.monitor({ output = "", mode = "highrr", position = "auto", scale = "auto" })
 
 -- Autostart (runs once on initial start only)
 hl.on("hyprland.start", function()
+  -- Symlink noctalia config to repo for live hot-reload (like Hyprland)
+  hl.exec_cmd(
+    "mkdir -p $HOME/.config/noctalia && ln -sf $HOME/dotfiles/dynamic/noctalia/settings.json $HOME/.config/noctalia/settings.json"
+  )
   hl.exec_cmd("kime")
   hl.exec_cmd("noctalia-shell")
   hl.exec_cmd("wl-paste --watch cliphist store")
