@@ -8,10 +8,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     kime.url = "github:apersomany/kime";
-    stylix = {
-      url = "github:nix-community/stylix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
   outputs =
