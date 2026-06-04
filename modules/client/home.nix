@@ -36,7 +36,7 @@
     };
 
     home.packages = [
-      pkgs.ashell
+      pkgs.noctalia-shell
       pkgs.cliphist
       pkgs.wl-clipboard
       pkgs.wtype
