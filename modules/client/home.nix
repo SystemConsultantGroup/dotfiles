@@ -16,11 +16,6 @@
         pkgs.wl-clipboard
         pkgs.wtype
       ];
-
-      file.".config/noctalia" = {
-        source = ./../../dynamic/noctalia;
-        recursive = true;
-      };
     };
 
     xdg.mimeApps = {
