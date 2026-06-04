@@ -41,6 +41,14 @@ hl.config({
   },
 })
 
+-- Decoration: rounding matches noctalia's default frameRadius (12)
+hl.config({
+  decoration = {
+    rounding = 12,
+    rounding_power = 2,
+  },
+})
+
 -- Animations
 hl.config({
   animations = {
