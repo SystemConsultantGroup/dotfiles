@@ -12,12 +12,10 @@ hl.monitor({ output = "eDP-1", mode = "preferred", position = "auto", scale = 1.
 -- Catch-all for any unconfigured monitor (DP-1, external docks, projectors, etc.)
 hl.monitor({ output = "", mode = "highrr", position = "auto", scale = "auto" })
 
--- Ashell: kill and restart on every config load (initial start + reload)
-hl.exec_cmd("pkill -x ashell 2>/dev/null; ashell --config-path /home/aperso/dotfiles/dynamic/ashell/config.toml")
-
 -- Autostart (runs once on initial start only)
 hl.on("hyprland.start", function()
   hl.exec_cmd("kime")
+  hl.exec_cmd("noctalia-shell")
   hl.exec_cmd("wl-paste --watch cliphist store")
 end)
 
