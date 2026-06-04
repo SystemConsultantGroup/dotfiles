@@ -8,8 +8,6 @@
 }:
 {
   home-manager.users.${username} = {
-    stylix.enableReleaseChecks = false;
-
     home = {
       stateVersion = "25.11";
 
