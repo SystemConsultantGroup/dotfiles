@@ -30,11 +30,7 @@ in
     NH_OS_FLAKE = dotfiles;
     HYPRLAND_CONFIG = "${dotfiles}/dynamic/hypr/hyprland.lua";
     SSL_CERT_FILE = "/etc/ssl/certs/ca-certificates.crt";
-    HYPRLAND_ACTIVE_BORDER = lib.mkIf (
-      stylixColors != null
-    ) "rgb(${stylixColors.base0E})";
-    HYPRLAND_INACTIVE_BORDER = lib.mkIf (
-      stylixColors != null
-    ) "rgb(${stylixColors.base03})";
+    HYPRLAND_ACTIVE_BORDER = lib.mkIf (stylixColors != null) "rgb(${stylixColors.base0E})";
+    HYPRLAND_INACTIVE_BORDER = lib.mkIf (stylixColors != null) "rgb(${stylixColors.base03})";
   };
 }
