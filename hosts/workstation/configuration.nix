@@ -8,6 +8,12 @@
   ];
   boot = {
     kernelPackages = pkgs.linuxPackages;
+    # Preload nvidia+uvm so CUDA apps can find the GPU without on-demand loading.
+    kernelModules = [
+      "nvidia"
+      "nvidia_uvm"
+    ];
+    blacklistedKernelModules = [ "nouveau" ];
     loader = {
       systemd-boot = {
         enable = true;
