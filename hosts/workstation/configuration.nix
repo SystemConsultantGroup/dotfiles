@@ -8,11 +8,7 @@
   ];
   boot = {
     kernelPackages = pkgs.linuxPackages;
-    # Preload nvidia+uvm so CUDA apps can find the GPU without on-demand loading.
-    kernelModules = [
-      "nvidia"
-      "nvidia_uvm"
-    ];
+    # Don't force-load nvidia modules at boot — CUDA loads them on demand.
     blacklistedKernelModules = [ "nouveau" ];
     loader = {
       systemd-boot = {
@@ -24,13 +20,13 @@
     };
   };
 
-  # NVIDIA GPU — compute-only (display on iGPU).
+  # NVIDIA GeForce RTX 5060 — compute-only (display on iGPU).
   # Provides CUDA driver runtime (libcuda.so, nvidia-uvm, etc.)
   # without requiring the full CUDA development toolkit.
   hardware.nvidia = {
     modesetting.enable = false;
     powerManagement.enable = true;
-    open = false;
+    open = true; # Blackwell GPU — use open kernel module
     package = config.boot.kernelPackages.nvidiaPackages.stable;
   };
 
