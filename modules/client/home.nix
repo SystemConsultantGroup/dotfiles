@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   username,
   gitUserName,
@@ -32,16 +33,11 @@
 
     gtk = {
       enable = true;
-      cursorTheme = {
-        name = "Bibata-Modern-Ice";
-        package = pkgs.bibata-cursors;
-        size = 24;
-      };
     };
 
     qt = {
       enable = true;
-      platformTheme.name = "gtk";
+      platformTheme.name = lib.mkForce "gtk";
     };
 
     services.flameshot = {

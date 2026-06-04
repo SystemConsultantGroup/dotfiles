@@ -8,6 +8,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     kime.url = "github:apersomany/kime";
+    stylix = {
+      url = "github:nix-community/stylix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -46,6 +50,7 @@
       nixosModules = {
         base = ./modules/base;
         client = ./modules/client;
+        nvidia = ./modules/nvidia;
         server = ./modules/server;
       };
 
