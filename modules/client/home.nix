@@ -7,7 +7,21 @@
 }:
 {
   home-manager.users.${username} = {
-    home.stateVersion = "25.11";
+    home = {
+      stateVersion = "25.11";
+
+      packages = [
+        pkgs.noctalia-shell
+        pkgs.cliphist
+        pkgs.wl-clipboard
+        pkgs.wtype
+      ];
+
+      file.".config/noctalia" = {
+        source = ./../../dynamic/noctalia;
+        recursive = true;
+      };
+    };
 
     xdg.mimeApps = {
       enable = true;
@@ -34,13 +48,6 @@
       enable = true;
       platformTheme.name = "gtk";
     };
-
-    home.packages = [
-      pkgs.noctalia-shell
-      pkgs.cliphist
-      pkgs.wl-clipboard
-      pkgs.wtype
-    ];
 
     services.flameshot = {
       enable = true;
