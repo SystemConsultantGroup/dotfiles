@@ -50,7 +50,6 @@
       nixosModules = {
         base = ./modules/base;
         client = ./modules/client;
-        nvidia = ./modules/nvidia;
         server = ./modules/server;
       };
 

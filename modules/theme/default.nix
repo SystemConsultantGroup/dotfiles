@@ -31,5 +31,6 @@
       terminal = 0.85;
     };
 
+    targets.kmscon.enable = false;
   };
 }

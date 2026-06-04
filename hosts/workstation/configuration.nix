@@ -5,9 +5,7 @@
     ./hardware-configuration.nix
     ../../modules/base
     ../../modules/client
-    ../../modules/nvidia
   ];
-  hardware.nvidia.cuda.enable = true;
   boot = {
     kernelPackages = pkgs.linuxPackages;
     loader = {
