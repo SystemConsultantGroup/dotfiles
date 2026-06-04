@@ -7,9 +7,11 @@
 {
   imports = [
     inputs.home-manager.nixosModules.home-manager
+    inputs.stylix.nixosModules.stylix
     ./home.nix
     ./font.nix
     ./hypr.nix
+    ../theme
   ];
   hardware.graphics.enable = true;
   i18n = {
