@@ -8,7 +8,7 @@
   ];
   boot = {
     kernelPackages = pkgs.linuxPackages;
-    # Don't force-load nvidia modules at boot — CUDA loads them on demand.
+    # nvidia in videoDrivers below makes modules available; CUDA triggers autoload.
     blacklistedKernelModules = [ "nouveau" ];
     loader = {
       systemd-boot = {
@@ -19,6 +19,11 @@
       efi.canTouchEfiVariables = true;
     };
   };
+
+  services.xserver.videoDrivers = [
+    "amdgpu"
+    "nvidia"
+  ];
 
   # NVIDIA GeForce RTX 5060 — compute-only (display on iGPU).
   # Provides CUDA driver runtime (libcuda.so, nvidia-uvm, etc.)
