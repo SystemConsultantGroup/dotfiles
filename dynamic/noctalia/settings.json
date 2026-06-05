@@ -367,7 +367,7 @@
         "animationDisabled": false,
         "animationSpeed": 2,
         "autoStartAuth": false,
-        "avatarImage": "/home/aperso/.face",
+        "avatarImage": "~/.face",
         "boxRadiusRatio": 1,
         "clockFormat": "hh\\nmm",
         "clockStyle": "custom",
@@ -673,7 +673,7 @@
         "boxBorderEnabled": false,
         "fontDefault": "Inter",
         "fontDefaultScale": 1,
-        "fontFixed": "Cascadia Mono",
+        "fontFixed": "Cascadia Code",
         "fontFixedScale": 1,
         "panelBackgroundOpacity": 1,
         "panelsAttachedToBar": true,
@@ -685,7 +685,7 @@
     },
     "wallpaper": {
         "automationEnabled": false,
-        "directory": "/home/aperso/dotfiles/dynamic/wallpapers",
+        "directory": "~/dotfiles/dynamic/wallpapers",
         "enableMultiMonitorDirectories": false,
         "enabled": true,
         "favorites": [
