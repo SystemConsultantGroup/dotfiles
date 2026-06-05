@@ -11,8 +11,16 @@ in
   imports = [ ./user.nix ];
 
   options.dotfiles.base = {
-    podman.enable = lib.mkEnableOption "Podman container engine";
-    nixld.enable = lib.mkEnableOption "nix-ld for running foreign binaries";
+    podman.enable = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = "Whether to enable Podman container engine";
+    };
+    nixld.enable = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = "Whether to enable nix-ld for running foreign binaries";
+    };
   };
 
   config = lib.mkMerge [
