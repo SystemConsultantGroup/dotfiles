@@ -7,7 +7,7 @@
 {
   imports = [
     inputs.home-manager.nixosModules.home-manager
-    ./home.nix
+    ./home
     ./font.nix
     ./hypr.nix
   ];
