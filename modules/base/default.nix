@@ -8,6 +8,8 @@ let
   cfg = config.dotfiles.base;
 in
 {
+  imports = [ ./user.nix ];
+
   options.dotfiles.base = {
     podman.enable = lib.mkEnableOption "Podman container engine";
     nixld.enable = lib.mkEnableOption "nix-ld for running foreign binaries";
@@ -15,8 +17,6 @@ in
 
   config = lib.mkMerge [
     {
-      imports = [ ./user.nix ];
-
       nix = {
         settings = {
           experimental-features = [
