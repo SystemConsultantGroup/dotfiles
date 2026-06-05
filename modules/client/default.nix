@@ -10,7 +10,6 @@ let
 in
 {
   imports = [
-    inputs.home-manager.nixosModules.home-manager
     ./home
     ./font.nix
   ];
@@ -42,14 +41,7 @@ in
         package = lib.mkForce inputs.kime.packages.${pkgs.system}.default;
       };
       environment.systemPackages = [
-        pkgs.vesktop
-        pkgs.firefox
-        pkgs.brave
-        pkgs.zed-editor
         pkgs.vscode-fhs
-        pkgs.nixd
-        pkgs.nil
-        pkgs.pwvucontrol
         pkgs.bibata-cursors
         pkgs.brightnessctl
       ];

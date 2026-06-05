@@ -2,13 +2,18 @@
   config,
   lib,
   pkgs,
+  inputs,
   ...
 }:
 let
   cfg = config.dotfiles.base;
 in
 {
-  imports = [ ./user.nix ];
+  imports = [
+    ./user.nix
+    inputs.home-manager.nixosModules.home-manager
+    ./home
+  ];
 
   options.dotfiles.base = {
     podman.enable = lib.mkOption {
@@ -56,25 +61,7 @@ in
         firewall.enable = false;
       };
 
-      environment.systemPackages = [
-        pkgs.bat
-        pkgs.bun
-        pkgs.fd
-        pkgs.fzf
-        pkgs.git
-        pkgs.gh
-        pkgs.devenv
-        pkgs.jq
-        pkgs.mtr
-        pkgs.nh
-        pkgs.nodejs
-        pkgs.opencode
-        pkgs.ripgrep
-        pkgs.unzip
-        pkgs.uv
-        pkgs.yazi
-        pkgs.zip
-      ];
+      environment.systemPackages = [ ];
     }
     (lib.mkIf cfg.podman.enable {
       virtualisation.podman = {

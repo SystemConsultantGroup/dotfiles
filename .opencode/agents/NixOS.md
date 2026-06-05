@@ -30,6 +30,9 @@ No permanent local tracking branches are needed. Skills create ephemeral `upstre
 - **Formatting & linting:** `statix check . && deadnix . && nix fmt` before every commit. `statix` checks for antipatterns, `deadnix` finds unused bindings, `fmt` runs `nixfmt` + `stylua` via treefmt. All are available from the devshell.
 - **User-specific values:** defined in `flake.nix`'s `let` block (`username`, `userFullName`, `gitUserName`, `gitUserEmail`) — passed via `specialArgs`. Forking requires editing only `flake.nix`.
 - **Branch:** `master` (not `main`).
+- **Package placement:** user-facing apps and CLI tools go in `home.packages` (home-manager). Only drivers, cursor themes, fonts, hardware-access tools (`brightnessctl`), and system workarounds (`vscode-fhs`) stay in `environment.systemPackages`. Home-manager is imported in `base` (not `client`) so `programs.*` config works on all hosts.
+  - `modules/base/home/` — home-manager config for all hosts (git, bash, direnv, CLI tools)
+  - `modules/client/home/` — GUI-only home-manager config (alacritty, rofi, flameshot, GUI apps)
 
 ## Build & validation
 

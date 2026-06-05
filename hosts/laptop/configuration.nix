@@ -1,9 +1,9 @@
-{ pkgs, ... }:
+{ pkgs, username, ... }:
 {
   networking.hostName = "laptop";
   programs.iio-hyprland.enable = true;
   services.asusd.enable = true;
-  environment.systemPackages = [
+  home-manager.users.${username}.home.packages = [
     pkgs.rnote
   ];
   imports = [
