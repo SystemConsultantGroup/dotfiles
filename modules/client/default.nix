@@ -32,6 +32,8 @@
 
     gnome.gnome-keyring.enable = true;
 
+    gvfs.enable = true;
+
     pipewire = {
       enable = true;
       alsa.enable = true;
