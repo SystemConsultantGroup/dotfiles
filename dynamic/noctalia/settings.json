@@ -639,7 +639,7 @@
                 "id": "alacritty"
             },
             {
-                "enabled": true,
+                "enabled": false,
                 "id": "hyprland"
             },
             {
