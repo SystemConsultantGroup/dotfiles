@@ -46,7 +46,6 @@
       nixosModules = {
         base = ./modules/base;
         client = ./modules/client;
-        server = ./modules/server;
       };
 
       formatter.x86_64-linux = pkgs.writeShellApplication {
