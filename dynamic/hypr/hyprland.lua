@@ -37,10 +37,6 @@ hl.config({
     gaps_in = 8,
     gaps_out = 16,
     border_size = 2,
-    col = {
-      active_border = "rgb(dddddd)",
-      inactive_border = "rgb(444444)",
-    },
     layout = "master",
   },
 })
