@@ -21,7 +21,6 @@
     pkgs.wtype
     pkgs.vesktop
     pkgs.firefox
-    pkgs.brave
     pkgs.zed-editor
     pkgs.nixd
     pkgs.nil
