@@ -5,7 +5,9 @@
 }:
 {
   imports = [
-    ./base.nix
+    ./xdg.nix
+    ./gtk.nix
+    ./qt.nix
     ./alacritty.nix
     ./hyprland.nix
     ./rofi.nix

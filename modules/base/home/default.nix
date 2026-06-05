@@ -10,9 +10,10 @@
     ./bash.nix
   ];
 
-  home-manager.users.${username} = {
-    home.sessionVariables.NH_OS_FLAKE = "${config.users.users.${username}.home}/dotfiles";
-    home.packages = [
+  home-manager.users.${username}.home = {
+    stateVersion = "25.11";
+    sessionVariables.NH_OS_FLAKE = "${config.users.users.${username}.home}/dotfiles";
+    packages = [
       pkgs.bat
       pkgs.bun
       pkgs.fd
