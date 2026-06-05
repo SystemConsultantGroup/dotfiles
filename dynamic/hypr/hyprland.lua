@@ -7,6 +7,9 @@ hl.env("XCURSOR_SIZE", "24")
 hl.env("HYPRCURSOR_THEME", "Bibata-Modern-Ice")
 hl.env("HYPRCURSOR_SIZE", "24")
 
+-- Noctalia-generated color scheme (Lua syntax, generated via user template)
+dofile(os.getenv("HOME") .. "/.config/hypr/noctalia-colors.lua")
+
 -- Monitors
 hl.monitor({ output = "eDP-1", mode = "preferred", position = "auto", scale = 1.25 })
 -- Catch-all for any unconfigured monitor (DP-1, external docks, projectors, etc.)
@@ -16,7 +19,9 @@ hl.monitor({ output = "", mode = "highrr", position = "auto", scale = "auto" })
 hl.on("hyprland.start", function()
   -- Symlink noctalia config to repo for live hot-reload (like Hyprland)
   hl.exec_cmd(
-    "mkdir -p $HOME/.config/noctalia && ln -sf $HOME/dotfiles/dynamic/noctalia/settings.json $HOME/.config/noctalia/settings.json"
+    "mkdir -p $HOME/.config/noctalia $HOME/.config/hypr && "
+      .. "ln -sf $HOME/dotfiles/dynamic/noctalia/settings.json $HOME/.config/noctalia/settings.json && "
+      .. "ln -sf $HOME/dotfiles/dynamic/noctalia/user-templates.toml $HOME/.config/noctalia/user-templates.toml"
   )
   hl.exec_cmd("kime")
   hl.exec_cmd("noctalia-shell")
