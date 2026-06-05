@@ -71,7 +71,7 @@
         "rightClickFollowMouse": true,
         "screenOverrides": [
         ],
-        "showCapsule": true,
+        "showCapsule": false,
         "showOnWorkspaceSwitch": true,
         "showOutline": false,
         "useSeparateOpacity": false,
@@ -203,7 +203,7 @@
                     "displayMode": "onhover",
                     "iconColor": "none",
                     "id": "Volume",
-                    "middleClickCommand": "pwvucontrol || pavucontrol",
+                    "middleClickCommand": "pwvucontrol",
                     "textColor": "none"
                 },
                 {
@@ -454,11 +454,11 @@
     },
     "location": {
         "analogClockInCalendar": false,
-        "autoLocate": false,
+        "autoLocate": true,
         "firstDayOfWeek": -1,
         "hideWeatherCityName": false,
         "hideWeatherTimezone": false,
-        "name": "",
+        "name": "Miryang",
         "showCalendarEvents": true,
         "showCalendarWeather": true,
         "showWeekNumberInCalendar": false,
@@ -661,10 +661,6 @@
             {
                 "enabled": true,
                 "id": "hyprtoolkit"
-            },
-            {
-                "enabled": true,
-                "id": "kcolorscheme"
             },
             {
                 "enabled": true,
