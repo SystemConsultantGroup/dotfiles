@@ -28,7 +28,6 @@
       pkgs.unzip
       pkgs.uv
       pkgs.nh
-      pkgs.yazi
       pkgs.zip
     ];
   };
