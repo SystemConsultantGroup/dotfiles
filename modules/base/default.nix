@@ -15,17 +15,10 @@ in
     ./home
   ];
 
-  options.dotfiles.base = {
-    podman.enable = lib.mkOption {
-      type = lib.types.bool;
-      default = true;
-      description = "Whether to enable Podman container engine";
-    };
-    nixld.enable = lib.mkOption {
-      type = lib.types.bool;
-      default = true;
-      description = "Whether to enable nix-ld for running foreign binaries";
-    };
+  options.dotfiles.base.podman.enable = lib.mkOption {
+    type = lib.types.bool;
+    default = true;
+    description = "Whether to enable Podman container engine";
   };
 
   config = lib.mkMerge [
@@ -61,6 +54,14 @@ in
         firewall.enable = false;
       };
 
+      programs.nix-ld = {
+        enable = true;
+        libraries = [
+          pkgs.zlib
+          pkgs.stdenv.cc.cc
+        ];
+      };
+
       environment.systemPackages = [ ];
     }
     (lib.mkIf cfg.podman.enable {
@@ -69,15 +70,6 @@ in
         dockerCompat = true;
         dockerSocket.enable = true;
         defaultNetwork.settings.dns_enabled = true;
-      };
-    })
-    (lib.mkIf cfg.nixld.enable {
-      programs.nix-ld = {
-        enable = true;
-        libraries = [
-          pkgs.zlib
-          pkgs.stdenv.cc.cc
-        ];
       };
     })
   ];
