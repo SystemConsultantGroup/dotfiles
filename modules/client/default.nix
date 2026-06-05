@@ -16,9 +16,21 @@ in
   ];
 
   options.dotfiles.client = {
-    pipewire.enable = lib.mkEnableOption "PipeWire audio service";
-    gnomeKeyring.enable = lib.mkEnableOption "GNOME Keyring";
-    hyprland.enable = lib.mkEnableOption "Hyprland compositor";
+    pipewire.enable = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = "Whether to enable PipeWire audio service";
+    };
+    gnomeKeyring.enable = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = "Whether to enable GNOME Keyring";
+    };
+    hyprland.enable = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = "Whether to enable Hyprland compositor";
+    };
   };
 
   config = lib.mkMerge [
