@@ -9,6 +9,12 @@ let
   cfg = config.dotfiles.client;
 in
 {
+  imports = [
+    inputs.home-manager.nixosModules.home-manager
+    ./home
+    ./font.nix
+  ];
+
   options.dotfiles.client = {
     pipewire.enable = lib.mkEnableOption "PipeWire audio service";
     gnomeKeyring.enable = lib.mkEnableOption "GNOME Keyring";
@@ -17,11 +23,6 @@ in
 
   config = lib.mkMerge [
     {
-      imports = [
-        inputs.home-manager.nixosModules.home-manager
-        ./home
-        ./font.nix
-      ];
       hardware.graphics.enable = true;
       i18n.inputMethod = {
         enable = true;
