@@ -7,6 +7,7 @@
   imports = [
     ./base.nix
     ./alacritty.nix
+    ./hyprland.nix
     ./rofi.nix
     ./flameshot.nix
   ];
