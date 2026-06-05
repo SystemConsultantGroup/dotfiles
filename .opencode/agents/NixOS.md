@@ -35,7 +35,7 @@ No permanent local tracking branches are needed. Skills create ephemeral `upstre
 
 | What changed | Validate with |
 |---|---|---|
-| Nix files (`modules/`, `home/`, `hosts/`, `flake.nix`) | `statix check . && deadnix .` then `nh os build .` |
+| Nix files (`modules/`, `hosts/`, `flake.nix`) | `statix check . && deadnix .` then `nh os build .` |
 | Hyprland Lua (`dynamic/hypr/hyprland.lua`) | `Hyprland --verify-config -c dynamic/hypr/hyprland.lua` (offline — use this first) |
 | Other `dynamic/` files | No build needed |
 
