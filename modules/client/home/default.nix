@@ -6,8 +6,6 @@
 {
   imports = [
     ./base.nix
-    ./bash.nix
-    ./git.nix
     ./alacritty.nix
     ./rofi.nix
     ./flameshot.nix
@@ -18,5 +16,12 @@
     pkgs.cliphist
     pkgs.wl-clipboard
     pkgs.wtype
+    pkgs.vesktop
+    pkgs.firefox
+    pkgs.brave
+    pkgs.zed-editor
+    pkgs.nixd
+    pkgs.nil
+    pkgs.pwvucontrol
   ];
 }
