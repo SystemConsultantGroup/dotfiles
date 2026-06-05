@@ -79,7 +79,7 @@ hl.config({
 -- Keybinds
 -- Launcher
 hl.bind("SUPER + RETURN", hl.dsp.exec_cmd("alacritty"))
-hl.bind("SUPER + R", hl.dsp.exec_cmd("rofi -show drun"))
+hl.bind("SUPER + R", hl.dsp.exec_cmd("noctalia-shell ipc call launcher toggle"))
 hl.bind("SUPER + EQUAL", hl.dsp.exec_cmd("rofi -show calc -modi calc -no-show-match -no-sort"))
 
 -- Clipboard manager: list history with rofi, decode selection, copy to clipboard
