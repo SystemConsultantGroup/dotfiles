@@ -29,7 +29,7 @@ modules/
 └── server/        # Headless: SSH, Podman, GPG agent
 ```
 
-`workstation` imports `base` + `client` (+ `nix-amd-ai` for NPU); `laptop` imports
+`workstation` imports `base` + `client`; `laptop` imports
 `base` + `client`. Exposed as `nixosModules.{base,client,server}`.
 
 ## Runtime config
@@ -56,8 +56,7 @@ nix fmt           # Format Nix + Lua (treefmt → nixfmt + stylua)
 nh os build .     # Validate without switching
 ```
 
-Dev shell (`direnv` / `nix develop`) provides `treefmt`, `nil`, `nixd`,
-`statix`, `deadnix`, `nh`, and `gh`.
+Dev shell (`direnv` / `nix develop`) provides `statix` and `deadnix`.
 
 ## Dependencies
 
@@ -66,7 +65,6 @@ Dev shell (`direnv` / `nix develop`) provides `treefmt`, `nil`, `nixd`,
 | `nixpkgs` | `nixos/nixpkgs/nixos-unstable` | Rolling packages |
 | `home-manager` | `nix-community/home-manager` | User-level config |
 | `kime` | `apersomany/kime` (fork) | Korean input method |
-| `nix-amd-ai` | `noamsto/nix-amd-ai` | AMD NPU/ROCm support |
 
 ## License
 
