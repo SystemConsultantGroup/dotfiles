@@ -23,50 +23,29 @@ hl.on("hyprland.start", function()
   hl.exec_cmd("wl-paste --watch cliphist store")
 end)
 
--- Input
 hl.config({
   input = {
     kb_layout = "us",
     kb_options = "korean:ralt_hangul,korean:rctrl_hanja",
   },
-})
-
--- General
-hl.config({
   general = {
     gaps_in = 8,
     gaps_out = 16,
     border_size = 2,
     layout = "master",
   },
-})
-
--- Animations
-hl.config({
   animations = {
     enabled = false,
   },
-})
-
--- Master layout
-hl.config({
   master = {
     new_status = "slave",
   },
-})
-
--- Misc
-hl.config({
   misc = {
     disable_hyprland_logo = true,
     disable_splash_rendering = true,
     background_color = "rgb(000000)",
     close_special_on_empty = true,
   },
-})
-
--- Binds
-hl.config({
   binds = {
     hide_special_on_workspace_change = true,
   },
