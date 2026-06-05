@@ -23,6 +23,8 @@ in
 
   config = lib.mkMerge [
     {
+      home-manager.backupFileExtension = "backup";
+
       nix = {
         settings = {
           experimental-features = [
