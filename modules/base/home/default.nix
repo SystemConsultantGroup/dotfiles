@@ -8,6 +8,7 @@
   imports = [
     ./git.nix
     ./bash.nix
+    ./ssh.nix
   ];
 
   home-manager.users.${username}.home = {
