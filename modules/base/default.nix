@@ -64,7 +64,9 @@ in
         ];
       };
 
-      environment.systemPackages = [ ];
+      environment.systemPackages = [
+        pkgs.alacritty.terminfo
+      ];
     }
     (lib.mkIf cfg.podman.enable {
       virtualisation.podman = {
