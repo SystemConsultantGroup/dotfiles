@@ -12,6 +12,7 @@ dofile(os.getenv("HOME") .. "/.config/hypr/noctalia-colors.lua")
 
 -- Monitors
 hl.monitor({ output = "eDP-1", mode = "preferred", position = "auto", scale = 1.25 })
+hl.monitor({ output = "DP-1", mode = "2560x1440@239.97Hz", position = "auto", scale = 1.25 })
 -- Catch-all for any unconfigured monitor (DP-1, external docks, projectors, etc.)
 hl.monitor({ output = "", mode = "highrr", position = "auto", scale = "auto" })
 
