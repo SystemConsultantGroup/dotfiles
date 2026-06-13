@@ -8,7 +8,8 @@ hl.env("HYPRCURSOR_THEME", "Bibata-Modern-Ice")
 hl.env("HYPRCURSOR_SIZE", "24")
 
 -- Noctalia-generated color scheme (Lua syntax, generated via user template)
-dofile(os.getenv("HOME") .. "/.config/hypr/noctalia-colors.lua")
+-- pcall: silently ok if file doesn't exist yet — noctalia generates it after startup
+pcall(dofile, os.getenv("HOME") .. "/.config/hypr/noctalia-colors.lua")
 
 -- Monitors
 hl.monitor({ output = "eDP-1", mode = "preferred", position = "auto", scale = 1.25 })
