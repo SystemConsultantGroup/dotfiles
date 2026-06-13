@@ -39,13 +39,21 @@ After making changes, rebuild and switch to the new configuration:
 nh os switch
 ```
 
-This uses the flake at `~/dotfiles` (set by `NH_OS_FLAKE`). No need to remember `nixos-rebuild` flags.
+This uses the flake at `~/dotfiles` (set by `NH_OS_FLAKE`). No need to remember `nixos-rebuild` flags. Dev shell (`direnv` / `nix develop`) provides `statix` and `deadnix`.
 
 To just build without activating (useful for checking errors):
 
 ```
 nh os build
 ```
+
+| Input | Source | Purpose |
+|-------|--------|---------|
+| `nixpkgs` | `nixos/nixpkgs/nixos-unstable` | Rolling packages |
+| `home-manager` | `nix-community/home-manager` | User-level config |
+| `kime` | `apersomany/kime` (fork) | Korean input method |
+| `nixos-router` | `chayleaf/nixos-router` | Router networking |
+| `notnft` | `chayleaf/notnft` | Firewall rules |
 
 ## Recovering on a fresh NixOS install
 

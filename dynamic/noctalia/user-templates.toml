@@ -1,0 +1,8 @@
+[config]
+
+[templates]
+
+[templates.hyprland-lua]
+input_path = "~/dotfiles/dynamic/noctalia/templates/hyprland.lua"
+output_path = "~/.config/hypr/noctalia-colors.lua"
+post_hook = "hyprctl reload"
