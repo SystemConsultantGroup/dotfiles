@@ -7,67 +7,60 @@ hl.env("XCURSOR_SIZE", "24")
 hl.env("HYPRCURSOR_THEME", "Bibata-Modern-Ice")
 hl.env("HYPRCURSOR_SIZE", "24")
 
--- Monitors
-hl.monitor({ output = "DP-1", mode = "highrr", position = "auto", scale = 1.0 })
-hl.monitor({ output = "eDP-1", mode = "preferred", position = "auto", scale = 1.25 })
-hl.monitor({ output = "HDMI-A-1", mode = "highrr", position = "auto", scale = 1.0 })
+-- Noctalia-generated color scheme (Lua syntax, generated via user template)
+dofile(os.getenv("HOME") .. "/.config/hypr/noctalia-colors.lua")
 
--- Autostart
+-- Monitors
+hl.monitor({ output = "eDP-1", mode = "preferred", position = "auto", scale = 1.25 })
+hl.monitor({ output = "DP-1", mode = "2560x1440@239.97Hz", position = "auto", scale = 1.25 })
+-- Catch-all for any unconfigured monitor (DP-1, external docks, projectors, etc.)
+hl.monitor({ output = "", mode = "highrr", position = "auto", scale = "auto" })
+
+-- Autostart (runs once on initial start only)
 hl.on("hyprland.start", function()
+  -- Symlink noctalia config to repo for live hot-reload (like Hyprland)
+  hl.exec_cmd(
+    "mkdir -p $HOME/.config/noctalia $HOME/.config/hypr && "
+      .. "ln -sf $HOME/dotfiles/dynamic/noctalia/settings.json $HOME/.config/noctalia/settings.json && "
+      .. "ln -sf $HOME/dotfiles/dynamic/noctalia/user-templates.toml $HOME/.config/noctalia/user-templates.toml"
+  )
   hl.exec_cmd("kime")
-  hl.exec_cmd("waybar")
+  hl.exec_cmd("noctalia-shell")
   hl.exec_cmd("wl-paste --watch cliphist store")
 end)
 
--- Input
 hl.config({
   input = {
     kb_layout = "us",
     kb_options = "korean:ralt_hangul,korean:rctrl_hanja",
   },
-})
-
--- General
-hl.config({
   general = {
     gaps_in = 8,
     gaps_out = 16,
     border_size = 2,
-    col = {
-      active_border = "rgb(dddddd)",
-      inactive_border = "rgb(444444)",
-    },
     layout = "master",
   },
-})
-
--- Animations
-hl.config({
   animations = {
     enabled = false,
   },
-})
-
--- Master layout
-hl.config({
   master = {
     new_status = "slave",
   },
-})
-
--- Misc
-hl.config({
   misc = {
     disable_hyprland_logo = true,
     disable_splash_rendering = true,
     background_color = "rgb(000000)",
+    close_special_on_empty = true,
+  },
+  binds = {
+    hide_special_on_workspace_change = true,
   },
 })
 
 -- Keybinds
 -- Launcher
 hl.bind("SUPER + RETURN", hl.dsp.exec_cmd("alacritty"))
-hl.bind("SUPER + R", hl.dsp.exec_cmd("rofi -show drun"))
+hl.bind("SUPER + R", hl.dsp.exec_cmd("noctalia-shell ipc call launcher toggle"))
 hl.bind("SUPER + EQUAL", hl.dsp.exec_cmd("rofi -show calc -modi calc -no-show-match -no-sort"))
 
 -- Clipboard manager: list history with rofi, decode selection, copy to clipboard
@@ -85,8 +78,6 @@ hl.bind(
     "[float] sh -c 'QT_SCALE_FACTOR=$(hyprctl monitors -j | jq -r \".[] | select(.focused) | 1/.scale\") exec flameshot gui -s -c'"
   )
 )
-hl.bind("SUPER + P", hl.dsp.exec_cmd("pavucontrol"))
-
 -- Brightness
 hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("brightnessctl set 5%+"), { repeating = true })
 hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl set 5%-"), { repeating = true })
@@ -113,8 +104,8 @@ hl.bind("SUPER + CTRL + RIGHT", hl.dsp.window.resize({ x = 20, y = 0 }), { repea
 hl.bind("SUPER + CTRL + UP", hl.dsp.window.resize({ x = 0, y = -20 }), { repeating = true })
 hl.bind("SUPER + CTRL + DOWN", hl.dsp.window.resize({ x = 0, y = 20 }), { repeating = true })
 
--- Workspaces 1-5
-for i = 1, 5 do
+-- Workspaces 1-9
+for i = 1, 9 do
   hl.bind("SUPER + " .. i, hl.dsp.focus({ workspace = i }))
   hl.bind("SUPER + SHIFT + " .. i, hl.dsp.window.move({ workspace = i }))
 end
