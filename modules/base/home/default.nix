@@ -24,7 +24,6 @@
       pkgs.jq
       pkgs.mtr
       pkgs.nodejs
-      pkgs.opencode
       pkgs.ripgrep
       pkgs.unzip
       pkgs.uv
