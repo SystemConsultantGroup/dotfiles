@@ -48,7 +48,6 @@ in
         allowUnfree = true;
         android_sdk.accept_license = true;
       };
-      environment.sessionVariables.NIXPKGS_ALLOW_UNFREE = "1";
       security.sudo.wheelNeedsPassword = false;
       i18n.defaultLocale = "en_US.UTF-8";
 
