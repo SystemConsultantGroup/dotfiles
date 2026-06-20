@@ -32,6 +32,11 @@ in
             "flakes"
           ];
           auto-optimise-store = true;
+          trusted-users = [
+            "root"
+            "@wheel"
+          ];
+          allow-unfree = true;
         };
         gc = {
           automatic = true;
