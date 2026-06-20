@@ -36,7 +36,6 @@ in
             "root"
             "@wheel"
           ];
-          allow-unfree = true;
         };
         gc = {
           automatic = true;
