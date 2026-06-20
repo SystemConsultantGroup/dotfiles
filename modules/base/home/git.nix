@@ -1,4 +1,5 @@
 {
+  pkgs,
   username,
   gitUserName,
   gitUserEmail,
@@ -11,6 +12,9 @@
       user = {
         name = gitUserName;
         email = gitUserEmail;
+      };
+      credential = {
+        helper = "!${pkgs.gh}/bin/gh auth git-credential";
       };
     };
   };
