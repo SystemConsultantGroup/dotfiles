@@ -5,5 +5,7 @@ result
 .pi/npm/
 .pi/git/
 
-# pi agent sessions (symlinked to dynamic/pi-agent/)
+# pi agent: only track config files, not runtime data
+dynamic/pi-agent/auth.json
+dynamic/pi-agent/trust.json
 dynamic/pi-agent/sessions/
