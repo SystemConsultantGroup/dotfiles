@@ -10,7 +10,12 @@
     ./font.nix
   ];
 
-  hardware.graphics.enable = true;
+  hardware.graphics = {
+    enable = true;
+    extraPackages = with pkgs; [
+      intel-media-driver # VA-API for Intel Arc / modern Intel GPUs
+    ];
+  };
 
   i18n.inputMethod = {
     enable = true;
@@ -22,6 +27,7 @@
     pkgs.vscode-fhs
     pkgs.bibata-cursors
     pkgs.brightnessctl
+    pkgs.libva-utils # vainfo for VA-API debugging
   ];
 
   services = {
