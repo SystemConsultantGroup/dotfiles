@@ -28,16 +28,16 @@ do not survive a rebuild and pollute the profile.
   nix shell nixpkgs#<a> nixpkgs#<b>   # multiple
   ```
 
-## Python & Node
+## Python & JS
 
 - **Python** → `uv` is available; use project venvs (`uv sync`, `uv pip`).
   Do not `pip install` into the system interpreter.
-- **Node** → `nodejs` and `bun` are available. For project work use the
-  project's lockfile (`npm ci` / `bun install`), not global installs.
+- **JavaScript** → `bun` is available. For project work use the
+  project's lockfile (`bun install`), not global installs.
 
 ## Useful tools already on PATH
 
-`nh` (NixOS helper), `nix`, `statix`, `deadnix`, `bun`/`bunx`, `nodejs`, `uv`,
+`nh` (NixOS helper), `nix`, `statix`, `deadnix`, `bun`/`bunx`, `uv`,
 `rg` (ripgrep), `fd`, `fzf`, `jq`, `bat`, `gh`, `git`, `direnv`.
 
 ## When a command is missing
