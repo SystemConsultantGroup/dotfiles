@@ -59,4 +59,13 @@
     enable = true;
     withUWSM = true;
   };
+
+  # xdg-desktop-portal-hyprland advertises the Screenshot interface in its
+  # .portal file but doesn't actually implement it (a known bug). Flameshot
+  # 14 (and other modern Wayland screenshot tools) needs the Screenshot
+  # portal, so we also install xdg-desktop-portal-wlr and force the portal
+  # dispatcher to use it for that specific interface. The hyprland portal
+  # still wins for ScreenCast / GlobalShortcuts, which it does implement.
+  xdg.portal.extraPortals = [ pkgs.xdg-desktop-portal-wlr ];
+  xdg.portal.config.hyprland."org.freedesktop.impl.portal.Screenshot" = "wlr";
 }
