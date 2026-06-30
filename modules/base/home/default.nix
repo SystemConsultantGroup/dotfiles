@@ -40,6 +40,7 @@
       pkgs.devenv
       pkgs.jq
       pkgs.mtr
+      pkgs.nodejs
       pkgs.ripgrep
       pkgs.unzip
       pkgs.uv
