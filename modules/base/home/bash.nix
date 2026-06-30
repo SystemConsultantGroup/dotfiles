@@ -17,6 +17,9 @@
         if command -v gh &>/dev/null; then
           export GITHUB_TOKEN="$(gh auth token 2>/dev/null)"
         fi
+
+        # User-local bin (pip --user, uv tools, cargo, etc.)
+        export PATH="$HOME/.local/bin:$PATH"
       '';
     };
     direnv = {
