@@ -32,6 +32,7 @@
       done
     '';
     packages = [
+      pkgs.agent-browser
       pkgs.bat
       pkgs.bun
       pkgs.fd
