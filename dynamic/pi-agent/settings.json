@@ -1,0 +1,16 @@
+{
+  "lastChangelogVersion": "0.80.2",
+  "theme": "dark",
+  "defaultProvider": "opencode-go",
+  "defaultModel": "minimax-m3",
+  "defaultThinkingLevel": "high",
+  "compaction": {
+    "enabled": true
+  },
+  "packages": [
+    "npm:pi-web-access",
+    "npm:pi-token-speed",
+    "npm:deword"
+  ],
+  "enableInstallTelemetry": false
+}

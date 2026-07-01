@@ -30,4 +30,4 @@ Hyprland --verify-config -c dynamic/hypr/hyprland.lua
 - If this change could affect downstream forks, they can pick it up with `merge-from-upstream`.
 - To actively push this change to a downstream you maintain, use `merge-into-downstream`.
 - To pull downstream innovations back upstream, use `merge-from-downstream`.
-- If the change is breaking (renames, moves, module refactors), update `.opencode/agents/NixOS.md` and relevant skill files.
+- If the change is breaking (renames, moves, module refactors), update `AGENTS.md` and relevant skill files.

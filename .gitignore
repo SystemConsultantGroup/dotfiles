@@ -1,2 +1,11 @@
 result
 .direnv
+
+# pi package cache
+.pi/npm/
+.pi/git/
+
+# pi agent: only track config files, not runtime data
+dynamic/pi-agent/auth.json
+dynamic/pi-agent/trust.json
+dynamic/pi-agent/sessions/
