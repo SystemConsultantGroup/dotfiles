@@ -1,7 +1,6 @@
 {
   config,
   pkgs,
-  inputs,
   username,
   ...
 }:
@@ -48,7 +47,6 @@
       pkgs.uv
       pkgs.nh
       pkgs.zip
-      inputs.llm-agents-nix.packages.${pkgs.system}.omp
     ];
   };
 }
