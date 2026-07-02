@@ -15,10 +15,17 @@ in
     ./home
   ];
 
-  options.dotfiles.base.podman.enable = lib.mkOption {
-    type = lib.types.bool;
-    default = true;
-    description = "Whether to enable Podman container engine";
+  options.dotfiles.base = {
+    podman.enable = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = "Whether to enable Podman container engine";
+    };
+    openssh.enable = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = "Whether to enable the OpenSSH server daemon";
+    };
   };
 
   config = lib.mkMerge [
@@ -75,6 +82,15 @@ in
         pkgs.alacritty.terminfo
       ];
     }
+    (lib.mkIf cfg.openssh.enable {
+      services.openssh = {
+        enable = true;
+        settings = {
+          PasswordAuthentication = true;
+          KbdInteractiveAuthentication = true;
+        };
+      };
+    })
     (lib.mkIf cfg.podman.enable {
       virtualisation.podman = {
         enable = true;
