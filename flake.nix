@@ -8,7 +8,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     kime.url = "github:apersomany/kime";
-    llm-agents-nix.url = "github:numtide/llm-agents.nix";
   };
 
   outputs =
