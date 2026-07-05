@@ -11,8 +11,8 @@ in
 {
   imports = [
     ./user.nix
-    inputs.home-manager.nixosModules.home-manager
     ./home
+    inputs.home-manager.nixosModules.home-manager
   ];
 
   options.dotfiles.base = {
@@ -51,12 +51,7 @@ in
         };
       };
 
-      nixpkgs.config = {
-        allowUnfree = true;
-        android_sdk.accept_license = true;
-      };
       security.sudo.wheelNeedsPassword = false;
-      i18n.defaultLocale = "en_US.UTF-8";
 
       networking = {
         nameservers = [
@@ -70,11 +65,13 @@ in
         firewall.enable = false;
       };
 
+      nixpkgs.config.allowUnfree = true;
+
       programs.nix-ld = {
         enable = true;
         libraries = [
-          pkgs.zlib
           pkgs.stdenv.cc.cc
+          pkgs.zlib
         ];
       };
 
@@ -96,7 +93,6 @@ in
         enable = true;
         dockerCompat = true;
         dockerSocket.enable = true;
-        defaultNetwork.settings.dns_enabled = true;
       };
     })
   ];

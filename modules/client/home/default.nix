@@ -21,7 +21,6 @@
     pkgs.wtype
     pkgs.vesktop
     pkgs.firefox
-    pkgs.chromium
     pkgs.nautilus
     pkgs.zed-editor
     pkgs.nixd
