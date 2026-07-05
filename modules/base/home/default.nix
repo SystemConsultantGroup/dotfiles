@@ -6,8 +6,8 @@
 }:
 {
   imports = [
-    ./git.nix
     ./bash.nix
+    ./git.nix
     ./ssh.nix
   ];
 
@@ -32,21 +32,23 @@
       done
     '';
     packages = [
-      pkgs.agent-browser
+      pkgs.nh
+      pkgs.gh
+      pkgs.nix-search-cli
+      pkgs.zip
+      pkgs.unzip
+      pkgs.ripgrep
+      pkgs.jq
       pkgs.bat
-      pkgs.bun
       pkgs.fd
       pkgs.fzf
-      pkgs.gh
-      pkgs.devenv
-      pkgs.jq
-      pkgs.mtr
-      pkgs.nodejs
-      pkgs.ripgrep
-      pkgs.unzip
+      pkgs.killall
       pkgs.uv
-      pkgs.nh
-      pkgs.zip
+      pkgs.nodejs
+      pkgs.pnpm
+      pkgs.devenv
+      pkgs.mtr
+      pkgs.hping
     ];
   };
 }
