@@ -11,14 +11,21 @@ in
 {
   imports = [
     ./user.nix
-    inputs.home-manager.nixosModules.home-manager
     ./home
+    inputs.home-manager.nixosModules.home-manager
   ];
 
-  options.dotfiles.base.podman.enable = lib.mkOption {
-    type = lib.types.bool;
-    default = true;
-    description = "Whether to enable Podman container engine";
+  options.dotfiles.base = {
+    podman.enable = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = "Whether to enable Podman container engine";
+    };
+    openssh.enable = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = "Whether to enable the OpenSSH server daemon";
+    };
   };
 
   config = lib.mkMerge [
@@ -44,12 +51,7 @@ in
         };
       };
 
-      nixpkgs.config = {
-        allowUnfree = true;
-        android_sdk.accept_license = true;
-      };
       security.sudo.wheelNeedsPassword = false;
-      i18n.defaultLocale = "en_US.UTF-8";
 
       networking = {
         nameservers = [
@@ -63,11 +65,13 @@ in
         firewall.enable = false;
       };
 
+      nixpkgs.config.allowUnfree = true;
+
       programs.nix-ld = {
         enable = true;
         libraries = [
-          pkgs.zlib
           pkgs.stdenv.cc.cc
+          pkgs.zlib
         ];
       };
 
@@ -75,12 +79,20 @@ in
         pkgs.alacritty.terminfo
       ];
     }
+    (lib.mkIf cfg.openssh.enable {
+      services.openssh = {
+        enable = true;
+        settings = {
+          PasswordAuthentication = true;
+          KbdInteractiveAuthentication = true;
+        };
+      };
+    })
     (lib.mkIf cfg.podman.enable {
       virtualisation.podman = {
         enable = true;
         dockerCompat = true;
         dockerSocket.enable = true;
-        defaultNetwork.settings.dns_enabled = true;
       };
     })
   ];
