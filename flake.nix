@@ -16,7 +16,6 @@
       url = "github:chayleaf/notnft";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    llm-agents-nix.url = "github:numtide/llm-agents.nix";
   };
 
   outputs =

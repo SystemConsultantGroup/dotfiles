@@ -7,7 +7,7 @@ those are loaded on top of this one.
 
 ## System facts
 
-- **OS**: NixOS 26.11 (Zokor), immutable & declarative
+- **OS**: NixOS 26.11, immutable & declarative
 - **User**: `aperso` — home at `/home/aperso`
 - **Dotfiles / system flake**: `~/dotfiles`
 - **pi itself**: launched via `bunx @earendil-works/pi-coding-agent`; its config
@@ -37,8 +37,7 @@ do not survive a rebuild and pollute the profile.
 
 ## Useful tools already on PATH
 
-`nh` (NixOS helper), `nix`, `statix`, `deadnix`, `bun`/`bunx`, `uv`,
-`rg` (ripgrep), `fd`, `fzf`, `jq`, `bat`, `gh`, `git`, `direnv`.
+`nh` (NixOS helper), `nix`, `statix`, `deadnix`, `bun`/`bunx`, `uv`, `rg` (ripgrep), `fd`, `fzf`, `jq`, `bat`, `gh`, `git`, `direnv`.
 
 ## When a command is missing
 

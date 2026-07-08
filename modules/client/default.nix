@@ -13,7 +13,7 @@
   hardware.graphics = {
     enable = true;
     extraPackages = with pkgs; [
-      intel-media-driver # VA-API for Intel Arc / modern Intel GPUs
+      intel-media-driver
     ];
   };
 
@@ -24,10 +24,9 @@
   };
 
   environment.systemPackages = [
-    pkgs.vscode-fhs
     pkgs.bibata-cursors
     pkgs.brightnessctl
-    pkgs.libva-utils # vainfo for VA-API debugging
+    pkgs.libva-utils
   ];
 
   services = {
