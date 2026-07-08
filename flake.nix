@@ -25,7 +25,6 @@
       nixpkgs,
       nixos-router,
       notnft,
-      llm-agents-nix,
       ...
     }@inputs:
     let
