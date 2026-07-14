@@ -23,6 +23,7 @@
     pkgs.firefox
     pkgs.nautilus
     pkgs.zed-editor
+    pkgs.vscode-fhs
     pkgs.nixd
     pkgs.nil
     pkgs.pwvucontrol
