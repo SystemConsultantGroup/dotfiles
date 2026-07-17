@@ -146,6 +146,38 @@ in
           "8.8.4.4"
         ];
         gateways = [ "10.0.0.1" ];
+        keaSettings = {
+          option-data = [
+            {
+              name = "domain-name-servers";
+              code = 6;
+              csv-format = true;
+              space = "dhcp4";
+              data = "1.1.1.1, 1.0.0.1, 8.8.8.8, 8.8.4.4";
+            }
+            {
+              name = "routers";
+              code = 3;
+              csv-format = true;
+              space = "dhcp4";
+              data = "10.0.0.1";
+            }
+            {
+              name = "tftp-server-name";
+              code = 66;
+              csv-format = true;
+              space = "dhcp4";
+              data = "pxe.factory.talos.dev";
+            }
+            {
+              name = "boot-file-name";
+              code = 67;
+              csv-format = true;
+              space = "dhcp4";
+              data = "/pxe/376567988ad370138ad8b2698212367b8edcb69b5fd68c80be1f2ec7d603b4ba/v1.13.6/metal-amd64";
+            }
+          ];
+        };
       }
     ];
     ipv4.kea.enable = true;
