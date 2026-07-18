@@ -20,7 +20,7 @@
   i18n.inputMethod = {
     enable = true;
     type = "kime";
-    package = lib.mkForce inputs.kime.packages.${pkgs.system}.default;
+    package = lib.mkForce inputs.kime.packages.${pkgs.stdenv.hostPlatform.system}.default;
   };
 
   # GTK_IM_MODULE=kime forces kime's GTK IM module on all GTK apps, but Firefox

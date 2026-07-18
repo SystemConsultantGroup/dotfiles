@@ -2,6 +2,6 @@
 {
   home-manager.users.${username}.qt = {
     enable = true;
-    platformTheme.name = lib.mkForce "gtk";
+    platformTheme.name = lib.mkForce "gtk3";
   };
 }
