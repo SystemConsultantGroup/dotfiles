@@ -23,13 +23,6 @@
     package = lib.mkForce inputs.kime.packages.${pkgs.stdenv.hostPlatform.system}.default;
   };
 
-  # GTK_IM_MODULE=kime forces kime's GTK IM module on all GTK apps, but Firefox
-  # on Wayland uses its own text-input-v3 via libmozwayland.so (not GTK IM
-  # modules). Setting GTK_IM_MODULE globally conflicts with Firefox's native
-  # Wayland text-input, breaking Korean input in Firefox.
-  # QT_IM_MODULE and XMODIFIERS stay set for Qt / XWayland apps.
-  environment.variables.GTK_IM_MODULE = lib.mkForce null;
-
   environment.systemPackages = [
     pkgs.bibata-cursors
     pkgs.brightnessctl
