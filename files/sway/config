@@ -6,6 +6,8 @@ include ~/.config/sway/noctalia
 client.focused_inactive $surface $surface $on_surface_variant $surface $surface
 client.unfocused        $surface $surface $on_surface_variant $surface $surface
 
+seat * xcursor_theme Bibata-Modern-Ice 24
+
 gaps inner 16
 default_border pixel 2
 output DP-2 mode 2560x1440@239.97Hz scale 1.0
