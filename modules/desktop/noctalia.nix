@@ -3,9 +3,14 @@ let
   noctaliaConfig = pkgs.writeText "noctalia-config.toml" ''
     [theme]
     mode = "dark"
+    source = "wallpaper"
+    wallpaper_scheme = "m3-fruit-salad"
 
     [wallpaper]
     directory = "~/dotfiles/files/wallpapers"
+
+    [wallpaper.default]
+    path = "~/dotfiles/files/wallpapers/a.jpg"
 
     [theme.templates]
     enable_builtin_templates = true

@@ -8,6 +8,10 @@ let
 
     include ~/.config/sway/noctalia
 
+    gaps inner 8
+    gaps outer 16
+    default_border pixel 2
+
     bindsym $mod+Return exec alacritty
     bindsym $mod+r exec noctalia msg panel-toggle launcher
     bindsym $mod+q kill
