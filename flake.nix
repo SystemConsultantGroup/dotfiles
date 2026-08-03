@@ -4,6 +4,7 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     kime.url = "github:apersomany/kime";
+    persway.url = "github:saylesss88/persway";
   };
 
   outputs =

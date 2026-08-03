@@ -72,5 +72,6 @@
     pkgs.nixd
     pkgs.nil
     pkgs.flameshot
+    inputs.persway.packages.${pkgs.stdenv.hostPlatform.system}.default
   ];
 }
