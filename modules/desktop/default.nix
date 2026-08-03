@@ -7,6 +7,7 @@
 }:
 {
   imports = [
+    ./alacritty.nix
     ./font.nix
     ./noctalia.nix
     ./sway.nix

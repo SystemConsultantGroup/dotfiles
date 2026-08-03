@@ -9,12 +9,13 @@ let
     include ~/.config/sway/noctalia
 
     gaps inner 8
-    gaps outer 16
+    gaps outer 8
     default_border pixel 2
     output DP-2 mode 2560x1440@239.97Hz scale 1.25
 
     bindsym $mod+Return exec alacritty
     bindsym $mod+r exec noctalia msg panel-toggle launcher
+    bindsym $mod+v exec noctalia msg panel-toggle clipboard
     bindsym $mod+q kill
     bindsym $mod+Shift+q exit
     bindsym Mod1+Return fullscreen toggle

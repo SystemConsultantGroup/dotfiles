@@ -32,7 +32,28 @@
         </match>
       '';
       useEmbeddedBitmaps = true;
+      subpixel = {
+        lcdfilter = "default";
+        rgba = "rgb";
+      };
     };
   };
-  programs.dconf.enable = true;
+  programs.dconf = {
+    enable = true;
+    profiles.user = {
+      enableUserDb = true;
+      databases = [
+        {
+          settings = {
+            "org/gnome/desktop/interface" = {
+              font-name = "Inter 11";
+              font-antialiasing = "rgba";
+              font-hinting = "slight";
+              font-rgba-order = "rgb";
+            };
+          };
+        }
+      ];
+    };
+  };
 }
