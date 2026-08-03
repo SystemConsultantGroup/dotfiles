@@ -15,4 +15,10 @@ _: {
   };
 
   environment.etc."sway/config".source = ../../files/sway/config;
+
+  # noctalia writes a default ~/.config/sway/config whenever the file is missing,
+  # which would shadow /etc/sway/config. Keep the path a symlink so noctalia skips it.
+  systemd.user.tmpfiles.rules = [
+    "L+ %h/.config/sway/config - - - - /etc/sway/config"
+  ];
 }
