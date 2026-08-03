@@ -1,46 +1,41 @@
-# Agent Environment: NixOS (flake-based)
+# SYSTEM_ENV: NixOS (Flake/Declarative)
 
-You are running on **NixOS** with a flake-based declarative configuration. This
-file gives you the environment-specific conventions that apply to *every* project
-on this machine. Projects may ship their own `AGENTS.md` with additional rules —
-those are loaded on top of this one.
+**Core Directive:** You operate on an immutable, declarative NixOS 26.11 system. Ad-hoc global mutations are strictly forbidden. System conventions supersede project-level `AGENTS.md` rules.
 
-## System facts
+## 1. Context & Identity
 
-- **OS**: NixOS 26.11, immutable & declarative
-- **User**: `aperso` — home at `/home/aperso`
-- **Dotfiles / system flake**: `~/dotfiles`
-- **pi itself**: launched via `bunx @earendil-works/pi-coding-agent`; its config
-  lives in `~/.pi/agent/` (symlinked from `~/dotfiles/dynamic/pi-agent/`)
+* **User:** `aperso` (`/home/aperso`)
+* **System Flake:** `~/dotfiles`
+* **Agent Config:** `~/.pi/agent/`
+* **Code Style:** Write strictly self-explanatory code. Use clear, descriptive variable names. Comment *only* when absolutely necessary to explain non-obvious "why" logic, never the "what."
+* **No Decorative Separators:** Never write `=` or `-` (or any other character) as decorative separator lines, banners, or borders — in comments, in code, or in any output. LLMs cannot align them reliably, and they add zero signal. If a visual break is genuinely needed, use a blank line.
 
-## Package management — the golden rule
+## 2. The Golden Rule: Package Management
 
-**Never use `apt`, `dnf`, `brew`, `pacman`, `pip install` (global), `npm i -g`,
-or `nix-env -iA` to install software.** The system is declarative; ad-hoc installs
-do not survive a rebuild and pollute the profile.
+> **FORBIDDEN:** `apt`, `dnf`, `brew`, `pacman`, `pip install` (global), `npm i -g`, `nix-env`.
 
-- **Permanent CLI tools / apps** → add them to the flake's `home.packages` (or
-  `environment.systemPackages` for system-level needs) and rebuild.
-- **One-off / throwaway tools** → use a temporary shell, no install:
-  ```bash
-  nix run nixpkgs#<pkg>        # run without installing
-  nix shell nixpkgs#<pkg>      # drop into a shell with <pkg>
-  nix shell nixpkgs#<a> nixpkgs#<b>   # multiple
-  ```
+* **Ephemeral / Missing Tools (Default):** Never fail or ask the user to install a missing command. Always spawn it dynamically:
+* `nix run nixpkgs#<pkg>` (execute directly)
+* `nix shell nixpkgs#<pkg>` (interactive shell)
 
-## Python & JS
+* **Permanent Tools:** Add explicitly to flake (`home.packages` or `environment.systemPackages`) and rebuild.
 
-- **Python** → `uv` is available; use project venvs (`uv sync`, `uv pip`).
-  Do not `pip install` into the system interpreter.
-- **JavaScript** → `bun` is available. For project work use the
-  project's lockfile (`bun install`), not global installs.
+## 3. Sandboxed Ecosystems
 
-## Useful tools already on PATH
+* **Python:** Strictly use `uv` with project venvs (`uv sync`, `uv pip`). No global `pip`.
+* **JavaScript / Node:** Strictly use `pnpm` with local lockfiles (`pnpm install`). No global `npm` or `yarn`.
 
-`nh` (NixOS helper), `nix`, `statix`, `deadnix`, `bun`/`bunx`, `uv`, `rg` (ripgrep), `fd`, `fzf`, `jq`, `bat`, `gh`, `git`, `direnv`.
+## 4. Execution & Bash Etiquette
 
-## When a command is missing
+* **NO PIPED LOGGING:** **NEVER EVER** use piped `tail`, `head`, or `grep` directly on bash calls unless they are expected to return semi-instantly.
+* **Temp Files First:** If a command takes time to run, redirect its output to `/tmp/` (e.g., `command > /tmp/cmd_output.log 2>&1`), then inspect the file. The only exception is if the output is guaranteed to be 100GB+.
 
-If a tool you need isn't installed, prefer `nix shell nixpkgs#<tool>` for the
-current session rather than failing or asking the user to install it. Only add
-it permanently to the flake if the project genuinely depends on it.
+## 5. Analysis & Debugging Strategy
+
+* **Dynamic > Static:** Do not fall into long chains of static analysis unless the code takes forever to execute. Dynamic analysis is key to quick resolution.
+* **Get Your Hands Dirty:** Do not fear attaching debuggers or injecting aggressive `print`/`console.log`/`debug` statements into the code.
+* **Cleanup via Git:** When modifying code for debugging, leverage `git` to track and revert your changes. (e.g., Use `git diff` to review your injected debugs, `git stash`, or make a temporary `WIP-debug` commit so you can easily cleanly revert the state once the issue is solved).
+
+## 6. Default `$PATH` Arsenal
+
+You natively have access to: `nh`, `nix`, `statix`, `deadnix`, `pnpm`, `uv`, `rg`, `fd`, `fzf`, `jq`, `bat`, `gh`, `git`, `direnv`.

@@ -8,8 +8,9 @@
 
         export PATH="$HOME/.local/bin:$PATH"
 
-        alias pi="pnpx @earendil-works/pi-coding-agent"
-        alias oc="pnpx opencode-ai"
+        alias pi="pnpx --allow-build=@google/genai --allow-build=protobufjs @earendil-works/pi-coding-agent@latest"
+        alias oc="pnpx opencode-ai@latest"
+	alias claude="pnpx @anthropic-ai/claude-code@latest"
 
         if command -v gh &>/dev/null; then
           export GITHUB_TOKEN="$(gh auth token 2>/dev/null)"

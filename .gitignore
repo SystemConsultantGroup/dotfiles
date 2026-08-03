@@ -9,3 +9,6 @@ result
 dynamic/pi-agent/auth.json
 dynamic/pi-agent/trust.json
 dynamic/pi-agent/sessions/
+
+# local editor settings
+.vscode/
