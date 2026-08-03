@@ -1,0 +1,65 @@
+[theme]
+mode = "dark"
+source = "wallpaper"
+wallpaper_scheme = "m3-fruit-salad"
+pure_black_dark = true
+
+[wallpaper]
+directory = "~/dotfiles/files/wallpapers"
+
+[wallpaper.default]
+path = "~/dotfiles/files/wallpapers/b.jpg"
+
+[theme.templates]
+enable_builtin_templates = true
+builtin_ids = ["sway", "alacritty", "gtk3", "gtk4", "qt"]
+
+[bar.default]
+center = ["workspaces"]
+concave_edge_corners = false
+end = [
+  "wallpaper",
+  "media",
+  "tray",
+  "notifications",
+  "clipboard",
+  "network",
+  "bluetooth",
+  "volume",
+  "brightness",
+  "battery",
+  "control-center",
+  "session",
+]
+margin_ends = 0
+position = "bottom"
+radius = 0
+start = ["clock", "launcher"]
+
+[lockscreen_widgets]
+enabled = false
+
+[shell]
+corner_radius_scale = 0.0
+font_family = "Cascadia Code"
+
+[widget.bluetooth]
+enabled = false
+
+[widget.clipboard]
+enabled = false
+
+[widget.control-center]
+enabled = false
+
+[widget.launcher]
+enabled = false
+
+[widget.media]
+enabled = false
+
+[widget.notifications]
+enabled = false
+
+[widget.tray]
+enabled = false

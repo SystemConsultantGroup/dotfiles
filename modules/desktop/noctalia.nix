@@ -1,6 +1,8 @@
 { pkgs, ... }:
 let
-  noctaliaConfig = pkgs.writeText "noctalia-config.toml" (builtins.readFile ./noctalia-config.toml);
+  noctaliaConfig = pkgs.writeText "noctalia-config.toml" (
+    builtins.readFile ../../files/noctalia/config.toml
+  );
 in
 {
   programs.noctalia = {

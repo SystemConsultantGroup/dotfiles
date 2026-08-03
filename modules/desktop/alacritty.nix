@@ -1,14 +1,8 @@
 { pkgs, ... }:
 let
-  alacrittyConfig = pkgs.writeText "alacritty.toml" ''
-    [general]
-    import = [
-        "~/.config/alacritty/themes/noctalia.toml"
-    ]
-
-    [window]
-    padding = { x = 8, y = 10 }
-  '';
+  alacrittyConfig = pkgs.writeText "alacritty.toml" (
+    builtins.readFile ../../files/alacritty/alacritty.toml
+  );
 in
 {
   systemd.user.tmpfiles.rules = [
