@@ -11,6 +11,7 @@ let
     gaps inner 8
     gaps outer 16
     default_border pixel 2
+    output DP-2 mode 2560x1440@239.97Hz scale 1.25
 
     bindsym $mod+Return exec alacritty
     bindsym $mod+r exec noctalia msg panel-toggle launcher
