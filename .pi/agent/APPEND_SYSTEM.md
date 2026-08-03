@@ -18,7 +18,7 @@
 * `nix run nixpkgs#<pkg>` (execute directly)
 * `nix shell nixpkgs#<pkg>` (interactive shell)
 
-* **Permanent Tools:** Add explicitly to flake (`home.packages` or `environment.systemPackages`) and rebuild.
+* **Permanent Tools:** Add explicitly to flake (`users.users.<name>.packages` or `environment.systemPackages`) and rebuild.
 
 ## 3. Sandboxed Ecosystems
 

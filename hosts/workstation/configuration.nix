@@ -4,10 +4,10 @@
   imports = [
     ./hardware-configuration.nix
     ../../modules/base
-    ../../modules/client
+    ../../modules/desktop
+    ../../modules/drivers/arc.nix
   ];
   boot = {
-    blacklistedKernelModules = [ ];
     loader = {
       systemd-boot = {
         enable = true;
@@ -17,10 +17,6 @@
       efi.canTouchEfiVariables = true;
     };
   };
-
-  services.xserver.videoDrivers = [
-    "amdgpu"
-  ];
 
   services.cloudflare-warp.enable = true;
   time.timeZone = "Asia/Seoul";

@@ -1,10 +1,6 @@
 [treefmt]
-  excludes = [".git", ".direnv", "result"]
+excludes = [".git", ".direnv", "result"]
 
 [formatter.nixfmt]
-  command = "nixfmt"
-  includes = ["*.nix"]
-
-[formatter.stylua]
-  command = "stylua"
-  includes = ["*.lua"]
+command = "nixfmt"
+includes = ["*.nix"]

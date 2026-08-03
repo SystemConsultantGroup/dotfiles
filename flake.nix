@@ -3,10 +3,6 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    home-manager = {
-      url = "github:nix-community/home-manager";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     kime.url = "github:apersomany/kime";
   };
 
@@ -38,21 +34,12 @@
         };
     in
     {
-      nixosConfigurations = {
-        workstation = mkHost "workstation";
-        laptop = mkHost "laptop";
-      };
-
-      nixosModules = {
-        base = ./modules/base;
-        client = ./modules/client;
-      };
+      nixosConfigurations.workstation = mkHost "workstation";
 
       formatter.x86_64-linux = pkgs.writeShellApplication {
         name = "treefmt";
         runtimeInputs = [
           pkgs.treefmt
-          pkgs.stylua
           pkgs.nixfmt
         ];
         text = ''

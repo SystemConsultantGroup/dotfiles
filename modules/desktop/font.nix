@@ -1,7 +1,6 @@
 { pkgs, ... }:
 {
   fonts = {
-    enableDefaultPackages = true;
     packages = [
       (pkgs.callPackage ./pkgs/freesentation.nix { })
       pkgs.inter
@@ -33,25 +32,7 @@
         </match>
       '';
       useEmbeddedBitmaps = true;
-      subpixel = {
-        lcdfilter = "default";
-        rgba = "rgb";
-      };
     };
   };
-  programs.dconf.profiles.user = {
-    enableUserDb = true;
-    databases = [
-      {
-        settings = {
-          "org/gnome/desktop/interface" = {
-            font-name = "Inter 11";
-            font-antialiasing = "rgba";
-            font-hinting = "slight";
-            font-rgba-order = "rgb";
-          };
-        };
-      }
-    ];
-  };
+  programs.dconf.enable = true;
 }
