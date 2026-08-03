@@ -8,10 +8,9 @@ let
 
     include ~/.config/sway/noctalia
 
-    gaps inner 8
-    gaps outer 8
+    gaps inner 16
     default_border pixel 2
-    output DP-2 mode 2560x1440@239.97Hz scale 1.25
+    output DP-2 mode 2560x1440@239.97Hz scale 1.0
 
     bindsym $mod+Return exec alacritty
     bindsym $mod+r exec noctalia msg panel-toggle launcher
@@ -58,12 +57,14 @@ in
     enable = true;
     wrapperFeatures.gtk = true;
     extraSessionCommands = ''
+      export ELECTRON_OZONE_PLATFORM_HINT=wayland
       export MOZ_ENABLE_WAYLAND=1
       export QT_QPA_PLATFORM=wayland
       export QT_QPA_PLATFORMTHEME=gtk3
       export XDG_SESSION_TYPE=wayland
       export XCURSOR_THEME=Bibata-Modern-Ice
       export XCURSOR_SIZE=24
+      export XCURSOR_PATH="/run/current-system/sw/share/icons:~/.local/share/icons:~/.icons:/usr/share/icons"
     '';
   };
 

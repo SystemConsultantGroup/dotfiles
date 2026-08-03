@@ -50,6 +50,7 @@
               font-antialiasing = "rgba";
               font-hinting = "slight";
               font-rgba-order = "rgb";
+              cursor-theme = "Bibata-Modern-Ice";
             };
           };
         }

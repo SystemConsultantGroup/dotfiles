@@ -65,6 +65,7 @@
     pkgs.alacritty
     pkgs.firefox
     pkgs.zed-editor
+    pkgs.vscode-fhs
     pkgs.vesktop
     pkgs.nautilus
     pkgs.pwvucontrol
