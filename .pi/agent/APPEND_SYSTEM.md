@@ -2,10 +2,11 @@
 
 ## NixOS Context
 
+- **System configuration:** The system is configured declaratively from `~/dotfiles`. Never edit anything under it.
 - **Ephemeral / Missing Tools (Default):** Never fail or ask the user to install a missing command. Spawn it dynamically instead:
   - `nix run nixpkgs#<pkg>` (execute directly)
   - `nix shell nixpkgs#<pkg>` (interactive shell)
-- **Permanent Tools:** Add explicitly to the flake (`environment.systemPackages`) and rebuild.
+- **Permanent Tools:** Forbidden — adding permanent tools means modifying the system configuration.
 
 ## Code Style
 
