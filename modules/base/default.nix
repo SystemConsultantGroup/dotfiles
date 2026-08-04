@@ -24,6 +24,18 @@
 
   security.sudo.wheelNeedsPassword = false;
 
+  fileSystems."/home/${username}/.pi" = {
+    overlay = {
+      lowerdir = [ "/home/${username}/dotfiles/.pi" ];
+      upperdir = "/home/${username}/.local/state/overlays/pi/upper";
+      workdir = "/home/${username}/.local/state/overlays/pi/work";
+    };
+  };
+
+  systemd.tmpfiles.rules = [
+    "d /home/${username}/.pi 0755 ${username} users -"
+  ];
+
   networking = {
     nameservers = [
       "1.1.1.1"
