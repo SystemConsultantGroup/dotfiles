@@ -121,5 +121,5 @@
   };
 
   environment.variables.SSL_CERT_FILE = "/etc/ssl/certs/ca-certificates.crt";
-  environment.sessionVariables.NH_OS_FLAKE = "/home/aperso/dotfiles";
+  environment.sessionVariables.NH_OS_FLAKE = "/home/${username}/dotfiles";
 }
