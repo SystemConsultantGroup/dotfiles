@@ -9,7 +9,7 @@ let
   persway = inputs.persway.packages.${pkgs.stdenv.hostPlatform.system}.default.overrideAttrs (old: {
     src = pkgs.applyPatches {
       inherit (old) src;
-      patches = [ ../../files/patches/persway-stack-main-right.patch ];
+      patches = [ ../../patches/persway-stack-main-right.patch ];
     };
   });
 in
