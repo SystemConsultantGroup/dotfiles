@@ -6,6 +6,13 @@
   ...
 }:
 let
+  kime = inputs.kime.packages.${pkgs.stdenv.hostPlatform.system}.default.overrideAttrs (old: {
+    # upstream flake ships a stale cargo vendor hash for its own lock (5c58caf)
+    cargoDeps = pkgs.rustPlatform.fetchCargoVendor {
+      inherit (old) src;
+      hash = "sha256-XbFKh+EwvuQvfNxpKtXVWuzpCKJJy+vKAgZRYjSVMvU=";
+    };
+  });
   persway = inputs.persway.packages.${pkgs.stdenv.hostPlatform.system}.default.overrideAttrs (old: {
     src = pkgs.applyPatches {
       inherit (old) src;
@@ -24,7 +31,7 @@ in
   i18n.inputMethod = {
     enable = true;
     type = "kime";
-    package = lib.mkForce inputs.kime.packages.${pkgs.stdenv.hostPlatform.system}.default;
+    package = lib.mkForce kime;
   };
 
   services = {
@@ -72,6 +79,7 @@ in
   users.users.${username}.packages = [
     pkgs.alacritty
     pkgs.firefox
+    pkgs.nautilus
     pkgs.vscode-fhs
     pkgs.vesktop
     pkgs.nixd
