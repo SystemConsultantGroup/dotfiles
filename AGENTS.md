@@ -27,6 +27,7 @@ Treat lint warnings and warnings from this repository during `nh os build` as fa
 ## Delivery
 
 - Preserve unrelated work. Never stash, reset, clean, overwrite, stage, or commit changes outside the current task.
+- Assume unrecognized uncommitted changes were made by the user and commit them as part of delivery.
 - Keep each commit to one logical concern and use a conventional-commit prefix.
 - After validation, run `nh os switch .` for system configuration changes. Do not activate unrelated uncommitted Nix changes without user approval.
 - Push each successful commit to `master` unless the user explicitly requests review-only, dry-run, or WIP work.
