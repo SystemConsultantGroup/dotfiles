@@ -5,6 +5,14 @@
   username,
   ...
 }:
+let
+  persway = inputs.persway.packages.${pkgs.stdenv.hostPlatform.system}.default.overrideAttrs (old: {
+    src = pkgs.applyPatches {
+      inherit (old) src;
+      patches = [ ../../files/patches/persway-stack-main-right.patch ];
+    };
+  });
+in
 {
   imports = [
     ./alacritty.nix
@@ -72,6 +80,6 @@
     pkgs.nixd
     pkgs.nil
     pkgs.flameshot
-    inputs.persway.packages.${pkgs.stdenv.hostPlatform.system}.default
+    persway
   ];
 }

@@ -1,0 +1,90 @@
+diff --git a/src/server/command_handlers/layout/stack_main.rs b/src/server/command_handlers/layout/stack_main.rs
+index 532992b..db007bb 100644
+--- a/src/server/command_handlers/layout/stack_main.rs
++++ b/src/server/command_handlers/layout/stack_main.rs
+@@ -19,7 +19,7 @@ impl StackMain {
+         let ws = get_focused_workspace(&mut self.connection).await?;
+         let wstree = tree.find_as_ref(|n| n.id == ws.id).unwrap();
+ 
+-        if let Some(stack) = wstree.nodes.first() {
++        if let Some(stack) = wstree.nodes.last() {
+             if stack.nodes.is_empty() {
+                 return Ok(());
+             }
+@@ -75,12 +75,12 @@ impl StackMain {
+         let ws = get_focused_workspace(&mut self.connection).await?;
+         let wstree = tree.find_as_ref(|n| n.id == ws.id).unwrap();
+ 
+-        if let Some(stack) = wstree.nodes.first() {
++        if let Some(stack) = wstree.nodes.last() {
+             if stack.nodes.is_empty() {
+                 return Ok(());
+             }
+ 
+-            let main = wstree.nodes.last().expect("main window not found");
++            let main = wstree.nodes.first().expect("main window not found");
+             let stack_leaves = stack.iter().filter(|n| n.is_window());
+ 
+             let mut cmd = String::new();
+@@ -134,8 +134,8 @@ impl StackMain {
+ 
+             let tree = self.connection.get_tree().await?;
+             let wstree = tree.find_as_ref(|n| n.id == ws.id).unwrap();
+-            let main = wstree.nodes.last().expect("main window not found");
+-            let stack = wstree.nodes.first().expect("stack container not found");
++            let main = wstree.nodes.first().expect("main window not found");
++            let stack = wstree.nodes.last().expect("stack container not found");
+ 
+             let cmd = if reverse {
+                 let stack_last = stack
+@@ -186,12 +186,12 @@ impl StackMain {
+         let ws = get_focused_workspace(&mut self.connection).await?;
+         let wstree = tree.find_as_ref(|n| n.id == ws.id).unwrap();
+ 
+-        if let Some(stack) = wstree.nodes.first() {
++        if let Some(stack) = wstree.nodes.last() {
+             if stack.nodes.is_empty() {
+                 return Ok(());
+             }
+ 
+-            let main = wstree.nodes.last().expect("main window not found");
++            let main = wstree.nodes.first().expect("main window not found");
+ 
+             let focused = stack.find_as_ref(|n| n.is_window() && n.focused);
+             let visible = stack
+diff --git a/src/server/event_handlers/layout/stack_main.rs b/src/server/event_handlers/layout/stack_main.rs
+index cb42a92..dd4a5ed 100644
+--- a/src/server/event_handlers/layout/stack_main.rs
++++ b/src/server/event_handlers/layout/stack_main.rs
+@@ -104,8 +104,8 @@ impl StackMain {
+                 Ok(())
+             }
+             2 => {
+-                let main = wstree.nodes.last().expect("main window not found");
+-                let stack = wstree.nodes.first().expect("stack container not found");
++                let main = wstree.nodes.first().expect("main window not found");
++                let stack = wstree.nodes.last().expect("stack container not found");
+ 
+                 let cmd = if stack.is_window() {
+                     format!(
+@@ -131,10 +131,9 @@ impl StackMain {
+                 let main = wstree
+                     .nodes
+                     .iter()
+-                    .skip(1)
+                     .find(|n| n.is_window() && n.id != event.container.id)
+                     .expect("main window not found");
+-                let stack = wstree.nodes.first().expect("stack container not found");
++                let stack = wstree.nodes.last().expect("stack container not found");
+                 let stack_mark = format!("_stack_{}", stack.id);
+ 
+                 let cmd = format!(
+@@ -196,7 +195,7 @@ impl StackMain {
+                     stack_current.id
+                 );
+                 format!(
+-                    "[con_id={}] focus; move right; resize set width {}",
++                    "[con_id={}] focus; move left; resize set width {}",
+                     stack_current.id, self.size
+                 )
+             };
