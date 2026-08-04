@@ -11,6 +11,9 @@ let
       inherit (old) src;
       hash = "sha256-XbFKh+EwvuQvfNxpKtXVWuzpCKJJy+vKAgZRYjSVMvU=";
     };
+    postFixup = ''
+      patchelf --add-rpath ${pkgs.wayland}/lib $out/bin/kime-wayland
+    '';
   });
   persway = inputs.persway.packages.${pkgs.stdenv.hostPlatform.system}.default.overrideAttrs (old: {
     src = pkgs.applyPatches {
