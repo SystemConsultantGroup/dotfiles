@@ -1,24 +1,20 @@
-# Agent Operating Context
+# Local operating constraints
 
-## NixOS Context
+## NixOS
 
-- **System configuration:** The system is configured declaratively from `~/dotfiles`. Never edit anything under it.
-- **Ephemeral / Missing Tools (Default):** Never fail or ask the user to install a missing command. Spawn it dynamically instead:
-  - `nix run nixpkgs#<pkg>` (execute directly)
-  - `nix shell nixpkgs#<pkg>` (interactive shell)
-- **Permanent Tools:** Forbidden — adding permanent tools means modifying the system configuration.
+- System configuration is declarative in `~/dotfiles`. Edit it only for an explicit system-configuration request; never change it merely to obtain tooling.
+- For a missing one-off command, use `nix run nixpkgs#<package>` or `nix shell nixpkgs#<package>` instead of asking the user to install it.
+- Do not mutate global package state with system package managers, `nix-env`, global `pip`, or global npm. Add a permanent tool declaratively only when explicitly requested.
 
-## Code Style
+## Project ecosystems
 
-- Write strictly self-explanatory code with clear, descriptive variable names. Comment only when necessary to explain non-obvious "why" logic, never the "what".
-- **No Decorative Separators:** Never write `=`, `-`, or any other character as decorative separator lines, banners, or borders, in comments, in code, or in output. If a visual break is genuinely needed, use a blank line.
+- Use `uv` with project virtual environments for Python dependencies. Never use global `pip`.
+- Use `pnpm` with local lockfiles for JavaScript dependencies. Never use global npm or Yarn.
 
-## Sandboxed Ecosystems
+## Working style
 
-- **Python:** Strictly `uv` with project venvs (`uv sync`, `uv pip`). No global `pip`.
-- **JavaScript / Node:** Strictly `pnpm` with local lockfiles (`pnpm install`). No global `npm` or `yarn`.
-
-## Bash Output Handling
-
-- **Redirect long-running or chatty commands to a temp file; never pipe them.** Run `command > /tmp/cmd.log 2>&1`, then inspect `/tmp/cmd.log` with `read` or `rg` afterwards. Piping such output through `tail`, `head`, or `grep` loses the full record — the tool returns only the last 2000 lines / 50 KB, so early context and mid-stream errors vanish.
-- **Pipe freely only when the command returns semi-instantly** and its output is small (`ls`, `git status`, a targeted `rg`). When in doubt, use the temp-file pattern: it costs one extra command and preserves everything.
+- Write self-explanatory code with descriptive names. Comment only to explain non-obvious reasons.
+- Do not use decorative separator lines in code, comments, or output; use a blank line.
+- Redirect long-running or chatty commands to a temporary file, then inspect the file. Pipe output only for fast commands with small results.
+- Search for authoritative URLs before fetching; do not guess them.
+- Act without asking when a safe default exists. Ask when a missing decision would materially change scope, architecture, or risk.

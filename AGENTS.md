@@ -1,42 +1,32 @@
-# NixOS dotfiles agent
+# NixOS workstation configuration
 
-You manage a flake-based NixOS configuration for a single host (`workstation`). You are self-contained: you implement, validate, commit, and push directly.
+This flake configures the single host `workstation`. Implement requested changes, validate them, activate system changes, commit, and push directly.
 
-## Repository layout
+## Boundaries
 
-- `flake.nix` — inputs (nixpkgs, the kime fork, persway), user-specific values in the `let` block (`username`, `userFullName`, `gitUserName`, `gitUserEmail`), host wiring, formatter, devshell
-- `hosts/workstation/` — host entry point plus the generated hardware config
-- `modules/base/` — system-wide config (nix, networking, user, bash, git, ssh)
-- `modules/desktop/` — GUI stack (sway, noctalia, greetd, kime, pipewire, fonts, apps)
-- `modules/drivers/` — per-GPU driver modules (currently `arc.nix`)
-- `files/` — user-facing configs as plain files (sway, noctalia `config.toml`, alacritty `alacritty.toml`, wallpapers); modules reference them with `builtins.readFile` or `environment.etc.<name>.source`
-- `patches/` — upstream patches applied at build time (persway layout fix); pinned to the flake.lock rev, so regenerate when that input bumps
+- Keep `AGENTS.md` repository-specific. `.pi/agent/APPEND_SYSTEM.md` is exposed as the global Pi prompt overlay at `~/.pi/agent/APPEND_SYSTEM.md`; keep only cross-project rules there.
+- Do not introduce home-manager. Install packages through `environment.systemPackages`.
+- Use explicit `pkgs.` and `lib.` references; never use `with pkgs;` or `with lib;`.
+- Define user-specific values only in the `flake.nix` `let` block.
+- Keep application configuration as plain files under `files/`, not Nix string literals.
+- Keep patches aligned with the revisions pinned in `flake.lock`; regenerate them when their input changes.
+- Work on `master`.
 
-## Core conventions
+## Validation
 
-- No `with pkgs;` or `with lib;` — always explicit `pkgs.` / `lib.` prefixes
-- No home-manager: all packages go in `environment.systemPackages` (single-user box, no per-user profile)
-- User-specific values are defined once in `flake.nix`'s `let` block; forking requires editing only that file
-- Branch: `master` (not `main`)
-- Configs live as plain files under `files/**` so they are diffable and editor-native, never Nix string literals
+Run only the gates applicable to changed files:
 
-## Build & validation
-
-| What changed | Validate with |
+| Change | Commands |
 | --- | --- |
-| Nix files (`modules/`, `hosts/`, `flake.nix`) | `statix check . && deadnix . && nix fmt`, then `nh os build .` |
-| Sway config (`files/sway/config`) | `sway -C -c <config path>` (capital `-C`; `--validate` does not work) |
+| Nix (`flake.nix`, `hosts/`, `modules/`) | `statix check . && deadnix .`, `nix fmt -- <changed Nix paths>`, then `nh os build .` |
+| Sway (`files/sway/config`) | `sway -C -c files/sway/config` |
+| Documentation or other text | `git diff --check` |
 
-- Lint warnings are errors: `statix` and `deadnix` must pass clean. Build warnings from our own code during `nh os build` are also errors.
-- Upstream nixpkgs deprecation warnings during `nh os build` are fine.
-- Fix on failure: read the error, fix the source file, and retry. Never report a failure without at least one fix attempt.
+Treat lint warnings and warnings from this repository during `nh os build` as failures. Upstream nixpkgs deprecation warnings are acceptable. Fix task-caused failures at the source and rerun the failed gate; report unrelated failures without modifying them.
 
-## Workflow
+## Delivery
 
-- Break changes into small, cherry-pickable commits, one logical concern per commit
-- Conventional-commits prefixes (`feat:`, `fix:`, `refactor:`, `chore:`, `docs:`)
-- Run the gates before committing, `nh os switch .` after the change, then push
-- Push after every successful change unless the user explicitly asks for a dry-run or WIP
-- Don't discard unrecognized changes: pre-existing uncommitted work is intentional (user or parallel agent). Never `git stash`, `git reset --hard`, or `git clean` without explicit instruction. Integrate your work alongside theirs.
-- Never oneshot URLs: search the web for the correct URL before fetching. Guessed URLs are often 404s or stale.
-- Ask only at irreversible forks (architectural choices, changes beyond the request); otherwise execute.
+- Preserve unrelated work. Never stash, reset, clean, overwrite, stage, or commit changes outside the current task.
+- Keep each commit to one logical concern and use a conventional-commit prefix.
+- After validation, run `nh os switch .` for system configuration changes. Do not activate unrelated uncommitted Nix changes without user approval.
+- Push each successful commit to `master` unless the user explicitly requests review-only, dry-run, or WIP work.
