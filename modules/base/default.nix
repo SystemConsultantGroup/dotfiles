@@ -24,16 +24,8 @@
 
   security.sudo.wheelNeedsPassword = false;
 
-  fileSystems."/home/${username}/.pi" = {
-    overlay = {
-      lowerdir = [ "/home/${username}/dotfiles/.pi" ];
-      upperdir = "/home/${username}/.local/state/overlays/pi/upper";
-      workdir = "/home/${username}/.local/state/overlays/pi/work";
-    };
-  };
-
-  systemd.tmpfiles.rules = [
-    "d /home/${username}/.pi 0755 ${username} users -"
+  imports = [
+    ./pi.nix
   ];
 
   networking = {
@@ -85,7 +77,6 @@
 
       export PATH="$HOME/.local/bin:$PATH"
 
-      alias pi="pnpx --allow-build=@google/genai --allow-build=protobufjs @earendil-works/pi-coding-agent@latest"
       alias oc="pnpx opencode-ai@latest"
       alias claude="pnpx @anthropic-ai/claude-code@latest"
 
