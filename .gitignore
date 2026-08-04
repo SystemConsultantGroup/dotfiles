@@ -4,5 +4,8 @@ result
 # local editor settings
 .vscode/
 
+# opencode local install
+.opencode/
+
 # pi subagent runtime artifacts
 .pi-subagents/
