@@ -50,6 +50,27 @@
 
   nixpkgs.config.allowUnfree = true;
 
+  environment = {
+    systemPackages = [
+      pkgs.nh
+      pkgs.gh
+      pkgs.nix-search-cli
+      pkgs.zip
+      pkgs.unzip
+      pkgs.ripgrep
+      pkgs.jq
+      pkgs.fd
+      pkgs.killall
+      pkgs.uv
+      pkgs.nodejs
+      pkgs.pnpm
+      pkgs.devenv
+    ];
+
+    variables.SSL_CERT_FILE = "/etc/ssl/certs/ca-certificates.crt";
+    sessionVariables.NH_OS_FLAKE = "/home/${username}/dotfiles";
+  };
+
   programs = {
     nix-ld = {
       enable = true;
@@ -113,26 +134,5 @@
       "video"
       "render"
     ];
-  };
-
-  environment = {
-    systemPackages = [
-      pkgs.nh
-      pkgs.gh
-      pkgs.nix-search-cli
-      pkgs.zip
-      pkgs.unzip
-      pkgs.ripgrep
-      pkgs.jq
-      pkgs.fd
-      pkgs.killall
-      pkgs.uv
-      pkgs.nodejs
-      pkgs.pnpm
-      pkgs.devenv
-    ];
-
-    variables.SSL_CERT_FILE = "/etc/ssl/certs/ca-certificates.crt";
-    sessionVariables.NH_OS_FLAKE = "/home/${username}/dotfiles";
   };
 }
