@@ -72,13 +72,9 @@ in
   users.users.${username}.packages = [
     pkgs.alacritty
     pkgs.firefox
-    pkgs.zed-editor
     pkgs.vscode-fhs
     pkgs.vesktop
-    pkgs.nautilus
-    pkgs.pwvucontrol
     pkgs.nixd
-    pkgs.nil
     pkgs.flameshot
     persway
   ];
