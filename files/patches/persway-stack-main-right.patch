@@ -53,7 +53,7 @@ index 532992b..db007bb 100644
              let focused = stack.find_as_ref(|n| n.is_window() && n.focused);
              let visible = stack
 diff --git a/src/server/event_handlers/layout/stack_main.rs b/src/server/event_handlers/layout/stack_main.rs
-index cb42a92..dd4a5ed 100644
+index cb42a92..af7292a 100644
 --- a/src/server/event_handlers/layout/stack_main.rs
 +++ b/src/server/event_handlers/layout/stack_main.rs
 @@ -104,8 +104,8 @@ impl StackMain {
@@ -67,19 +67,49 @@ index cb42a92..dd4a5ed 100644
  
                  let cmd = if stack.is_window() {
                      format!(
-@@ -131,10 +131,9 @@ impl StackMain {
-                 let main = wstree
-                     .nodes
-                     .iter()
+@@ -115,11 +115,6 @@ impl StackMain {
+                         (100 - self.size),
+                         main.id
+                     )
+-                } else if let Some(node) = stack.find_as_ref(|n| n.id == event.container.id) {
+-                    format!(
+-                        "[con_id={}] focus; swap container with con_id {}; [con_id={}] focus",
+-                        main.id, node.id, node.id
+-                    )
+                 } else {
+                     String::from("nop event container not in stack")
+                 };
+@@ -128,26 +123,17 @@ impl StackMain {
+                 Ok(())
+             }
+             3 => {
+-                let main = wstree
+-                    .nodes
+-                    .iter()
 -                    .skip(1)
-                     .find(|n| n.is_window() && n.id != event.container.id)
-                     .expect("main window not found");
+-                    .find(|n| n.is_window() && n.id != event.container.id)
+-                    .expect("main window not found");
 -                let stack = wstree.nodes.first().expect("stack container not found");
 +                let stack = wstree.nodes.last().expect("stack container not found");
                  let stack_mark = format!("_stack_{}", stack.id);
  
                  let cmd = format!(
-@@ -196,7 +195,7 @@ impl StackMain {
+-                    "[con_id={}] mark --add {}; [con_id={}] focus; move container to mark {}; [con_mark={}] unmark {}; [con_id={}] focus; swap container with con_id {}; [con_id={}] focus",
++                    "[con_id={}] mark --add {}; [con_id={}] focus; move container to mark {}; [con_mark={}] unmark {}",
+                     stack.id,
+                     stack_mark,
+                     event.container.id,
+                     stack_mark,
+                     stack_mark,
+-                    stack_mark,
+-                    main.id,
+-                    event.container.id,
+-                    event.container.id
++                    stack_mark
+                 );
+ 
+                 log::debug!("new_window: {cmd}");
+@@ -196,7 +182,7 @@ impl StackMain {
                      stack_current.id
                  );
                  format!(
