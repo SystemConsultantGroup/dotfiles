@@ -37,4 +37,4 @@
 
 ## 6. Default `$PATH` Arsenal
 
-You natively have access to: `nh`, `nix`, `statix`, `deadnix`, `pnpm`, `uv`, `rg`, `fd`, `fzf`, `jq`, `bat`, `gh`, `git`, `direnv`.
+You natively have access to: `nh`, `nix`, `statix`, `deadnix`, `pnpm`, `uv`, `rg`, `fd`, `jq`, `gh`, `git`, `direnv`.

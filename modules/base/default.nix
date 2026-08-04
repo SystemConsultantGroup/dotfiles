@@ -109,9 +109,7 @@
       pkgs.unzip
       pkgs.ripgrep
       pkgs.jq
-      pkgs.bat
       pkgs.fd
-      pkgs.fzf
       pkgs.killall
       pkgs.uv
       pkgs.nodejs
