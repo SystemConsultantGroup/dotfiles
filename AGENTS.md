@@ -15,7 +15,7 @@ You manage a flake-based NixOS configuration for a single host (`workstation`). 
 ## Core conventions
 
 - No `with pkgs;` or `with lib;` — always explicit `pkgs.` / `lib.` prefixes
-- No home-manager: user-facing apps and CLI tools go in `users.users.aperso.packages`; only drivers, cursor themes, fonts, hardware-access tools, and system workarounds stay in `environment.systemPackages`
+- No home-manager: all packages go in `environment.systemPackages` (single-user box, no per-user profile)
 - User-specific values are defined once in `flake.nix`'s `let` block; forking requires editing only that file
 - Branch: `master` (not `main`)
 - Configs live as plain files under `files/**` so they are diffable and editor-native, never Nix string literals

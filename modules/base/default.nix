@@ -101,7 +101,10 @@
       "video"
       "render"
     ];
-    packages = [
+  };
+
+  environment = {
+    systemPackages = [
       pkgs.nh
       pkgs.gh
       pkgs.nix-search-cli
@@ -116,8 +119,8 @@
       pkgs.pnpm
       pkgs.devenv
     ];
-  };
 
-  environment.variables.SSL_CERT_FILE = "/etc/ssl/certs/ca-certificates.crt";
-  environment.sessionVariables.NH_OS_FLAKE = "/home/${username}/dotfiles";
+    variables.SSL_CERT_FILE = "/etc/ssl/certs/ca-certificates.crt";
+    sessionVariables.NH_OS_FLAKE = "/home/${username}/dotfiles";
+  };
 }

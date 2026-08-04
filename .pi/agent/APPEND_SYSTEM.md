@@ -17,7 +17,7 @@
 - **Ephemeral / Missing Tools (Default):** Never fail or ask the user to install a missing command. Spawn it dynamically instead:
   - `nix run nixpkgs#<pkg>` (execute directly)
   - `nix shell nixpkgs#<pkg>` (interactive shell)
-- **Permanent Tools:** Add explicitly to the flake (`users.users.<name>.packages` or `environment.systemPackages`) and rebuild.
+- **Permanent Tools:** Add explicitly to the flake (`environment.systemPackages`) and rebuild.
 
 ## 3. Sandboxed Ecosystems
 

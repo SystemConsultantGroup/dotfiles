@@ -2,7 +2,6 @@
   lib,
   pkgs,
   inputs,
-  username,
   ...
 }:
 let
@@ -61,10 +60,18 @@ in
   xdg.portal.wlr.enable = true;
 
   environment.systemPackages = [
+    pkgs.alacritty
     pkgs.alacritty.terminfo
     pkgs.bibata-cursors
     pkgs.brightnessctl
+    pkgs.firefox
+    pkgs.flameshot
     pkgs.libva-utils
+    pkgs.nautilus
+    pkgs.nixd
+    pkgs.vesktop
+    pkgs.vscode-fhs
+    persway
   ];
 
   xdg.mime.defaultApplications = {
@@ -75,15 +82,4 @@ in
     "x-scheme-handler/about" = "firefox.desktop";
     "x-scheme-handler/unknown" = "firefox.desktop";
   };
-
-  users.users.${username}.packages = [
-    pkgs.alacritty
-    pkgs.firefox
-    pkgs.nautilus
-    pkgs.vscode-fhs
-    pkgs.vesktop
-    pkgs.nixd
-    pkgs.flameshot
-    persway
-  ];
 }
