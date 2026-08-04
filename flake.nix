@@ -3,7 +3,7 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    kime.url = "github:apersomany/kime";
+    kime.url = "github:riey/kime";
     persway.url = "github:saylesss88/persway";
   };
 
