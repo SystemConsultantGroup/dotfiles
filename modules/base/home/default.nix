@@ -2,6 +2,7 @@
   config,
   pkgs,
   username,
+  inputs,
   ...
 }:
 {
@@ -47,6 +48,7 @@
       pkgs.nodejs
       pkgs.pnpm
       pkgs.devenv
+      inputs.flox.packages.x86_64-linux.flox
       pkgs.mtr
       pkgs.hping
     ];
