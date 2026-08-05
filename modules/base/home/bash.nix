@@ -8,7 +8,6 @@
 
         export PATH="$HOME/.local/bin:$PATH"
 
-        alias pi="pnpx @earendil-works/pi-coding-agent"
         alias oc="pnpx opencode-ai"
 
         if command -v gh &>/dev/null; then

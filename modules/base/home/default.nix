@@ -33,6 +33,13 @@
       done
     '';
     packages = [
+      (pkgs.writeShellApplication {
+        name = "pi";
+        runtimeInputs = [ pkgs.pnpm ];
+        text = ''
+          exec pnpx @earendil-works/pi-coding-agent "$@"
+        '';
+      })
       pkgs.nh
       pkgs.gh
       pkgs.nix-search-cli
