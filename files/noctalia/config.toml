@@ -13,7 +13,7 @@ path = "~/dotfiles/files/wallpapers/a.jpg"
 [wallpaper.last]
 path = "~/dotfiles/files/wallpapers/a.jpg"
 
-[wallpaper.monitors.DP-2]
+[wallpaper.monitors.DP-1]
 path = "~/dotfiles/files/wallpapers/a.jpg"
 
 [theme.templates]
@@ -63,23 +63,23 @@ timeout = 660.0
 [lockscreen_widgets]
 enabled = false
 schema_version = 2
-widget_order = ["lockscreen-login-box@DP-2"]
+widget_order = ["lockscreen-login-box@DP-1"]
 
 [lockscreen_widgets.grid]
 cell_size = 16
 major_interval = 4
 visible = true
 
-[lockscreen_widgets.widget."lockscreen-login-box@DP-2"]
+[lockscreen_widgets.widget."lockscreen-login-box@DP-1"]
 box_height = 196.0
 box_width = 810.0
 cx = 1024.0
 cy = 970.0
-output = "DP-2"
+output = "DP-1"
 rotation = 0.0
 type = "login_box"
 
-[lockscreen_widgets.widget."lockscreen-login-box@DP-2".settings]
+[lockscreen_widgets.widget."lockscreen-login-box@DP-1".settings]
 background_color = "surface_variant"
 background_opacity = 0.88
 background_radius = 12.0
