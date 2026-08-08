@@ -23,7 +23,4 @@
 - Read relevant code and callers before editing; fix root causes at shared seams.
 - Write self-explanatory code with descriptive names. Comment only to explain non-obvious reasons.
 - Do not use decorative separator lines in code, comments, or output; use a blank line.
-- Redirect long-running or chatty commands to a temporary file, then inspect the file. Pipe output only for fast commands with small results.
 - Use authoritative URLs; search rather than guessing unfamiliar URLs.
-- Run applicable focused validation before declaring completion.
-- Act without asking when a safe default exists. Ask when a missing decision would materially change scope, architecture, or risk.
