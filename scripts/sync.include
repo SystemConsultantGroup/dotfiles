@@ -1,0 +1,3 @@
+# Paths are copied from $HOME into the repository at the same relative path.
+.pi/agent/settings.json
+.pi/web-search.json

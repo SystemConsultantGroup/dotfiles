@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+repo_root=$(cd -- "$script_dir/.." && pwd)
+manifest="$script_dir/sync.include"
+
+fail() {
+  printf 'sync: %s\n' "$1" >&2
+  exit 1
+}
+
+cd "$repo_root"
+[[ -f "$manifest" ]] || fail "missing manifest: $manifest"
+[[ -n "${HOME:-}" ]] || fail '$HOME is not set'
+[[ "$(git rev-parse --is-inside-work-tree 2>/dev/null)" == true ]] || fail 'not a Git worktree'
+[[ "$(git branch --show-current)" == master ]] || fail 'current branch must be master'
+[[ -z "$(git status --porcelain)" ]] || fail 'worktree must be clean before syncing'
+
+managed_files=()
+while IFS= read -r path || [[ -n "$path" ]]; do
+  [[ -z "$path" || "$path" == \#* ]] && continue
+  [[ "$path" != /* ]] || fail "manifest path must be relative: $path"
+  [[ "$path" != *'..'* ]] || fail "manifest path cannot contain ..: $path"
+  [[ -f "$HOME/$path" ]] || fail "source file is missing: $HOME/$path"
+  managed_files+=("$path")
+done < "$manifest"
+
+((${#managed_files[@]})) || fail 'manifest has no files'
+for path in "${managed_files[@]}"; do
+  destination="$repo_root/$path"
+  mkdir -p -- "$(dirname -- "$destination")"
+  cp -- "$HOME/$path" "$destination"
+done
+
+git add -- "${managed_files[@]}"
+
+if git diff --cached --quiet; then
+  printf 'sync: no changes\n'
+  exit 0
+fi
+
+mapfile -t changed_files < <(git diff --cached --name-only)
+if ((${#changed_files[@]} == 1)); then
+  commit_subject="chore(sync): update ${changed_files[0]}"
+else
+  commit_subject="chore(sync): update ${#changed_files[@]} managed files"
+fi
+
+git commit -m "$commit_subject"
+git push origin master
