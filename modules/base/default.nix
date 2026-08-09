@@ -57,6 +57,7 @@
       pkgs.nodejs
       pkgs.pnpm
       pkgs.devenv
+      pkgs.abduco
     ];
 
     variables.SSL_CERT_FILE = "/etc/ssl/certs/ca-certificates.crt";
