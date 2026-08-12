@@ -35,6 +35,8 @@
       options = "terminate:ctrl_alt_bksp";
     };
 
+    cloudflare-warp.enable = true;
+
     gnome.gnome-keyring.enable = true;
 
     gvfs.enable = true;
