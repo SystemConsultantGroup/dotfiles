@@ -25,5 +25,7 @@
         "opencode-go/deepseek-v4-flash"
       ]
     }
-  }
+  },
+  "hideThinkingBlock": false,
+  "tuiMode": "fullscreen"
 }
