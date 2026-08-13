@@ -1,16 +1,12 @@
 { pkgs, username, ... }:
 let
   # Real `pi` binary on the system PATH so non-interactive consumers can
-  # spawn pi. Fullscreen TUI mode is appended only when the first argument
-  # is not a flag, so explicit invocations like --help, -p, or --tui-mode
-  # regular keep pi in regular mode.
+  # spawn pi. TUI mode comes from the `tuiMode` setting so subcommands like
+  # `pi update --extensions` keep their argv[0] command word intact.
   pi = pkgs.writeShellApplication {
     name = "pi";
     runtimeInputs = [ pkgs.pnpm ];
     text = ''
-      if [[ $# -eq 0 || $1 != -* ]]; then
-        set -- --tui-mode fullscreen "$@"
-      fi
       exec pnpx --allow-build=@google/genai --allow-build=protobufjs @earendil-works/pi-coding-agent@latest "$@"
     '';
   };
