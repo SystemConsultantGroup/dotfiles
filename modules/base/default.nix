@@ -78,9 +78,6 @@
 
       export PATH="$HOME/.local/bin:$PATH"
 
-      alias oc="pnpx opencode-ai@latest"
-      alias claude="pnpx @anthropic-ai/claude-code@latest"
-
       if command -v gh &>/dev/null; then
         export GITHUB_TOKEN="$(gh auth token 2>/dev/null)"
       fi
