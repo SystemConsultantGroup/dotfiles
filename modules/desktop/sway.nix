@@ -15,6 +15,7 @@ _: {
   };
 
   environment.etc."sway/config".source = ../../files/sway/config;
+  environment.etc."sway/choose-highest-mode".source = ../../files/sway/choose-highest-mode;
 
   systemd.user.tmpfiles.rules = [
     "L+ %h/.config/sway/config - - - - /etc/sway/config"

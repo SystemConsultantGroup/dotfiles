@@ -10,7 +10,8 @@ seat * xcursor_theme Bibata-Modern-Ice 24
 
 gaps inner 16
 default_border pixel 2
-output DP-1 mode 2560x1440@239.97Hz scale 1.0
+output * scale 1.0
+exec /etc/sway/choose-highest-mode
 
 bindsym $mod+Return exec alacritty
 bindsym $mod+r exec noctalia msg panel-toggle launcher

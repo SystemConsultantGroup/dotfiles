@@ -1,0 +1,25 @@
+#!/bin/sh
+
+choose_modes() {
+    swaymsg -t get_outputs -r |
+        jq -r '
+            .[]
+            | select(.active and (.modes | length > 0))
+            | (.modes | max_by([(.width * .height), .refresh])) as $mode
+            | select(
+                .current_mode.width != $mode.width
+                or .current_mode.height != $mode.height
+                or .current_mode.refresh != $mode.refresh
+              )
+            | [.name, $mode.width, $mode.height] | @tsv
+        ' |
+        while IFS="$(printf '\t')" read -r output_name width height; do
+            swaymsg output "$output_name" mode "${width}x${height}"
+        done
+}
+
+choose_modes
+swaymsg -t subscribe '["output"]' |
+    while IFS= read -r event; do
+        choose_modes
+    done
