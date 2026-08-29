@@ -76,8 +76,10 @@ in
     pkgs.alacritty.terminfo
     pkgs.bibata-cursors
     pkgs.brightnessctl
+    pkgs.celluloid
     pkgs.firefox
     pkgs.flameshot
+    pkgs.gthumb
     pkgs.libva-utils
     pkgs.nautilus
     pkgs.nixd
