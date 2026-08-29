@@ -62,6 +62,15 @@ in
 
   xdg.portal.wlr.enable = true;
 
+  programs.dconf = {
+    enable = true;
+    profiles.user.databases = [
+      {
+        settings."org/gnome/desktop/interface".icon-theme = "Papirus-Dark";
+      }
+    ];
+  };
+
   environment.systemPackages = [
     pkgs.alacritty
     pkgs.alacritty.terminfo
@@ -72,6 +81,7 @@ in
     pkgs.libva-utils
     pkgs.nautilus
     pkgs.nixd
+    pkgs.papirus-icon-theme
     pkgs.vesktop
     pkgs.vscode-fhs
     persway
