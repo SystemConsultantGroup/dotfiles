@@ -79,8 +79,8 @@ in
     pkgs.celluloid
     pkgs.firefox
     pkgs.flameshot
-    pkgs.gthumb
     pkgs.libva-utils
+    pkgs.loupe
     pkgs.nautilus
     pkgs.nixd
     pkgs.papirus-icon-theme
