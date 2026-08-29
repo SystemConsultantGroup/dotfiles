@@ -120,6 +120,9 @@
   users.users.${username} = {
     isNormalUser = true;
     description = userFullName;
+    openssh.authorizedKeys.keys = [
+      "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDTLmX82sXKztx9xDV+Ak6ttg5h99PUkoojbPXIOjy7cVDhEwxe/BwtVVQPzbBpUKYe2x3yiDvi5Djuk3ubX87WEmcCrD/d41wkHRh3GD4W+A0l5X9yC8bUpj3hNRZ9rul23kCHN4kRA9e6TTAEsGM8EdWLcLuhm38VdFbGvupTESB3EReS/u0Ti85YCljRpW8rq1Hd2duC3xbGxuti6cTI8uELVHsPNRSQ+Dv6Sb9pniPvd6weOQ45OygVro9sE97XESkcDheTgWLNlXb0EkRhmHE6KmMhfKHLHDPTXIiXyFMt02S7Gr9V+1B69fPLXaz9UpZifSZsnUsA1aD8P+jD"
+    ];
     extraGroups = [
       "networkmanager"
       "wheel"
