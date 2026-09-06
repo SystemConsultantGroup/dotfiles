@@ -5,7 +5,6 @@
     ./hardware-configuration.nix
     ../../modules/base
     ../../modules/desktop
-    ../../modules/drivers/arc.nix
   ];
   boot = {
     loader = {
