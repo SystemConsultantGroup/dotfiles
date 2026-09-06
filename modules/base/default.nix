@@ -56,7 +56,7 @@
       pkgs.uv
       pkgs.nodejs
       pkgs.pnpm
-      pkgs.devenv
+      pkgs.rustup
       pkgs.abduco
     ];
 
@@ -109,11 +109,6 @@
           UserKnownHostsFile ~/.ssh/known_hosts
           SetEnv TERM=xterm-256color
       '';
-    };
-
-    direnv = {
-      enable = true;
-      nix-direnv.enable = true;
     };
   };
 
