@@ -5,7 +5,10 @@
   ...
 }:
 let
+  kimePkgs = inputs.kime.inputs.nixpkgs.legacyPackages.${pkgs.stdenv.hostPlatform.system};
   kime = inputs.kime.packages.${pkgs.stdenv.hostPlatform.system}.default.overrideAttrs (old: {
+    # Kime still uses the deprecated xorg.libxcb alias.
+    buildInputs = (lib.take 2 old.buildInputs) ++ [ kimePkgs.libxcb ] ++ (lib.drop 3 old.buildInputs);
     # upstream flake ships a stale cargo vendor hash for its own lock (5c58caf)
     cargoDeps = pkgs.rustPlatform.fetchCargoVendor {
       inherit (old) src;
