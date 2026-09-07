@@ -7,7 +7,7 @@ let
     name = "pi";
     runtimeInputs = [ pkgs.pnpm ];
     text = ''
-      exec pnpx --allow-build=@google/genai --allow-build=protobufjs @earendil-works/pi-coding-agent@latest "$@"
+      exec pnpx --allow-build=@google/genai --allow-build=protobufjs --allow-build=esbuild @earendil-works/pi-coding-agent@latest "$@"
     '';
   };
 in
