@@ -2,6 +2,7 @@
   lib,
   pkgs,
   inputs,
+  username,
   ...
 }:
 let
@@ -64,6 +65,23 @@ in
   };
 
   xdg.portal.wlr.enable = true;
+
+  security.polkit.extraConfig = ''
+    polkit.addRule(function(action, subject) {
+      if (
+        subject.user == "${username}" &&
+        subject.active &&
+        subject.local &&
+        [
+          "org.freedesktop.udisks2.filesystem-mount",
+          "org.freedesktop.udisks2.filesystem-mount-system",
+          "org.freedesktop.udisks2.filesystem-unmount-others"
+        ].indexOf(action.id) >= 0
+      ) {
+        return polkit.Result.YES;
+      }
+    });
+  '';
 
   programs.dconf = {
     enable = true;
