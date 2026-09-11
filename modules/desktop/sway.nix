@@ -3,7 +3,7 @@ _: {
     enable = true;
     wrapperFeatures.gtk = true;
     extraSessionCommands = ''
-      export ELECTRON_OZONE_PLATFORM_HINT=wayland
+      export NIXOS_OZONE_WL=1
       export MOZ_ENABLE_WAYLAND=1
       export QT_QPA_PLATFORM=wayland
       export QT_QPA_PLATFORMTHEME=gtk3
