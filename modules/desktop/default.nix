@@ -7,6 +7,9 @@
 }:
 let
   kimePkgs = inputs.kime.inputs.nixpkgs.legacyPackages.${pkgs.stdenv.hostPlatform.system};
+  vesktop = pkgs.vesktop.overrideAttrs (old: {
+    postFixup = lib.replaceString "--ozone-platform-hint=auto" "--ozone-platform=wayland" old.postFixup;
+  });
   kime = inputs.kime.packages.${pkgs.stdenv.hostPlatform.system}.default.overrideAttrs (old: {
     # Kime still uses the deprecated xorg.libxcb alias.
     buildInputs = (lib.take 2 old.buildInputs) ++ [ kimePkgs.libxcb ] ++ (lib.drop 3 old.buildInputs);
@@ -105,8 +108,9 @@ in
     pkgs.nautilus
     pkgs.nixd
     pkgs.papirus-icon-theme
-    pkgs.vesktop
+    vesktop
     pkgs.vscode-fhs
+    pkgs.wl-clipboard
     persway
   ];
 }
