@@ -1,5 +1,20 @@
 set $mod Mod4
 
+# Fallback palette (m3-fruit-salad derived from wallpapers/a.jpg).
+# On fresh installs ~/.config/sway/noctalia does not exist yet when sway
+# first parses this file (Noctalia starts later and generates it), so without
+# these defaults every client.* line below fails and sway falls back to its
+# built-in blue. The include overrides these as soon as it exists.
+set $primary            #c3ce5d
+set $on_primary         #2f3300
+set $secondary          #c5cd7a
+set $tertiary           #8dd5b2
+set $error              #ffb4ab
+set $surface            #000000
+set $on_surface         #d9e6dc
+set $on_surface_variant #b3ccbd
+set $outline            #7e9689
+
 include ~/.config/sway/noctalia
 
 # v4 parity: inactive borders use the theme surface (black), not $outline

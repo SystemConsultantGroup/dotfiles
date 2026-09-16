@@ -1,0 +1,9 @@
+#!/bin/sh
+# Runs when Noctalia rewrites ~/.config/sway/noctalia (startup, wallpaper or
+# theme change). Sway only reads that file at startup/reload, so reload it.
+# A reload drops the choose-highest-mode IPC subscription and that daemon
+# exits, which resets outputs to 60Hz - revive it if it went away.
+swaymsg reload
+if ! pgrep -f '[c]hoose-highest-mode' >/dev/null; then
+    setsid /etc/sway/choose-highest-mode </dev/null >/dev/null 2>&1 &
+fi
