@@ -4,11 +4,11 @@ let
   namespace = "mesh-${instance}";
   hostInterface = "mesh0-host";
   meshInterface = "mesh0-peer";
-  serviceName = "cloudflare-mesh-${instance}";
-  stateDirectory = "cloudflare-mesh-${instance}";
+  serviceName = "mesh-${instance}";
+  stateDirectory = "mesh-${instance}";
   statePath = "/var/lib/${stateDirectory}";
-  runtimeDirectory = "cloudflare-mesh-${instance}";
-  tokenPath = "/var/lib/secrets/cloudflare-mesh-${instance}.token";
+  runtimeDirectory = "mesh-${instance}";
+  tokenPath = "/var/lib/secrets/mesh-${instance}.token";
   warpPackage = pkgs.cloudflare-warp.override { headless = true; };
   capabilities = [
     "CAP_NET_ADMIN"
