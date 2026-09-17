@@ -38,6 +38,12 @@ in
                 );
               };
             })
+          ]
+          [
+            (is.eq meta.iifname "mesh0-host")
+            (is.eq meta.oifname "enp5s0")
+            (is.eq ip.saddr (cidr "100.96.0.0/12"))
+            (snat { addr = "10.0.0.1"; })
           ];
       prerouting = add chain {
         type = f: f.nat;

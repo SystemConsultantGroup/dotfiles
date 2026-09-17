@@ -22,6 +22,16 @@
             (is.eq meta.iifname "enp5s0")
             (is.eq meta.oifname "enp0s25")
             accept
+          ]
+          [
+            (is.eq meta.iifname "mesh0-host")
+            (is.eq meta.oifname "enp0s25")
+            accept
+          ]
+          [
+            (is.eq meta.iifname "mesh0-host")
+            (is.eq meta.oifname "enp5s0")
+            accept
           ];
     };
 }

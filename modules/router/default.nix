@@ -20,6 +20,7 @@ in
   imports = [
     ./firewall.nix
     ./lease-sweep.nix
+    ./mesh.nix
     ./nftables.nix
     ./routing.nix
   ];
