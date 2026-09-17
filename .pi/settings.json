@@ -1,5 +1,3 @@
 {
-  "packages": [
-    "npm:@firstpick/pi-extension-hyprland-wiki-local"
-  ]
+  "packages": []
 }
