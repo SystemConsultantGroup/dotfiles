@@ -23,8 +23,6 @@
     let
       username = "scg";
       userFullName = "System Consultant Group";
-      gitUserName = "scg";
-      gitUserEmail = "scg@scg.skku.ac.kr";
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
     in
@@ -34,8 +32,6 @@
           inherit
             username
             userFullName
-            gitUserName
-            gitUserEmail
             ;
           notnft = notnft.lib.${system};
         };

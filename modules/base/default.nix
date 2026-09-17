@@ -2,8 +2,6 @@
   pkgs,
   username,
   userFullName,
-  gitUserName,
-  gitUserEmail,
   ...
 }:
 {
@@ -68,10 +66,7 @@
     git = {
       enable = true;
       config = {
-        user = {
-          name = gitUserName;
-          email = gitUserEmail;
-        };
+        user.useConfigOnly = true;
         credential.helper = "!${pkgs.gh}/bin/gh auth git-credential";
       };
     };
