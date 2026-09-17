@@ -30,7 +30,13 @@ in
   router = {
     networkNamespaces.${namespace} = {
       extraStartCommands = "ip link set lo up";
-      sysctl."net.ipv4.ip_forward" = true;
+      sysctl = {
+        "net.ipv4.ip_forward" = true;
+        "net.ipv4.conf.all.rp_filter" = 0;
+        "net.ipv4.conf.default.rp_filter" = 0;
+        "net.ipv4.conf.mesh0-peer.rp_filter" = 0;
+        "net.ipv4.conf.all.src_valid_mark" = 1;
+      };
       nftables.textRules = ''
         table inet mesh_filter {
           chain forward {
@@ -207,14 +213,28 @@ in
           exit 1
         fi
 
-        if [ ! -s "$STATE_DIRECTORY/reg.json" ]; then
-          token="$(${pkgs.coreutils}/bin/cat "$CREDENTIALS_DIRECTORY/mesh-token")"
-          warp-cli --accept-tos connector new "$token"
-          unset token
+        token="$(${pkgs.coreutils}/bin/cat "$CREDENTIALS_DIRECTORY/mesh-token")"
+        tokenHash="$(${pkgs.coreutils}/bin/sha256sum "$CREDENTIALS_DIRECTORY/mesh-token" | ${pkgs.coreutils}/bin/cut -d ' ' -f1)"
+        tokenHashPath="$STATE_DIRECTORY/.mesh-token.sha256"
+        registeredTokenHash=
+        if [ -r "$tokenHashPath" ]; then
+          registeredTokenHash="$(${pkgs.coreutils}/bin/cat "$tokenHashPath")"
         fi
 
-        # The synthetic connectivity-check hostname does not resolve reliably
-        # inside the isolated network namespace.
+        if [ ! -s "$STATE_DIRECTORY/reg.json" ] || [ "$registeredTokenHash" != "$tokenHash" ]; then
+          if [ -s "$STATE_DIRECTORY/reg.json" ]; then
+            warp-cli --accept-tos disconnect || true
+            warp-cli --accept-tos registration delete
+          fi
+          warp-cli --accept-tos connector new "$token"
+          printf '%s\n' "$tokenHash" > "$tokenHashPath"
+          ${pkgs.coreutils}/bin/chmod 0600 "$tokenHashPath"
+        fi
+        unset token tokenHash tokenHashPath registeredTokenHash
+
+        # This isolated namespace cannot resolve the synthetic connectivity
+        # check hostname reliably; disabling the check allows the tunnel to
+        # establish while the Mesh service remains available.
         warp-cli --accept-tos debug connectivity-check disable
         warp-cli --accept-tos connect
       '';
