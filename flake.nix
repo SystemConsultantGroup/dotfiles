@@ -43,7 +43,7 @@
           { nixpkgs.hostPlatform = system; }
           nixos-router.nixosModules.default
           notnft.nixosModules.default
-          ./configuration.nix
+          ./hosts/router/configuration.nix
         ];
       };
 

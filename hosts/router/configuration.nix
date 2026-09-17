@@ -2,14 +2,9 @@
 {
   imports = [
     ./hardware-configuration.nix
-    ./modules/base.nix
-    ./modules/networking.nix
-    ./modules/routing.nix
-    ./modules/firewall.nix
-    ./modules/nftables.nix
-    ./modules/storage.nix
-    ./modules/services.nix
-    ./modules/pi.nix
+    ../../modules/base
+    ../../modules/router
+    ../../modules/server
   ];
 
   networking.hostName = "router";

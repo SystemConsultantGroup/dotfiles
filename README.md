@@ -21,16 +21,11 @@ It intentionally has no desktop environment, display manager, graphical applicat
 
 | Path | Responsibility |
 | --- | --- |
-| `configuration.nix` | Host composition, bootloader, kernel, time zone, and state version |
-| `hardware-configuration.nix` | Hardware-specific boot modules and system filesystems |
-| `modules/base.nix` | Nix settings, administrator account, shell, Git, and CLI tools |
-| `modules/networking.nix` | Interfaces, addresses, DHCP, WARP, and NIC workarounds |
-| `modules/routing.nix` | Forwarding sysctls and multi-address SNAT |
-| `modules/firewall.nix` | Forwarded-traffic policy |
-| `modules/nftables.nix` | Combined nftables ruleset assembly |
-| `modules/storage.nix` | `/mnt/storage` and `/mnt/download` |
-| `modules/services.nix` | OpenSSH, Podman, and ARP-cache workaround |
-| `modules/pi.nix` | Pi executable and writable configuration overlay |
+| `hosts/router/configuration.nix` | Host composition, bootloader, kernel, time zone, and state version |
+| `hosts/router/hardware-configuration.nix` | Hardware-specific boot modules and system filesystems |
+| `modules/base/` | Nix settings, administrator account, shell, Git, CLI tools, and Pi |
+| `modules/router/` | Interfaces, DHCP, WARP, forwarding, NAT, and packet filtering |
+| `modules/server/` | OpenSSH, Podman, service workarounds, and data-disk mounts |
 | `.pi/agent/` | Pi settings and web-search configuration |
 
 The WAN interface is `enp0s25`; the LAN interface is `enp5s0`.

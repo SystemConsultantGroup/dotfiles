@@ -4,22 +4,19 @@ This standalone repository defines the single headless NixOS host `router`. It i
 
 ## Repository structure
 
-- `configuration.nix`: host composition, boot, time zone, and state version
-- `hardware-configuration.nix`: hardware-specific boot and filesystem facts
-- `modules/base.nix`: Nix, user, shell, Git, SSH client, and administration tools
-- `modules/networking.nix`: interfaces, addresses, DHCP, WARP, and link workarounds
-- `modules/routing.nix`: forwarding and NAT
-- `modules/firewall.nix`: packet-filter policy
-- `modules/nftables.nix`: assembly of routing and firewall tables
-- `modules/storage.nix`: optional data-disk mounts
-- `modules/services.nix`: SSH server, Podman, and service workarounds
-- `modules/pi.nix`: Pi installation and writable configuration overlay
+- `hosts/router/configuration.nix`: host composition, boot, time zone, and state version
+- `hosts/router/hardware-configuration.nix`: hardware-specific boot and filesystem facts
+- `modules/base/`: shared Nix, user, shell, Git, tools, and Pi configuration
+- `modules/router/`: interfaces, DHCP, forwarding, NAT, and packet filtering
+- `modules/server/`: SSH, containers, service workarounds, and data disks
 - `.pi/agent/`: repository-managed Pi configuration
 
 ## Rules
 
 - Use explicit `pkgs.` and `lib.` references. Do not use `with pkgs;` or `with lib;`.
-- Keep routing and firewall policy in their respective modules.
+- Keep host-specific composition under `hosts/router/`.
+- Keep reusable concerns under `modules/{base,router,server}/`.
+- Keep routing and firewall policy in their respective files.
 - Keep machine-specific interface names, addresses, UUIDs, and workarounds explicit.
 - Install permanent software declaratively. Use `nix run` or `nix shell` for temporary tools.
 - Never use imperative global package installation.

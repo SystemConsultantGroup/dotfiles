@@ -7,6 +7,8 @@
   ...
 }:
 {
+  imports = [ ./pi.nix ];
+
   nix = {
     settings = {
       experimental-features = [
