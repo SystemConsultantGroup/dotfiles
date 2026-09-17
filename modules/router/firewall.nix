@@ -1,9 +1,35 @@
 { notnft, ... }:
+let
+  addressing = import ./addressing.nix;
+  inherit (addressing) officeDetection officeLan;
+in
 {
   dotfiles.nftables.filterTable =
     with notnft.dsl;
     with payload;
     add table.ip {
+      input =
+        add chain
+          {
+            type = f: f.filter;
+            hook = f: f.input;
+            prio = f: f.filter;
+            policy = f: f.accept;
+          }
+          [
+            (is.eq ip.daddr (cidr officeDetection.cidr))
+            (is.eq ip.protocol (f: f.tcp))
+            (is.eq th.dport officeDetection.port)
+            (is.eq meta.iifname officeLan.interface)
+            accept
+          ]
+          [
+            (is.eq ip.daddr (cidr officeDetection.cidr))
+            (is.eq ip.protocol (f: f.tcp))
+            (is.eq th.dport officeDetection.port)
+            drop
+          ];
+
       forward =
         add chain
           {

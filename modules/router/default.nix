@@ -1,5 +1,7 @@
 { pkgs, ... }:
 let
+  addressing = import ./addressing.nix;
+  inherit (addressing) officeLan;
   wanAddresses = [
     "115.145.150.182"
     "115.145.150.193"
@@ -22,6 +24,7 @@ in
     ./lease-sweep.nix
     ./mesh.nix
     ./nftables.nix
+    ./office-detection.nix
     ./routing.nix
   ];
 
@@ -60,18 +63,17 @@ in
           }
         ];
       };
-      enp5s0.ipv4 = {
+      ${officeLan.interface}.ipv4 = {
         addresses = [
           {
-            address = "10.0.0.1";
-            prefixLength = 8;
+            inherit (officeLan) address prefixLength;
             dns = [
               "1.1.1.1"
               "1.0.0.1"
               "8.8.8.8"
               "8.8.4.4"
             ];
-            gateways = [ "10.0.0.1" ];
+            gateways = [ officeLan.address ];
             keaSettings.option-data = [
               {
                 name = "domain-name-servers";
@@ -85,7 +87,7 @@ in
                 code = 3;
                 csv-format = true;
                 space = "dhcp4";
-                data = "10.0.0.1";
+                data = officeLan.address;
               }
             ];
           }

@@ -5,6 +5,8 @@
   ...
 }:
 let
+  addressing = import ./addressing.nix;
+  inherit (addressing) officeLan;
   wanAddresses = map (address: address.address) config.router.interfaces.enp0s25.ipv4.addresses;
 in
 {
@@ -43,7 +45,7 @@ in
             (is.eq meta.iifname "mesh0-host")
             (is.eq meta.oifname "enp5s0")
             (is.eq ip.saddr (cidr "100.96.0.0/12"))
-            (snat { addr = "10.0.0.1"; })
+            (snat { addr = officeLan.address; })
           ];
       prerouting = add chain {
         type = f: f.nat;

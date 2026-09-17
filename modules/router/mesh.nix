@@ -1,5 +1,7 @@
 { lib, pkgs, ... }:
 let
+  addressing = import ./addressing.nix;
+  inherit (addressing) officeLan;
   instance = "scg-skku-router";
   namespace = "mesh-${instance}";
   hostInterface = "mesh0-host";
@@ -35,7 +37,7 @@ in
             type filter hook forward priority filter; policy drop;
 
             ct state { established, related } accept
-            oifname "${meshInterface}" ip daddr 10.0.0.0/8 accept
+            oifname "${meshInterface}" ip daddr ${officeLan.cidr} accept
           }
         }
       '';
@@ -85,7 +87,7 @@ in
             }
             {
               extraArgs = [
-                "10.0.0.0/8"
+                officeLan.cidr
                 "via"
                 "172.31.255.1"
               ];
