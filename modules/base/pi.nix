@@ -2,7 +2,10 @@
 let
   pi = pkgs.writeShellApplication {
     name = "pi";
-    runtimeInputs = [ pkgs.pnpm ];
+    runtimeInputs = [
+      pkgs.nodejs
+      pkgs.pnpm
+    ];
     text = ''
       exec pnpx --allow-build=@google/genai --allow-build=protobufjs --allow-build=esbuild @earendil-works/pi-coding-agent@latest "$@"
     '';
