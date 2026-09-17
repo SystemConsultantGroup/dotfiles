@@ -19,6 +19,7 @@ in
 {
   imports = [
     ./firewall.nix
+    ./lease-sweep.nix
     ./nftables.nix
     ./routing.nix
   ];
