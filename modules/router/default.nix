@@ -20,8 +20,8 @@ let
 in
 {
   imports = [
+    ./dhcp-dns.nix
     ./firewall.nix
-    ./lease-sweep.nix
     ./mesh.nix
     ./nftables.nix
     ./office-detection.nix
@@ -65,34 +65,8 @@ in
       };
       ${officeLan.interface}.ipv4 = {
         addresses = [
-          {
-            inherit (officeLan) address prefixLength;
-            dns = [
-              "1.1.1.1"
-              "1.0.0.1"
-              "8.8.8.8"
-              "8.8.4.4"
-            ];
-            gateways = [ officeLan.address ];
-            keaSettings.option-data = [
-              {
-                name = "domain-name-servers";
-                code = 6;
-                csv-format = true;
-                space = "dhcp4";
-                data = "1.1.1.1, 1.0.0.1, 8.8.8.8, 8.8.4.4";
-              }
-              {
-                name = "routers";
-                code = 3;
-                csv-format = true;
-                space = "dhcp4";
-                data = officeLan.address;
-              }
-            ];
-          }
+          { inherit (officeLan) address prefixLength; }
         ];
-        kea.enable = true;
       };
     };
   };
