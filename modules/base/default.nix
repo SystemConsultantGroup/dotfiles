@@ -31,12 +31,6 @@
   nixpkgs.config.allowUnfree = true;
   security.sudo.wheelNeedsPassword = false;
 
-  networking = {
-    networkmanager.enable = false;
-    nftables.enable = true;
-    firewall.enable = false;
-  };
-
   environment = {
     systemPackages = [
       pkgs.bat

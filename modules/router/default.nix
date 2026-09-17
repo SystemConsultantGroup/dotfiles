@@ -23,6 +23,12 @@ in
     ./routing.nix
   ];
 
+  networking = {
+    networkmanager.enable = false;
+    nftables.enable = true;
+    firewall.enable = false;
+  };
+
   services.cloudflare-warp.enable = true;
 
   systemd.services.ethtool-enp0s25 = {

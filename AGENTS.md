@@ -23,6 +23,7 @@ This standalone repository defines the single headless NixOS host `router`. It i
 - Do not discard or overwrite unrecognized working-tree changes.
 - Do not activate a configuration unless the user explicitly requests it.
 - Treat routing, firewall, DHCP, storage, and remote-access changes as service-impacting.
+- Prefer elegant, coherent configuration, but never trade away correctness, reliability, recoverability, or operational clarity on the router host.
 
 ## Validation
 

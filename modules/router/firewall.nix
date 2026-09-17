@@ -22,14 +22,6 @@
             (is.eq meta.iifname "enp5s0")
             (is.eq meta.oifname "enp0s25")
             accept
-          ]
-          [
-            (is.eq meta.iifname "enp0s25")
-            (is.eq meta.oifname "enp5s0")
-            (vmap ct.state {
-              established = accept;
-              related = accept;
-            })
           ];
     };
 }

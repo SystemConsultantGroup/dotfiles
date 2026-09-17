@@ -18,6 +18,7 @@
 ## Working style
 
 - Read relevant configuration and callers before editing.
+- Prefer elegant solutions: keep structure coherent, remove duplication, and choose the simplest abstraction that makes the code easier to understand and maintain.
 - Prefer small, direct changes over speculative abstraction.
 - Use descriptive names and comment only non-obvious operational reasons.
 - Do not discard unrecognized working-tree changes.
