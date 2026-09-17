@@ -71,7 +71,7 @@ in
     dnsmasq_leases=/var/lib/dnsmasq/dnsmasq.leases
 
     if [ -s "$kea_leases" ] && [ ! -s "$dnsmasq_leases" ]; then
-      ${lib.getExe pkgs.python3} \
+      ${lib.getExe pkgs.python3} - \
         "$kea_leases" "$dnsmasq_leases" ${lib.escapeShellArg officeLan.cidr} <<'PY'
     import csv
     import ipaddress
