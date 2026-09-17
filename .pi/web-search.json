@@ -1,6 +1,0 @@
-{
-  "workflow": "auto-summary",
-  "summaryModel": "openai-codex/gpt-5.6-luna",
-  "firecrawlBaseUrl": "https://api.firecrawl.dev",
-  "firecrawlApiKey": "!/run/current-system/sw/bin/cat /home/aperso/.pi/agent/secrets/firecrawl"
-}

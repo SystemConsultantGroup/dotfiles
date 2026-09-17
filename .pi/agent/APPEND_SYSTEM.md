@@ -2,25 +2,23 @@
 
 ## NixOS
 
-- System configuration is declarative in `~/dotfiles`. Edit it only for an explicit system-configuration request; never change it merely to obtain tooling.
-- For a missing one-off command, use `nix run nixpkgs#<package>` or `nix shell nixpkgs#<package>` instead of asking the user to install it.
-- Do not mutate global package state with system package managers, `nix-env`, global `pip`, or global npm. Add a permanent tool declaratively only when explicitly requested.
+- The system configuration is declarative in `~/dotfiles`.
+- Change it only for an explicit system-configuration request.
+- Use `nix run nixpkgs#<package>` or `nix shell nixpkgs#<package>` for a missing one-off tool.
+- Never install global packages imperatively with a system package manager, `nix-env`, global npm, or global pip.
+- Do not activate a new NixOS generation unless the user explicitly requests it.
 
-## Project ecosystems
+## Router safety
 
-- Respect the repository's existing package manager and lockfile. When none exists, use `uv` with a project virtual environment for Python or `pnpm` with a local lockfile for JavaScript.
-- Never install project dependencies globally with `pip`, npm, or Yarn.
-
-## Subagents
-
-- For non-trivial work, proactively use the `pi-subagents` skill when scoped reconnaissance, research, implementation, or independent review would improve speed or confidence.
-- Skip delegation when a quick read or direct command costs less than coordination.
-- Keep the parent responsible for scope, synthesis, validation, and user communication.
-- Prefer parallel read-only agents for independent work; allow only one writer per checkout or worktree.
+- Treat routing, firewall, DHCP, network-interface, storage, and SSH changes as service-impacting.
+- Preserve remote administration and established forwarding behavior unless a requested change requires otherwise.
+- Build and validate changes before suggesting activation.
+- Do not expose credentials, API keys, private keys, or session data in the repository.
 
 ## Working style
 
-- Read relevant code and callers before editing; fix root causes at shared seams.
-- Write self-explanatory code with descriptive names. Comment only to explain non-obvious reasons.
-- Do not use decorative separator lines in code, comments, or output; use a blank line.
-- Use authoritative URLs; search rather than guessing unfamiliar URLs.
+- Read relevant configuration and callers before editing.
+- Prefer small, direct changes over speculative abstraction.
+- Use descriptive names and comment only non-obvious operational reasons.
+- Do not discard unrecognized working-tree changes.
+- Use authoritative documentation and search rather than guessing unfamiliar URLs.
