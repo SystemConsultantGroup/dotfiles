@@ -1,44 +1,53 @@
 {
-  description = "Donghyun Shin's NixOS configuration";
+  description = "System Consultant Group's headless NixOS router";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    kime.url = "github:riey/kime";
-    persway.url = "github:saylesss88/persway";
+    nixos-router = {
+      url = "github:chayleaf/nixos-router";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    notnft = {
+      url = "github:chayleaf/notnft";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
-    { self, nixpkgs, ... }@inputs:
+    {
+      nixpkgs,
+      nixos-router,
+      notnft,
+      ...
+    }:
     let
-      username = "aperso";
-      userFullName = "Donghyun Shin";
-      gitUserName = "apersomany";
-      gitUserEmail = "aperso@aperso.dev";
-      pkgs = nixpkgs.legacyPackages.x86_64-linux;
-      mkHost =
-        name:
-        nixpkgs.lib.nixosSystem {
-          specialArgs = {
-            inherit
-              self
-              inputs
-              username
-              userFullName
-              gitUserName
-              gitUserEmail
-              ;
-          };
-          modules = [
-            { nixpkgs.hostPlatform = "x86_64-linux"; }
-            (./. + "/hosts/${name}/configuration.nix")
-          ];
-        };
+      username = "scg";
+      userFullName = "System Consultant Group";
+      gitUserName = "scg";
+      gitUserEmail = "scg@scg.skku.ac.kr";
+      system = "x86_64-linux";
+      pkgs = nixpkgs.legacyPackages.${system};
     in
     {
-      nixosConfigurations.workstation = mkHost "workstation";
-      nixosConfigurations.scg-workstation = mkHost "scg-workstation";
+      nixosConfigurations.router = nixpkgs.lib.nixosSystem {
+        specialArgs = {
+          inherit
+            username
+            userFullName
+            gitUserName
+            gitUserEmail
+            ;
+          notnft = notnft.lib.${system};
+        };
+        modules = [
+          { nixpkgs.hostPlatform = system; }
+          nixos-router.nixosModules.default
+          notnft.nixosModules.default
+          ./configuration.nix
+        ];
+      };
 
-      formatter.x86_64-linux = pkgs.writeShellApplication {
+      formatter.${system} = pkgs.writeShellApplication {
         name = "treefmt";
         runtimeInputs = [
           pkgs.treefmt
@@ -49,7 +58,7 @@
         '';
       };
 
-      devShells.x86_64-linux.default = pkgs.mkShell {
+      devShells.${system}.default = pkgs.mkShell {
         packages = [
           pkgs.statix
           pkgs.deadnix

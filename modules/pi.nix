@@ -1,0 +1,23 @@
+{ pkgs, username, ... }:
+let
+  pi = pkgs.writeShellApplication {
+    name = "pi";
+    runtimeInputs = [ pkgs.pnpm ];
+    text = ''
+      exec pnpx --allow-build=@google/genai --allow-build=protobufjs --allow-build=esbuild @earendil-works/pi-coding-agent@latest "$@"
+    '';
+  };
+in
+{
+  fileSystems."/home/${username}/.pi".overlay = {
+    lowerdir = [ "/home/${username}/dotfiles/.pi" ];
+    upperdir = "/home/${username}/.local/state/overlays/pi/upper";
+    workdir = "/home/${username}/.local/state/overlays/pi/work";
+  };
+
+  systemd.tmpfiles.rules = [
+    "d /home/${username}/.pi 0755 ${username} users -"
+  ];
+
+  environment.systemPackages = [ pi ];
+}

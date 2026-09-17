@@ -1,11 +1,10 @@
 result
 .direnv
-
-# local editor settings
 .vscode/
-
-# opencode local install
 .opencode/
-
-# pi subagent runtime artifacts
+.pi/npm/
+.pi/git/
 .pi-subagents/
+.pi/agent/auth.json
+.pi/agent/trust.json
+.pi/agent/sessions/
