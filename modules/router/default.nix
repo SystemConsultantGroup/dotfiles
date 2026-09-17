@@ -31,8 +31,6 @@ in
     firewall.enable = false;
   };
 
-  services.cloudflare-warp.enable = true;
-
   systemd.services.ethtool-enp0s25 = {
     description = "Disable TSO on enp0s25";
     wantedBy = [ "network-pre.target" ];
