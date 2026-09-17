@@ -24,6 +24,7 @@ in
   ];
 
   networking = {
+    useDHCP = false;
     networkmanager.enable = false;
     nftables.enable = true;
     firewall.enable = false;
