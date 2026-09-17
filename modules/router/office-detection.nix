@@ -5,12 +5,6 @@ let
   stateDirectory = "cloudflare-office-detection";
 in
 {
-  router.interfaces.lo.ipv4.addresses = [
-    {
-      inherit (officeDetection) address prefixLength;
-    }
-  ];
-
   services.nginx = {
     enable = true;
     recommendedTlsSettings = true;
@@ -33,6 +27,22 @@ in
   };
 
   systemd.services = {
+    cloudflare-office-address = {
+      description = "Assign the Cloudflare office-detection address";
+      wantedBy = [ "network.target" ];
+      before = [ "nginx.service" ];
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+      };
+      script = ''
+        ${lib.getExe' pkgs.iproute2 "ip"} address replace ${officeDetection.cidr} dev lo
+      '';
+      preStop = ''
+        ${lib.getExe' pkgs.iproute2 "ip"} address del ${officeDetection.cidr} dev lo 2>/dev/null || true
+      '';
+    };
+
     cloudflare-office-certificate = {
       description = "Create the Cloudflare office-detection TLS certificate";
       before = [ "nginx.service" ];
@@ -73,8 +83,8 @@ in
     };
 
     nginx = {
-      after = [ "network-addresses-lo.service" ];
-      requires = [ "network-addresses-lo.service" ];
+      after = [ "cloudflare-office-address.service" ];
+      requires = [ "cloudflare-office-address.service" ];
       serviceConfig.LoadCredential = [
         "office-cert.pem:/var/lib/${stateDirectory}/cert.pem"
         "office-key.pem:/var/lib/${stateDirectory}/key.pem"

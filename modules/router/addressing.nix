@@ -8,7 +8,6 @@
 
   officeDetection = {
     address = "10.255.0.1";
-    prefixLength = 32;
     cidr = "10.255.0.1/32";
     port = 10443;
   };
