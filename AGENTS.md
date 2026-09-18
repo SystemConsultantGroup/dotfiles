@@ -21,6 +21,11 @@ Keep host-specific composition in `hosts/router/` and reusable concerns in the a
 - Install permanent software declaratively; use `nix run` or `nix shell` for temporary tools.
 - Preserve unrecognized working-tree changes.
 - Do not activate a configuration unless explicitly requested.
+- Use `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` from the environment for Cloudflare operations; never print, log, commit, or persist their values.
+
+## Local credentials
+
+Store machine-local environment variables in the gitignored `.envrc.local`. Direnv loads this file after the flake environment. Keep it mode `0600` and never place secrets in tracked files or Nix expressions.
 
 ## Validation
 

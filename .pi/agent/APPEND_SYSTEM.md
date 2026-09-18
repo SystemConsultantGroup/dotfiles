@@ -13,6 +13,7 @@
 - Preserve remote access and established forwarding behavior unless the request requires otherwise.
 - Validate configuration changes before suggesting activation.
 - Never expose credentials, keys, secrets, or session data.
+- Cloudflare operations use the account-scoped `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` environment variables. Never print, log, commit, or persist their values.
 
 ## Working style
 
