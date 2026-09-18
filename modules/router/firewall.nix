@@ -1,7 +1,8 @@
-{ notnft, ... }:
+{ config, notnft, ... }:
 let
-  addressing = import ./addressing.nix;
-  inherit (addressing) officeDetection officeLan;
+  inherit (config.dotfiles.router) lan wan;
+  inherit (config.dotfiles.router.cloudflare) officeDetection;
+  inherit (config.dotfiles.router.cloudflare.mesh) hostInterface;
 in
 {
   dotfiles.nftables.filterTable =
@@ -20,7 +21,7 @@ in
             (is.eq ip.daddr (cidr officeDetection.cidr))
             (is.eq ip.protocol (f: f.tcp))
             (is.eq th.dport officeDetection.port)
-            (is.eq meta.iifname officeLan.interface)
+            (is.eq meta.iifname lan.interface)
             accept
           ]
           [
@@ -45,18 +46,18 @@ in
             })
           ]
           [
-            (is.eq meta.iifname "enp5s0")
-            (is.eq meta.oifname "enp0s25")
+            (is.eq meta.iifname lan.interface)
+            (is.eq meta.oifname wan.interface)
             accept
           ]
           [
-            (is.eq meta.iifname "mesh0-host")
-            (is.eq meta.oifname "enp0s25")
+            (is.eq meta.iifname hostInterface)
+            (is.eq meta.oifname wan.interface)
             accept
           ]
           [
-            (is.eq meta.iifname "mesh0-host")
-            (is.eq meta.oifname "enp5s0")
+            (is.eq meta.iifname hostInterface)
+            (is.eq meta.oifname lan.interface)
             accept
           ];
     };

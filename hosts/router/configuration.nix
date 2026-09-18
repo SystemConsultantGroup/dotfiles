@@ -2,6 +2,8 @@
 {
   imports = [
     ./hardware-configuration.nix
+    ./network.nix
+    ./storage.nix
     ../../modules/base
     ../../modules/router
     ../../modules/server

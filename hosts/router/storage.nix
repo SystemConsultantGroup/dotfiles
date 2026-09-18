@@ -1,9 +1,4 @@
 _: {
-  boot.supportedFilesystems = {
-    ntfs = true;
-    "ntfs-3g" = true;
-  };
-
   fileSystems = {
     "/mnt/storage" = {
       device = "/dev/disk/by-uuid/20B42E70B42E489C";

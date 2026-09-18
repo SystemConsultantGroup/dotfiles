@@ -1,7 +1,11 @@
-{ lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
-  addressing = import ./addressing.nix;
-  inherit (addressing) officeDetection;
+  inherit (config.dotfiles.router.cloudflare) officeDetection;
   stateDirectory = "cloudflare-office-detection";
 in
 {

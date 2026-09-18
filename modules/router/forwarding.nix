@@ -5,15 +5,14 @@
   ...
 }:
 let
-  addressing = import ./addressing.nix;
-  inherit (addressing) officeLan;
-  wanAddresses = map (address: address.address) config.router.interfaces.enp0s25.ipv4.addresses;
+  inherit (config.dotfiles.router) lan wan;
+  inherit (config.dotfiles.router.cloudflare.mesh) clientCidr hostInterface;
+  wanAddresses = map (
+    address: address.address
+  ) config.router.interfaces.${wan.interface}.ipv4.addresses;
 in
 {
-  boot.kernel.sysctl = {
-    "net.ipv4.conf.all.forwarding" = true;
-    "net.ipv6.conf.all.forwarding" = true;
-  };
+  boot.kernel.sysctl."net.ipv4.conf.all.forwarding" = true;
 
   dotfiles.nftables.natTable =
     with notnft.dsl;
@@ -28,7 +27,7 @@ in
             policy = f: f.accept;
           }
           [
-            (is.eq meta.oifname "enp0s25")
+            (is.eq meta.oifname wan.interface)
             (snat {
               addr.map = {
                 key = jhash ip.saddr (builtins.length wanAddresses);
@@ -42,16 +41,10 @@ in
             })
           ]
           [
-            (is.eq meta.iifname "mesh0-host")
-            (is.eq meta.oifname "enp5s0")
-            (is.eq ip.saddr (cidr "100.96.0.0/12"))
-            (snat { addr = officeLan.address; })
+            (is.eq meta.iifname hostInterface)
+            (is.eq meta.oifname lan.interface)
+            (is.eq ip.saddr (cidr clientCidr))
+            (snat { addr = lan.address; })
           ];
-      prerouting = add chain {
-        type = f: f.nat;
-        hook = f: f.prerouting;
-        prio = f: f.dstnat;
-        policy = f: f.accept;
-      };
     };
 }

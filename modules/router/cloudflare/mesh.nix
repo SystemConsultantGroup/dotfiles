@@ -1,11 +1,20 @@
-{ lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
-  addressing = import ./addressing.nix;
-  inherit (addressing) officeLan;
-  instance = "scg-skku-router";
+  inherit (config.dotfiles.router) lan;
+  inherit (config.dotfiles.router.cloudflare.mesh)
+    clientCidr
+    hostInterface
+    instance
+    peerInterface
+    ;
   namespace = "mesh-${instance}";
-  hostInterface = "mesh0-host";
-  meshInterface = "mesh0-peer";
+  escapedHostInterface = lib.replaceStrings [ "-" ] [ "\\x2d" ] hostInterface;
+  escapedPeerInterface = lib.replaceStrings [ "-" ] [ "\\x2d" ] peerInterface;
   containerName = "cloudflare-mesh";
   serviceName = "podman-${containerName}";
   stateDirectory = "cloudflare-mesh-${instance}";
@@ -56,7 +65,7 @@ in
         "net.ipv4.ip_forward" = true;
         "net.ipv4.conf.all.rp_filter" = 0;
         "net.ipv4.conf.default.rp_filter" = 0;
-        "net.ipv4.conf.mesh0-peer.rp_filter" = 0;
+        "net.ipv4.conf.${peerInterface}.rp_filter" = 0;
         "net.ipv4.conf.all.src_valid_mark" = 1;
       };
       nftables.textRules = ''
@@ -65,13 +74,13 @@ in
             type filter hook forward priority filter; policy drop;
 
             ct state { established, related } accept
-            oifname "${meshInterface}" ip daddr ${officeLan.cidr} accept
+            oifname "${peerInterface}" ip daddr ${lan.cidr} accept
           }
         }
       '';
     };
 
-    veths.${hostInterface}.peerName = meshInterface;
+    veths.${hostInterface}.peerName = peerInterface;
 
     interfaces = {
       ${hostInterface}.ipv4 = {
@@ -84,7 +93,7 @@ in
         routes = [
           {
             extraArgs = [
-              "100.96.0.0/12"
+              clientCidr
               "via"
               "172.31.255.2"
             ];
@@ -92,7 +101,7 @@ in
         ];
       };
 
-      ${meshInterface} = {
+      ${peerInterface} = {
         networkNamespace = namespace;
         dependentServices = [ serviceName ];
         ipv4 = {
@@ -112,7 +121,7 @@ in
             }
             {
               extraArgs = [
-                officeLan.cidr
+                lan.cidr
                 "via"
                 "172.31.255.1"
               ];
@@ -123,45 +132,48 @@ in
     };
   };
 
-  virtualisation.oci-containers.containers.${containerName} = {
-    inherit image;
-    environment.SRCNAT_ENABLED = "false";
-    capabilities = {
-      NET_ADMIN = true;
-      NET_RAW = true;
+  virtualisation = {
+    podman.enable = true;
+    oci-containers.containers.${containerName} = {
+      inherit image;
+      environment.SRCNAT_ENABLED = "false";
+      capabilities = {
+        NET_ADMIN = true;
+        NET_RAW = true;
+      };
+      devices = [ "/dev/net/tun:/dev/net/tun" ];
+      volumes = [ "${statePath}:/var/lib/cloudflare-warp" ];
+      networks = [ "ns:/run/netns/${namespace}" ];
+      extraOptions = [
+        "--secret=${tokenSecret},type=env,target=MESH_NODE_TOKEN"
+      ];
     };
-    devices = [ "/dev/net/tun:/dev/net/tun" ];
-    volumes = [ "${statePath}:/var/lib/cloudflare-warp" ];
-    networks = [ "ns:/run/netns/${namespace}" ];
-    extraOptions = [
-      "--secret=${tokenSecret},type=env,target=MESH_NODE_TOKEN"
-    ];
   };
 
   systemd.services = {
     # Keep namespace-owned setup units in the same restart transaction as the
     # namespace. This preserves the veth across declarative namespace updates.
-    "setup-netns-for-mesh0\\x2dpeer" = {
+    "setup-netns-for-${escapedPeerInterface}" = {
       after = [ "netns-${namespace}.service" ];
       requires = [ "netns-${namespace}.service" ];
       partOf = [ "netns-${namespace}.service" ];
     };
-    "network-addresses-mesh0\\x2dpeer".partOf = [ "netns-${namespace}.service" ];
+    "network-addresses-${escapedPeerInterface}".partOf = [ "netns-${namespace}.service" ];
     "sysctl-netns-${namespace}".partOf = [ "netns-${namespace}.service" ];
     "nftables-netns-${namespace}".partOf = [ "netns-${namespace}.service" ];
 
     ${serviceName} = {
-      description = "Cloudflare Mesh node scg-skku/router";
+      description = "Cloudflare Mesh node ${instance}";
       partOf = [ "netns-${namespace}.service" ];
       after = [
-        "network-addresses-mesh0\\x2dhost.service"
-        "network-addresses-mesh0\\x2dpeer.service"
+        "network-addresses-${escapedHostInterface}.service"
+        "network-addresses-${escapedPeerInterface}.service"
         "nftables-netns-${namespace}.service"
         "sysctl-netns-${namespace}.service"
       ];
       requires = [
-        "network-addresses-mesh0\\x2dhost.service"
-        "network-addresses-mesh0\\x2dpeer.service"
+        "network-addresses-${escapedHostInterface}.service"
+        "network-addresses-${escapedPeerInterface}.service"
         "nftables-netns-${namespace}.service"
         "sysctl-netns-${namespace}.service"
       ];

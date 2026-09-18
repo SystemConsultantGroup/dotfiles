@@ -4,10 +4,10 @@ Standalone NixOS configuration for the single `router` host.
 
 ## Structure
 
-- `hosts/router/`: host composition and hardware configuration
+- `hosts/router/`: host composition, network topology, hardware, and storage
 - `modules/base/`: Nix, user, shell, Git, tools, and Pi
-- `modules/router/`: interfaces, DHCP, forwarding, NAT, and firewall
-- `modules/server/`: SSH, containers, service workarounds, and storage
+- `modules/router/`: interfaces, DHCP, forwarding, firewall, and Cloudflare networking
+- `modules/server/`: remote access
 - `.pi/agent/`: repository-managed Pi configuration
 
 Keep host-specific composition in `hosts/router/` and reusable concerns in the appropriate module. Keep routing and firewall policy in separate files.

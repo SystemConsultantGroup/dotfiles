@@ -1,73 +1,11 @@
-{ pkgs, ... }:
-let
-  addressing = import ./addressing.nix;
-  inherit (addressing) officeLan;
-  wanAddresses = [
-    "115.145.150.182"
-    "115.145.150.193"
-    "115.145.150.204"
-    "115.145.150.203"
-    "115.145.150.202"
-    "115.145.150.201"
-    "115.145.150.200"
-    "115.145.150.199"
-    "115.145.150.198"
-    "115.145.150.197"
-    "115.145.150.196"
-    "115.145.150.195"
-    "115.145.150.194"
-  ];
-in
 {
   imports = [
+    ./options.nix
+    ./interfaces.nix
     ./dhcp-dns.nix
     ./firewall.nix
-    ./mesh.nix
+    ./forwarding.nix
     ./nftables.nix
-    ./office-detection.nix
-    ./routing.nix
+    ./cloudflare
   ];
-
-  networking = {
-    useDHCP = false;
-    networkmanager.enable = false;
-    nftables.enable = true;
-    firewall.enable = false;
-  };
-
-  systemd.services.ethtool-enp0s25 = {
-    description = "Disable TSO on enp0s25";
-    wantedBy = [ "network-pre.target" ];
-    before = [ "network-pre.target" ];
-    serviceConfig.Type = "oneshot";
-    script = ''
-      ${pkgs.ethtool}/bin/ethtool -K enp0s25 tso off
-    '';
-  };
-
-  router = {
-    enable = true;
-    interfaces = {
-      enp0s25 = {
-        ipv4.addresses = map (address: {
-          inherit address;
-          prefixLength = 24;
-        }) wanAddresses;
-        ipv4.routes = [
-          {
-            extraArgs = [
-              "default"
-              "via"
-              "115.145.150.1"
-            ];
-          }
-        ];
-      };
-      ${officeLan.interface}.ipv4 = {
-        addresses = [
-          { inherit (officeLan) address prefixLength; }
-        ];
-      };
-    };
-  };
 }
