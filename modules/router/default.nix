@@ -3,6 +3,7 @@
     ./options.nix
     ./dhcp-dns.nix
     ./firewall.nix
+    ./mesh-portal.nix
     ./nftables.nix
     ./cloudflare
   ];

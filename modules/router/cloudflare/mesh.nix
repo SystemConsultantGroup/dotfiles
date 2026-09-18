@@ -52,6 +52,29 @@ let
       unset token
     '';
   };
+  prepareEgress = pkgs.writeShellApplication {
+    name = "prepare-cloudflare-mesh-egress";
+    runtimeInputs = [
+      pkgs.coreutils
+      pkgs.iproute2
+    ];
+    text = ''
+      ip -n ${lib.escapeShellArg namespace} route replace \
+        blackhole default table 100 metric 32767
+
+      attempt=0
+      while (( attempt < 30 )); do
+        if ip -n ${lib.escapeShellArg namespace} link show CloudflareWARP >/dev/null 2>&1; then
+          exec ip -n ${lib.escapeShellArg namespace} route replace \
+            default dev CloudflareWARP table 100 metric 100
+        fi
+        attempt=$((attempt + 1))
+        sleep 1
+      done
+      echo "CloudflareWARP did not appear in namespace ${namespace}" >&2
+      exit 1
+    '';
+  };
 in
 {
   systemd.tmpfiles.rules = [
@@ -68,13 +91,35 @@ in
         "net.ipv4.conf.${peerInterface}.rp_filter" = 0;
         "net.ipv4.conf.all.src_valid_mark" = 1;
       };
+      rules = [
+        {
+          ipv6 = false;
+          extraArgs = [
+            "priority"
+            "100"
+            "iif"
+            peerInterface
+            "lookup"
+            "100"
+          ];
+        }
+      ];
       nftables.textRules = ''
         table inet mesh_filter {
           chain forward {
             type filter hook forward priority filter; policy drop;
 
             ct state { established, related } accept
+            iifname "${peerInterface}" oifname "CloudflareWARP" ip saddr ${lan.cidr} accept
+            iifname "CloudflareWARP" oifname "${peerInterface}" ip daddr ${lan.cidr} accept
             oifname "${peerInterface}" ip daddr ${lan.cidr} accept
+          }
+        }
+
+        table ip mesh_nat {
+          chain postrouting {
+            type nat hook postrouting priority srcnat; policy accept;
+            oifname "CloudflareWARP" ip saddr ${lan.cidr} masquerade
           }
         }
       '';
@@ -161,6 +206,19 @@ in
     "network-addresses-${escapedPeerInterface}".partOf = [ "netns-${namespace}.service" ];
     "sysctl-netns-${namespace}".partOf = [ "netns-${namespace}.service" ];
     "nftables-netns-${namespace}".partOf = [ "netns-${namespace}.service" ];
+
+    cloudflare-mesh-egress = {
+      description = "Configure Cloudflare Mesh Internet egress";
+      wantedBy = [ "multi-user.target" ];
+      after = [ "${serviceName}.service" ];
+      requires = [ "${serviceName}.service" ];
+      partOf = [ "netns-${namespace}.service" ];
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+        ExecStart = "${prepareEgress}/bin/prepare-cloudflare-mesh-egress";
+      };
+    };
 
     ${serviceName} = {
       description = "Cloudflare Mesh node ${instance}";

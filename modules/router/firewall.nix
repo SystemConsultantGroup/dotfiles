@@ -51,6 +51,11 @@ in
             accept
           ]
           [
+            (is.eq meta.iifname lan.interface)
+            (is.eq meta.oifname hostInterface)
+            accept
+          ]
+          [
             (is.eq meta.iifname hostInterface)
             (is.eq meta.oifname wan.interface)
             accept
