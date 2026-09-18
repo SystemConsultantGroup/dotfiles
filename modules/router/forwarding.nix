@@ -12,7 +12,10 @@ let
   ) config.router.interfaces.${wan.interface}.ipv4.addresses;
 in
 {
-  boot.kernel.sysctl."net.ipv4.conf.all.forwarding" = true;
+  boot.kernel.sysctl = {
+    "net.ipv4.conf.all.forwarding" = true;
+    "net.ipv6.conf.all.forwarding" = false;
+  };
 
   dotfiles.nftables.natTable =
     with notnft.dsl;
