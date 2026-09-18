@@ -6,6 +6,7 @@
 }:
 let
   inherit (config.dotfiles.router) lan;
+  inherit (config.dotfiles.router.cloudflare.mesh) hostInterface;
 
   neighborHook = pkgs.writeShellScript "dnsmasq-neighbor-hook" ''
     action="$1"
@@ -37,8 +38,12 @@ in
     enable = true;
     resolveLocalQueries = true;
     settings = {
-      inherit (lan) interface domain;
-      bind-dynamic = true;
+      inherit (lan) domain;
+      interface = [
+        lan.interface
+        hostInterface
+      ];
+      no-dhcp-interface = hostInterface;
 
       local = "/${lan.domain}/";
       domain-needed = true;
