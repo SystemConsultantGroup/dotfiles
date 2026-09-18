@@ -21,8 +21,8 @@ in
           ssl = true;
         }
       ];
-      sslCertificate = "/run/credentials/nginx.service/office-cert.pem";
-      sslCertificateKey = "/run/credentials/nginx.service/office-key.pem";
+      sslCertificate = "/var/lib/${stateDirectory}/cert.pem";
+      sslCertificateKey = "/var/lib/${stateDirectory}/key.pem";
       locations."/".return = "204";
       extraConfig = ''
         access_log off;
@@ -55,8 +55,9 @@ in
         Type = "oneshot";
         RemainAfterExit = true;
         StateDirectory = stateDirectory;
-        StateDirectoryMode = "0700";
-        UMask = "0077";
+        StateDirectoryMode = "0750";
+        Group = "nginx";
+        UMask = "0027";
       };
       script = ''
         key="$STATE_DIRECTORY/key.pem"
@@ -77,10 +78,13 @@ in
             -subj "/CN=cloudflare-office-detection.internal" \
             -addext "subjectAltName=IP:${officeDetection.address}"
 
-          ${pkgs.coreutils}/bin/install -m 0600 "$work/key.pem" "$key"
+          ${pkgs.coreutils}/bin/install -m 0640 "$work/key.pem" "$key"
           ${pkgs.coreutils}/bin/install -m 0644 "$work/cert.pem" "$cert"
         fi
 
+        ${pkgs.coreutils}/bin/chown root:nginx "$key" "$cert"
+        ${pkgs.coreutils}/bin/chmod 0640 "$key"
+        ${pkgs.coreutils}/bin/chmod 0644 "$cert"
         ${lib.getExe pkgs.openssl} x509 -in "$cert" -noout >/dev/null
         ${lib.getExe pkgs.openssl} pkey -in "$key" -noout >/dev/null
       '';
@@ -89,10 +93,6 @@ in
     nginx = {
       after = [ "cloudflare-office-address.service" ];
       requires = [ "cloudflare-office-address.service" ];
-      serviceConfig.LoadCredential = [
-        "office-cert.pem:/var/lib/${stateDirectory}/cert.pem"
-        "office-key.pem:/var/lib/${stateDirectory}/key.pem"
-      ];
     };
   };
 }

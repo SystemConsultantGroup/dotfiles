@@ -34,6 +34,8 @@ in
     defaults.email = "scg@scg.skku.ac.kr";
     certs.${portalHost} = {
       dnsProvider = "cloudflare";
+      # Bypass dnsmasq's local router.scg.sh record when checking DNS-01.
+      dnsResolver = "1.1.1.1:53";
       # Enable lego's file-based token interface. The generated plaintext
       # credential binding is replaced with LoadCredentialEncrypted below.
       credentialFiles.CF_DNS_API_TOKEN_FILE = "/dev/null";
@@ -82,14 +84,11 @@ in
   };
 
   systemd.services = {
-    "acme-${portalHost}" = {
-      environment.CF_DNS_API_TOKEN_FILE = "%d/CF_DNS_API_TOKEN_FILE";
-      serviceConfig = {
-        LoadCredential = lib.mkForce [ ];
-        LoadCredentialEncrypted = [
-          "CF_DNS_API_TOKEN_FILE:/var/lib/secrets/acme-cloudflare-token.cred"
-        ];
-      };
+    "acme-order-renew-${portalHost}".serviceConfig = {
+      LoadCredential = lib.mkForce [ ];
+      LoadCredentialEncrypted = [
+        "CF_DNS_API_TOKEN_FILE:/var/lib/secrets/acme-cloudflare-token.cred"
+      ];
     };
 
     mesh-routing-control = {
@@ -97,9 +96,13 @@ in
       wantedBy = [ "multi-user.target" ];
       after = [
         "dnsmasq.service"
+        "netns-rules-default.service"
         "nftables-netns-default.service"
       ];
-      requires = [ "nftables-netns-default.service" ];
+      requires = [
+        "netns-rules-default.service"
+        "nftables-netns-default.service"
+      ];
       partOf = [ "nftables-netns-default.service" ];
       serviceConfig = {
         ExecStart = ''

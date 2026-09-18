@@ -210,8 +210,14 @@ in
     cloudflare-mesh-egress = {
       description = "Configure Cloudflare Mesh Internet egress";
       wantedBy = [ "multi-user.target" ];
-      after = [ "${serviceName}.service" ];
-      requires = [ "${serviceName}.service" ];
+      after = [
+        "${serviceName}.service"
+        "netns-rules-${namespace}.service"
+      ];
+      requires = [
+        "${serviceName}.service"
+        "netns-rules-${namespace}.service"
+      ];
       partOf = [ "netns-${namespace}.service" ];
       serviceConfig = {
         Type = "oneshot";
