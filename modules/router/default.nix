@@ -3,10 +3,14 @@
     ./options.nix
     ./dhcp-dns.nix
     ./firewall.nix
-    ./forwarding.nix
     ./nftables.nix
     ./cloudflare
   ];
+
+  boot.kernel.sysctl = {
+    "net.ipv4.conf.all.forwarding" = true;
+    "net.ipv6.conf.all.forwarding" = false;
+  };
 
   networking = {
     useDHCP = false;
