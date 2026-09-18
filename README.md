@@ -1,8 +1,17 @@
 # SCG router
 
-NixOS configuration for a headless router and container host.
+Declarative NixOS configuration for the SCG router and container host.
 
-## Validate
+## Repository layout
+
+- `hosts/router/` contains host-specific composition, hardware, networking, and storage.
+- `modules/base/` contains shared operating-system and user configuration.
+- `modules/router/` contains DHCP, DNS, nftables, and Cloudflare networking.
+- `modules/server/` contains remote-administration services.
+
+## Development
+
+Enter the flake development environment to make the repository's validation tools available. Validate configuration changes with:
 
 ```bash
 nix fmt
@@ -12,34 +21,33 @@ nix flake check --no-build
 nh os build .
 ```
 
-Building does not change the running system.
+A build evaluates and compiles the configuration without changing the running system.
 
-## Local credentials
+## Local environment
 
-Direnv loads machine-local credentials from the gitignored `.envrc.local` after entering the flake environment. Create it with restrictive permissions:
-
-```bash
-install -m 600 /dev/null .envrc.local
-```
-
-For Cloudflare operations, define the account-scoped credentials without committing their values:
+Direnv loads machine-local variables from the gitignored `.envrc.local`. Create the file with restrictive permissions:
 
 ```bash
-export CLOUDFLARE_API_TOKEN='...'
-export CLOUDFLARE_ACCOUNT_ID='...'
+install -m 0600 /dev/null .envrc.local
 ```
 
-After changing `.envrc` or `.envrc.local`, run `direnv allow`. Log out and back in after initially enabling direnv through the NixOS configuration.
+Cloudflare tooling expects `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` in the environment. Keep all credentials out of tracked files and Nix expressions.
 
-## Apply
+After changing `.envrc` or `.envrc.local`, authorize the environment again:
 
-Review changes before activating them:
+```bash
+direnv allow
+```
+
+## Deployment
+
+Review and build changes before activating them. Apply the validated configuration with:
 
 ```bash
 nh os switch .
 ```
 
-For initial installation or recovery:
+For installation or recovery, select the host explicitly:
 
 ```bash
 sudo nixos-rebuild switch --flake .#router

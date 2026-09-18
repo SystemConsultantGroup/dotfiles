@@ -1,31 +1,33 @@
-# Router configuration
+# Repository guidelines
 
-Standalone NixOS configuration for the single `router` host.
+This repository defines the NixOS configuration for the `router` host.
 
-## Structure
+## Layout
 
-- `hosts/router/`: host composition, network topology, hardware, and storage
-- `modules/base/`: Nix, user, shell, Git, tools, and Pi
-- `modules/router/`: interfaces, DHCP, forwarding, firewall, and Cloudflare networking
-- `modules/server/`: remote access
-- `.pi/agent/`: repository-managed Pi configuration
+- `hosts/router/`: host composition, hardware, network topology, and storage
+- `modules/base/`: shared system, user, shell, Git, tooling, and Pi configuration
+- `modules/router/`: router services, packet processing, and Cloudflare networking
+- `modules/server/`: remote administration
+- `.pi/agent/`: repository-managed Pi instructions
 
-Keep host-specific composition in `hosts/router/` and reusable concerns in the appropriate module. Keep routing and firewall policy in separate files.
+Keep machine-specific values in `hosts/router/` and reusable behavior in `modules/`. Keep NAT and routing concerns separate from firewall policy so that service-impacting changes remain easy to review.
 
-## Rules
+## Configuration standards
 
-- Prefer clear, coherent, non-duplicative configuration.
-- Correctness, reliability, recoverability, and operational clarity take precedence over elegance.
-- Treat networking, routing, firewall, DHCP, storage, and SSH changes as service-impacting.
-- Use explicit `pkgs.` and `lib.` references; never use `with pkgs;` or `with lib;`.
-- Install permanent software declaratively; use `nix run` or `nix shell` for temporary tools.
-- Preserve unrecognized working-tree changes.
-- Do not activate a configuration unless explicitly requested.
-- Use `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` from the environment for Cloudflare operations; never print, log, commit, or persist their values.
+- Prefer clear, coherent configuration over abstraction for its own sake.
+- Prioritize correctness, reliability, recoverability, and operational clarity.
+- Use explicit `pkgs.` and `lib.` references; do not use `with pkgs;` or `with lib;`.
+- Install persistent software declaratively. Use `nix run` or `nix shell` for temporary tools.
+- Preserve working-tree changes that are unrelated to the task.
+- Treat networking, firewall, DHCP, storage, and SSH changes as service-impacting.
+- Preserve remote access and established forwarding behavior unless a requested change requires otherwise.
+- Do not activate a NixOS generation unless explicitly requested.
 
-## Local credentials
+## Secrets and local state
 
-Store machine-local environment variables in the gitignored `.envrc.local`. Direnv loads this file after the flake environment. Keep it mode `0600` and never place secrets in tracked files or Nix expressions.
+Keep machine-local environment variables in the gitignored `.envrc.local`. The file must remain untracked and should have mode `0600`. Never place credentials, private keys, tokens, or session data in tracked files or Nix expressions.
+
+Cloudflare tooling reads `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` from the environment. Never print, log, commit, or persist their values.
 
 ## Validation
 
@@ -43,4 +45,4 @@ Treat warnings caused by repository code as failures. For documentation-only cha
 
 ## Delivery
 
-Work on `master`, use focused conventional commits, and push successful changes to `origin`. The `pre-headless-refactor` tag preserves the former desktop configuration.
+Work on `master`. Use focused conventional commits and push successful changes to `origin`.
