@@ -6,25 +6,47 @@ let
   namespace = "mesh-${instance}";
   hostInterface = "mesh0-host";
   meshInterface = "mesh0-peer";
-  serviceName = "mesh-${instance}";
-  stateDirectory = "mesh-${instance}";
+  containerName = "cloudflare-mesh";
+  serviceName = "podman-${containerName}";
+  stateDirectory = "cloudflare-mesh-${instance}";
   statePath = "/var/lib/${stateDirectory}";
-  runtimeDirectory = "mesh-${instance}";
   tokenPath = "/var/lib/secrets/mesh-${instance}.token";
-  warpPackage = pkgs.cloudflare-warp.override { headless = true; };
-  capabilities = [
-    "CAP_NET_ADMIN"
-    "CAP_NET_BIND_SERVICE"
-    "CAP_NET_RAW"
-    "CAP_SYS_PTRACE"
-  ];
+  tokenSecret = "cloudflare-mesh-${instance}-token";
+  tokenHashPath = "${statePath}/.mesh-token.sha256";
+  image = "docker.io/cloudflare/mesh@sha256:b07e759879b752d73947ebf5c0b17d6146f310b671942546876095863d5ab39d";
+  prepareContainer = pkgs.writeShellApplication {
+    name = "prepare-cloudflare-mesh";
+    runtimeInputs = [
+      pkgs.coreutils
+      pkgs.podman
+    ];
+    text = ''
+      token_file="$CREDENTIALS_DIRECTORY/mesh-token"
+      token_hash="$(sha256sum "$token_file" | cut -d ' ' -f1)"
+
+      install -d -m 0700 ${statePath}
+      if [ ! -r ${tokenHashPath} ] || [ "$(cat ${tokenHashPath})" != "$token_hash" ]; then
+        # Registration state takes precedence over MESH_NODE_TOKEN. Discard it
+        # when the token changes so the container enrolls the intended node.
+        find ${statePath} -mindepth 1 -delete
+        printf '%s\n' "$token_hash" > ${tokenHashPath}
+        chmod 0600 ${tokenHashPath}
+      fi
+
+      # Command substitution strips the credential's trailing newline, which
+      # warp-cli otherwise treats as part of (and invalidates) the token.
+      token="$(cat "$token_file")"
+
+      # Podman injects this secret as MESH_NODE_TOKEN without recording the
+      # token in the Nix store, unit command line, or container configuration.
+      printf '%s' "$token" | podman secret create --replace ${tokenSecret} - >/dev/null
+      unset token
+    '';
+  };
 in
 {
-  environment.systemPackages = [ warpPackage ];
-
   systemd.tmpfiles.rules = [
     "d ${statePath} 0700 root root -"
-    "f ${statePath}/resolv.conf 0644 root root - nameserver\\x201.1.1.1\\nnameserver\\x201.0.0.1\\n"
   ];
 
   router = {
@@ -72,10 +94,7 @@ in
 
       ${meshInterface} = {
         networkNamespace = namespace;
-        dependentServices = [
-          serviceName
-          "${serviceName}-enroll"
-        ];
+        dependentServices = [ serviceName ];
         ipv4 = {
           addresses = [
             {
@@ -104,6 +123,21 @@ in
     };
   };
 
+  virtualisation.oci-containers.containers.${containerName} = {
+    inherit image;
+    environment.SRCNAT_ENABLED = "false";
+    capabilities = {
+      NET_ADMIN = true;
+      NET_RAW = true;
+    };
+    devices = [ "/dev/net/tun:/dev/net/tun" ];
+    volumes = [ "${statePath}:/var/lib/cloudflare-warp" ];
+    networks = [ "ns:/run/netns/${namespace}" ];
+    extraOptions = [
+      "--secret=${tokenSecret},type=env,target=MESH_NODE_TOKEN"
+    ];
+  };
+
   systemd.services = {
     # Keep namespace-owned setup units in the same restart transaction as the
     # namespace. This preserves the veth across declarative namespace updates.
@@ -118,7 +152,6 @@ in
 
     ${serviceName} = {
       description = "Cloudflare Mesh node scg-skku/router";
-      wantedBy = [ "multi-user.target" ];
       partOf = [ "netns-${namespace}.service" ];
       after = [
         "network-addresses-mesh0\\x2dhost.service"
@@ -132,112 +165,10 @@ in
         "nftables-netns-${namespace}.service"
         "sysctl-netns-${namespace}.service"
       ];
-      path = [ pkgs.lsof ];
-      environment.RUST_BACKTRACE = "full";
       serviceConfig = {
-        Type = "simple";
-        ExecStart = "${warpPackage}/bin/warp-svc";
-        Restart = "always";
-        RestartSec = 5;
-
-        User = "root";
-        Group = "root";
-        WorkingDirectory = statePath;
-        StateDirectory = stateDirectory;
-        StateDirectoryMode = "0700";
-        RuntimeDirectory = runtimeDirectory;
-        RuntimeDirectoryMode = "0750";
-        RuntimeDirectoryPreserve = "yes";
-        LogsDirectory = stateDirectory;
-
-        BindPaths = [ "${statePath}/resolv.conf:/etc/resolv.conf" ];
-        BindReadOnlyPaths = [ "${lib.getExe pkgs.nftables}:/usr/sbin/nft" ];
-        ReadWritePaths = [ statePath ];
-
-        AmbientCapabilities = capabilities;
-        CapabilityBoundingSet = capabilities;
-        DevicePolicy = "closed";
-        DeviceAllow = [ "/dev/net/tun rw" ];
-        NoNewPrivileges = true;
-
-        PrivatePIDs = true;
-        PrivateTmp = true;
-        ProtectClock = true;
-        ProtectControlGroups = true;
-        ProtectHome = true;
-        ProtectKernelLogs = true;
-        ProtectKernelModules = true;
-        ProtectKernelTunables = true;
-        ProtectSystem = "strict";
-        LockPersonality = true;
-        RestrictAddressFamilies = [
-          "AF_UNIX"
-          "AF_INET"
-          "AF_INET6"
-          "AF_NETLINK"
-        ];
-        RestrictRealtime = true;
-        RestrictSUIDSGID = true;
-        SystemCallArchitectures = "native";
-      };
-    };
-
-    "${serviceName}-enroll" = {
-      description = "Enroll and connect Cloudflare Mesh node scg-skku/router";
-      wantedBy = [ "multi-user.target" ];
-      partOf = [ "netns-${namespace}.service" ];
-      after = [ "${serviceName}.service" ];
-      requires = [ "${serviceName}.service" ];
-      path = [ warpPackage ];
-      serviceConfig = {
-        Type = "oneshot";
         LoadCredential = "mesh-token:${tokenPath}";
-        StateDirectory = stateDirectory;
-        StateDirectoryMode = "0700";
-        RuntimeDirectory = runtimeDirectory;
-        RuntimeDirectoryMode = "0750";
-        RuntimeDirectoryPreserve = "yes";
+        ExecStartPre = lib.mkAfter [ "${prepareContainer}/bin/prepare-cloudflare-mesh" ];
       };
-      script = ''
-        ready=
-        for _ in $(${pkgs.coreutils}/bin/seq 1 60); do
-          if warp-cli --accept-tos status >/dev/null 2>&1; then
-            ready=1
-            break
-          fi
-          sleep 1
-        done
-
-        if [ -z "$ready" ]; then
-          echo "warp-svc did not become ready" >&2
-          exit 1
-        fi
-
-        token="$(${pkgs.coreutils}/bin/cat "$CREDENTIALS_DIRECTORY/mesh-token")"
-        tokenHash="$(${pkgs.coreutils}/bin/sha256sum "$CREDENTIALS_DIRECTORY/mesh-token" | ${pkgs.coreutils}/bin/cut -d ' ' -f1)"
-        tokenHashPath="$STATE_DIRECTORY/.mesh-token.sha256"
-        registeredTokenHash=
-        if [ -r "$tokenHashPath" ]; then
-          registeredTokenHash="$(${pkgs.coreutils}/bin/cat "$tokenHashPath")"
-        fi
-
-        if [ ! -s "$STATE_DIRECTORY/reg.json" ] || [ "$registeredTokenHash" != "$tokenHash" ]; then
-          if [ -s "$STATE_DIRECTORY/reg.json" ]; then
-            warp-cli --accept-tos disconnect || true
-            warp-cli --accept-tos registration delete
-          fi
-          warp-cli --accept-tos connector new "$token"
-          printf '%s\n' "$tokenHash" > "$tokenHashPath"
-          ${pkgs.coreutils}/bin/chmod 0600 "$tokenHashPath"
-        fi
-        unset token tokenHash tokenHashPath registeredTokenHash
-
-        # This isolated namespace cannot resolve the synthetic connectivity
-        # check hostname reliably; disabling the check allows the tunnel to
-        # establish while the Mesh service remains available.
-        warp-cli --accept-tos debug connectivity-check disable
-        warp-cli --accept-tos connect
-      '';
     };
   };
 }
