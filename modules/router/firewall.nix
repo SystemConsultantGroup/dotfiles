@@ -1,7 +1,7 @@
 { config, notnft, ... }:
 let
   inherit (config.dotfiles.router) lan wan;
-  inherit (config.dotfiles.router.cloudflare) officeDetection;
+  inherit (config.dotfiles.router.cloudflare) japaneseEgress officeDetection;
   inherit (config.dotfiles.router.cloudflare.mesh) hostInterface;
 in
 {
@@ -57,6 +57,11 @@ in
           ]
           [
             (is.eq meta.iifname hostInterface)
+            (is.eq meta.oifname wan.interface)
+            accept
+          ]
+          [
+            (is.eq meta.iifname japaneseEgress.hostInterface)
             (is.eq meta.oifname wan.interface)
             accept
           ]

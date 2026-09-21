@@ -58,6 +58,33 @@
     };
 
     cloudflare = {
+      japaneseEgress = {
+        interface = lib.mkOption {
+          type = lib.types.str;
+          default = "proton-jp";
+          description = "WireGuard interface used for Japanese Internet egress";
+        };
+        meshInstance = lib.mkOption {
+          type = lib.types.str;
+          description = "Cloudflare Mesh instance dedicated to Japanese egress";
+        };
+        hostInterface = lib.mkOption {
+          type = lib.types.str;
+          default = "meshjp-host";
+          description = "Host side of the Japanese egress Mesh veth pair";
+        };
+        peerInterface = lib.mkOption {
+          type = lib.types.str;
+          default = "meshjp-peer";
+          description = "Namespace side of the Japanese egress Mesh veth pair";
+        };
+        routeTable = lib.mkOption {
+          type = lib.types.str;
+          default = "200";
+          description = "Policy-routing table for Japanese egress";
+        };
+      };
+
       mesh = {
         instance = lib.mkOption {
           type = lib.types.str;

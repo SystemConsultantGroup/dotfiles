@@ -25,6 +25,14 @@ let
     gateway = "115.145.150.1";
   };
 
+  japaneseEgress = {
+    interface = "proton-jp";
+    meshInstance = "scg-skku-router-jp";
+    hostInterface = "meshjp-host";
+    peerInterface = "meshjp-peer";
+    routeTable = "200";
+  };
+
   lan = {
     interface = "enp5s0";
     address = "10.0.0.1";
@@ -42,6 +50,7 @@ in
   dotfiles.router = {
     inherit lan wan;
     cloudflare = {
+      inherit japaneseEgress;
       mesh.instance = "scg-skku-router";
       officeDetection = {
         address = "10.255.0.1";
@@ -49,6 +58,30 @@ in
         port = 10443;
       };
     };
+  };
+
+  networking.wireguard.interfaces.${japaneseEgress.interface} = {
+    ips = [ "10.2.0.2/32" ];
+    privateKeyFile = "/var/lib/secrets/wg-JP-FREE-33.key";
+    socketNamespace = "mesh-${japaneseEgress.meshInstance}";
+    interfaceNamespace = "mesh-${japaneseEgress.meshInstance}";
+    table = japaneseEgress.routeTable;
+    metric = 100;
+    peers = [
+      {
+        name = "jp-free-33";
+        publicKey = "qhEO97nKps2D1JsZjw3AiSuVJVbrBROV3Gpvong0hgI=";
+        allowedIPs = [ "0.0.0.0/0" ];
+        endpoint = "149.88.103.161:51820";
+        persistentKeepalive = 25;
+      }
+    ];
+  };
+
+  systemd.services."wireguard-${japaneseEgress.interface}" = {
+    after = [ "netns-mesh-${japaneseEgress.meshInstance}.service" ];
+    requires = [ "netns-mesh-${japaneseEgress.meshInstance}.service" ];
+    partOf = [ "netns-mesh-${japaneseEgress.meshInstance}.service" ];
   };
 
   systemd.services."ethtool-${wan.interface}" = {
