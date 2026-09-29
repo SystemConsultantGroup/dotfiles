@@ -1,12 +1,13 @@
+{ pkgs, ... }:
 {
   imports = [
     ./options.nix
-    ./dhcp-dns.nix
+    ./interfaces.nix
     ./firewall.nix
-    ./mesh-portal.nix
-    ./nftables.nix
-    ./cloudflare
-    ./waywarp
+    ./nat.nix
+    ./warp.nix
+    ./dhcp-dns.nix
+    ./office-detection.nix
   ];
 
   boot.kernel.sysctl = {
@@ -21,5 +22,12 @@
     firewall.enable = false;
   };
 
-  router.enable = true;
+  # Previously provided by nixos-router.
+  environment.systemPackages = [
+    pkgs.conntrack-tools
+    pkgs.dig.dnsutils
+    pkgs.ethtool
+    pkgs.tcpdump
+  ];
+  services.irqbalance.enable = true;
 }

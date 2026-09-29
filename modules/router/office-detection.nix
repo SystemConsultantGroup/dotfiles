@@ -5,7 +5,7 @@
   ...
 }:
 let
-  inherit (config.dotfiles.router.cloudflare) officeDetection;
+  inherit (config.dotfiles.router) officeDetection;
   stateDirectory = "cloudflare-office-detection";
 in
 {

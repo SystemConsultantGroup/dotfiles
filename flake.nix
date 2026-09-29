@@ -3,12 +3,8 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    nixos-router = {
-      url = "github:chayleaf/nixos-router";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    notnft = {
-      url = "github:chayleaf/notnft";
+    waywarp = {
+      url = "github:apersomany/waywarp";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
@@ -16,8 +12,7 @@
   outputs =
     {
       nixpkgs,
-      nixos-router,
-      notnft,
+      waywarp,
       ...
     }:
     let
@@ -33,12 +28,10 @@
             username
             userFullName
             ;
-          notnft = notnft.lib.${system};
         };
         modules = [
           { nixpkgs.hostPlatform = system; }
-          nixos-router.nixosModules.default
-          notnft.nixosModules.default
+          waywarp.nixosModules.default
           ./hosts/router/configuration.nix
         ];
       };

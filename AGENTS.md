@@ -6,7 +6,7 @@ This repository defines the NixOS configuration for the `router` host.
 
 - `hosts/router/`: host composition, hardware, network topology, and storage
 - `modules/base/`: shared system, user, shell, Git, tooling, and Pi configuration
-- `modules/router/`: router services, packet processing, and Cloudflare networking
+- `modules/router/`: router interfaces, services, packet processing, and WARP networking
 - `modules/server/`: remote administration
 - `.pi/agent/`: repository-managed Pi instructions
 

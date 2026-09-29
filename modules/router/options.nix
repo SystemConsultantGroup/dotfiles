@@ -1,125 +1,146 @@
 { lib, ... }:
+let
+  inherit (lib) mkOption types;
+
+  # A Waywarp bridge instance. Waywarp derives the host link name and its IPv4
+  # /30 from the index; the namespace side of the /30 is the gateway.
+  warpInstance = types.submodule (
+    { config, ... }:
+    {
+      options = {
+        index = mkOption {
+          type = types.ints.between 0 63;
+          description = "Waywarp instance index; selects link waywarpINDEX and subnet 169.254.1.(4*INDEX)/30";
+        };
+        imported = mkOption {
+          type = types.bool;
+          default = false;
+          description = "Whether the instance runs a registration imported with `waywarp import`; the unit is skipped until it exists";
+        };
+        location = mkOption {
+          type = types.nullOr types.str;
+          default = null;
+          description = "Required locations, as for `waywarp up --location`";
+        };
+        via = mkOption {
+          type = types.listOf types.str;
+          default = [ ];
+          description = "Ways to reach the edge, tried in order";
+        };
+        environmentFile = mkOption {
+          type = types.nullOr types.str;
+          default = null;
+          description = "Root-only EnvironmentFile with relay credentials, kept outside the Nix store";
+        };
+        link = mkOption {
+          type = types.str;
+          readOnly = true;
+          description = "Host-side bridge link";
+        };
+        gateway = mkOption {
+          type = types.str;
+          readOnly = true;
+          description = "Namespace-side IPv4 address of the bridge link";
+        };
+      };
+      config = {
+        link = "waywarp${toString config.index}";
+        gateway = "169.254.1.${toString (4 * config.index + 1)}";
+      };
+    }
+  );
+in
 {
   options.dotfiles.router = {
     wan = {
-      interface = lib.mkOption {
-        type = lib.types.str;
+      interface = mkOption {
+        type = types.str;
         description = "WAN interface name";
       };
-      addresses = lib.mkOption {
-        type = lib.types.listOf lib.types.str;
-        description = "Public IPv4 addresses assigned to the WAN interface";
+      addresses = mkOption {
+        type = types.nonEmptyListOf types.str;
+        description = "Public IPv4 addresses on the WAN interface; the first is the router's own source address";
       };
-      prefixLength = lib.mkOption {
-        type = lib.types.ints.between 0 32;
+      prefixLength = mkOption {
+        type = types.ints.between 0 32;
         description = "WAN IPv4 prefix length";
       };
-      gateway = lib.mkOption {
-        type = lib.types.str;
+      gateway = mkOption {
+        type = types.str;
         description = "WAN IPv4 default gateway";
       };
     };
 
     lan = {
-      interface = lib.mkOption {
-        type = lib.types.str;
+      interface = mkOption {
+        type = types.str;
         description = "Office LAN interface name";
       };
-      address = lib.mkOption {
-        type = lib.types.str;
+      address = mkOption {
+        type = types.str;
         description = "Router IPv4 address on the office LAN";
       };
-      prefixLength = lib.mkOption {
-        type = lib.types.ints.between 0 32;
+      prefixLength = mkOption {
+        type = types.ints.between 0 32;
         description = "Office LAN IPv4 prefix length";
       };
-      cidr = lib.mkOption {
-        type = lib.types.str;
+      cidr = mkOption {
+        type = types.str;
         description = "Office LAN IPv4 network in CIDR notation";
       };
-      netmask = lib.mkOption {
-        type = lib.types.str;
+      netmask = mkOption {
+        type = types.str;
         description = "Office LAN IPv4 netmask";
       };
-      domain = lib.mkOption {
-        type = lib.types.str;
+      domain = mkOption {
+        type = types.str;
         description = "Local DNS domain";
       };
       dhcpPool = {
-        start = lib.mkOption {
-          type = lib.types.str;
+        start = mkOption {
+          type = types.str;
           description = "First address in the office DHCP pool";
         };
-        end = lib.mkOption {
-          type = lib.types.str;
+        end = mkOption {
+          type = types.str;
           description = "Last address in the office DHCP pool";
         };
       };
     };
 
-    cloudflare = {
-      japaneseEgress = {
-        interface = lib.mkOption {
-          type = lib.types.str;
-          default = "proton-jp";
-          description = "WireGuard interface used for Japanese Internet egress";
-        };
-        meshInstance = lib.mkOption {
-          type = lib.types.str;
-          description = "Cloudflare Mesh instance dedicated to Japanese egress";
-        };
-        hostInterface = lib.mkOption {
-          type = lib.types.str;
-          default = "meshjp-host";
-          description = "Host side of the Japanese egress Mesh veth pair";
-        };
-        peerInterface = lib.mkOption {
-          type = lib.types.str;
-          default = "meshjp-peer";
-          description = "Namespace side of the Japanese egress Mesh veth pair";
-        };
-        routeTable = lib.mkOption {
-          type = lib.types.str;
-          default = "200";
-          description = "Policy-routing table for Japanese egress";
-        };
-      };
+    meshCidr = mkOption {
+      type = types.str;
+      default = "100.96.0.0/12";
+      description = "IPv4 range Cloudflare assigns to Mesh clients";
+    };
 
-      mesh = {
-        instance = lib.mkOption {
-          type = lib.types.str;
-          description = "Cloudflare Mesh instance identifier";
-        };
-        hostInterface = lib.mkOption {
-          type = lib.types.str;
-          default = "mesh0-host";
-          description = "Host side of the Cloudflare Mesh veth pair";
-        };
-        peerInterface = lib.mkOption {
-          type = lib.types.str;
-          default = "mesh0-peer";
-          description = "Namespace side of the Cloudflare Mesh veth pair";
-        };
-        clientCidr = lib.mkOption {
-          type = lib.types.str;
-          default = "100.96.0.0/12";
-          description = "IPv4 range assigned to remote Cloudflare Mesh clients";
-        };
+    warp = {
+      mesh = mkOption {
+        type = warpInstance;
+        description = "Mesh node joined with the office LAN; its clients may also exit through the WAN";
       };
+      mesh-jp = mkOption {
+        type = warpInstance;
+        description = "Mesh node whose clients exit only through warp-jp";
+      };
+      warp-jp = mkOption {
+        type = warpInstance;
+        description = "WARP client that exits in Japan";
+      };
+    };
 
-      officeDetection = {
-        address = lib.mkOption {
-          type = lib.types.str;
-          description = "Cloudflare office-detection IPv4 address";
-        };
-        cidr = lib.mkOption {
-          type = lib.types.str;
-          description = "Cloudflare office-detection address in CIDR notation";
-        };
-        port = lib.mkOption {
-          type = lib.types.port;
-          description = "Cloudflare office-detection HTTPS port";
-        };
+    officeDetection = {
+      address = mkOption {
+        type = types.str;
+        description = "Cloudflare office-detection IPv4 address";
+      };
+      cidr = mkOption {
+        type = types.str;
+        description = "Cloudflare office-detection address in CIDR notation";
+      };
+      port = mkOption {
+        type = types.port;
+        description = "Cloudflare office-detection HTTPS port";
       };
     };
   };

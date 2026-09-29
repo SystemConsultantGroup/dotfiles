@@ -1,25 +1,5 @@
 {
   "nodes": {
-    "nixos-router": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1763533732,
-        "narHash": "sha256-iXSBJjxZNrQPHtaPXlwHAk/n5H4L4PID8cRDrD130Fo=",
-        "owner": "chayleaf",
-        "repo": "nixos-router",
-        "rev": "3455070b0aaadfa884c1e31df7aef732c17cf4ac",
-        "type": "github"
-      },
-      "original": {
-        "owner": "chayleaf",
-        "repo": "nixos-router",
-        "type": "github"
-      }
-    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1789546076,
@@ -36,31 +16,30 @@
         "type": "github"
       }
     },
-    "notnft": {
+    "root": {
+      "inputs": {
+        "nixpkgs": "nixpkgs",
+        "waywarp": "waywarp"
+      }
+    },
+    "waywarp": {
       "inputs": {
         "nixpkgs": [
           "nixpkgs"
         ]
       },
       "locked": {
-        "lastModified": 1742709880,
-        "narHash": "sha256-TLyT/8sbE3XT8WuiXWEcsddPT22YhakGMwlr3jNshyY=",
-        "owner": "chayleaf",
-        "repo": "notnft",
-        "rev": "f827912c850cb66cf489a69078ff55658f59b96f",
+        "lastModified": 1790665255,
+        "narHash": "sha256-78umpMKFBLWns5Djga4RW/OOqfKlXgNhe9GY/9dsXtA=",
+        "owner": "apersomany",
+        "repo": "waywarp",
+        "rev": "c18c58b1b4546dbb9b4aab69ff5c520f532077fd",
         "type": "github"
       },
       "original": {
-        "owner": "chayleaf",
-        "repo": "notnft",
+        "owner": "apersomany",
+        "repo": "waywarp",
         "type": "github"
-      }
-    },
-    "root": {
-      "inputs": {
-        "nixos-router": "nixos-router",
-        "nixpkgs": "nixpkgs",
-        "notnft": "notnft"
       }
     }
   },

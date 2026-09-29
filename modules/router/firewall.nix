@@ -1,74 +1,43 @@
-{ config, notnft, ... }:
+{ config, ... }:
 let
-  inherit (config.dotfiles.router) lan wan;
-  inherit (config.dotfiles.router.cloudflare) japaneseEgress officeDetection;
-  inherit (config.dotfiles.router.cloudflare.mesh) hostInterface;
+  inherit (config.dotfiles.router)
+    lan
+    wan
+    warp
+    officeDetection
+    ;
 in
 {
-  dotfiles.nftables.filterTable =
-    with notnft.dsl;
-    with payload;
-    add table.ip {
-      input =
-        add chain
-          {
-            type = f: f.filter;
-            hook = f: f.input;
-            prio = f: f.filter;
-            policy = f: f.accept;
-          }
-          [
-            (is.eq ip.daddr (cidr officeDetection.cidr))
-            (is.eq ip.protocol (f: f.tcp))
-            (is.eq th.dport officeDetection.port)
-            (is.eq meta.iifname lan.interface)
-            accept
-          ]
-          [
-            (is.eq ip.daddr (cidr officeDetection.cidr))
-            (is.eq ip.protocol (f: f.tcp))
-            (is.eq th.dport officeDetection.port)
-            drop
-          ];
+  # Each table is replaced atomically on reload. Tables owned by other
+  # programs, such as Waywarp's, are left untouched.
+  networking.nftables.tables.filter = {
+    family = "ip";
+    content = ''
+      chain input {
+        type filter hook input priority filter; policy accept;
 
-      forward =
-        add chain
-          {
-            type = f: f.filter;
-            hook = f: f.forward;
-            prio = f: f.filter;
-            policy = f: f.drop;
-          }
-          [
-            (vmap ct.state {
-              established = accept;
-              related = accept;
-            })
-          ]
-          [
-            (is.eq meta.iifname lan.interface)
-            (is.eq meta.oifname wan.interface)
-            accept
-          ]
-          [
-            (is.eq meta.iifname lan.interface)
-            (is.eq meta.oifname hostInterface)
-            accept
-          ]
-          [
-            (is.eq meta.iifname hostInterface)
-            (is.eq meta.oifname wan.interface)
-            accept
-          ]
-          [
-            (is.eq meta.iifname japaneseEgress.hostInterface)
-            (is.eq meta.oifname wan.interface)
-            accept
-          ]
-          [
-            (is.eq meta.iifname hostInterface)
-            (is.eq meta.oifname lan.interface)
-            accept
-          ];
-    };
+        ip daddr ${officeDetection.address} tcp dport ${toString officeDetection.port} iifname "${lan.interface}" accept
+        ip daddr ${officeDetection.address} tcp dport ${toString officeDetection.port} drop
+
+        # The Japanese links carry no traffic for the router itself.
+        iifname { "${warp.mesh-jp.link}", "${warp.warp-jp.link}" } ct state != { established, related } drop
+      }
+
+      chain forward {
+        type filter hook forward priority filter; policy drop;
+
+        ct state vmap { established : accept, related : accept, invalid : drop }
+
+        iifname "${lan.interface}" oifname "${wan.interface}" accept
+
+        # The office LAN and Mesh clients form one network, and Mesh clients may
+        # use the WAN.
+        iifname "${lan.interface}" oifname "${warp.mesh.link}" accept
+        iifname "${warp.mesh.link}" oifname { "${lan.interface}", "${wan.interface}" } accept
+
+        # Japanese Mesh clients exit only through warp-jp.
+        iifname "${warp.mesh-jp.link}" oifname "${warp.warp-jp.link}" accept
+      }
+    '';
+  };
 }

@@ -6,7 +6,7 @@
 }:
 let
   inherit (config.dotfiles.router) lan;
-  inherit (config.dotfiles.router.cloudflare.mesh) hostInterface;
+  meshLink = config.dotfiles.router.warp.mesh.link;
 
   neighborHook = pkgs.writeShellScript "dnsmasq-neighbor-hook" ''
     action="$1"
@@ -41,9 +41,10 @@ in
       inherit (lan) domain;
       interface = [
         lan.interface
-        hostInterface
+        meshLink
       ];
-      no-dhcp-interface = hostInterface;
+      # Mesh clients use the router for DNS but get addresses from Cloudflare.
+      no-dhcp-interface = meshLink;
 
       local = "/${lan.domain}/";
       domain-needed = true;

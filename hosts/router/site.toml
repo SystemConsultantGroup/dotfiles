@@ -35,10 +35,26 @@ domain = "home.arpa"
 start = "10.0.0.17"
 end = "10.0.255.239"
 
-[cloudflare.mesh]
-instance = "scg-skku-router"
+# Waywarp bridge instances. Mesh nodes run registrations imported with
+# `waywarp import INDEX --from DIR`.
 
-[cloudflare.officeDetection]
+# Mesh node scg-skku-router.
+[warp.mesh]
+index = 0
+imported = true
+
+# Mesh node scg-skku-router-jp.
+[warp.mesh-jp]
+index = 1
+imported = true
+
+[warp.warp-jp]
+index = 2
+location = "geo4=JP"
+via = ["mudfish:city=tokyo"]
+environmentFile = "/var/lib/secrets/waywarp-mudfish.env"
+
+[officeDetection]
 address = "10.255.0.1"
 cidr = "10.255.0.1/32"
 port = 10443
