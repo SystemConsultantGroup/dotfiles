@@ -6,6 +6,7 @@
     ./mesh-portal.nix
     ./nftables.nix
     ./cloudflare
+    ./waywarp
   ];
 
   boot.kernel.sysctl = {
