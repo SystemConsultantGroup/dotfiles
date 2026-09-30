@@ -51,7 +51,7 @@ imported = true
 [warp.warp-jp]
 index = 2
 location = "geo4=JP/Osaka+edge=KIX"
-via = ["mudfish:city=osaka&provider=azure"]
+via = ["mudfish:city=osaka+provider=azure"]
 environmentFile = "/var/lib/secrets/waywarp-mudfish.env"
 
 [officeDetection]
