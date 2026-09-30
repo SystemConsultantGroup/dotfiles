@@ -52,9 +52,13 @@ direnv allow
 Mesh nodes use registrations enrolled with the Cloudflare client. Import each one before its unit starts; the unit is skipped until the registration exists:
 
 ```bash
-sudo waywarp import 0 --from /var/lib/cloudflare-mesh-scg-skku-router
-sudo waywarp import 1 --from /var/lib/cloudflare-mesh-scg-skku-router-jp
+sudo waywarp import 0 --from /path/to/scg-skku-router-state
+sudo waywarp import 1 --from /path/to/scg-skku-router-jp-state
 ```
+
+Imported registrations live in `/var/lib/waywarp/{0,1}/registration`; the old container state has been removed.
+
+Waywarp's default `nat = "auto"` follows the live connector configuration. The `mesh` node advertises `10.0.0.0/16` with connector NAT disabled, so LAN-started connections keep their real LAN source addresses. Sources outside advertised routes are SNATed only to the device's assigned WARP addresses; `warp-jp` translates all sources. Dashboard edits update namespace NAT rules automatically, while host routes and firewall remain declarative. Existing connections retain their conntrack mappings and may need reconnecting after a route removal or address change.
 
 `warp-jp` bootstraps through Mudfish and starts once `/var/lib/secrets/waywarp-mudfish.env` provides `WAYWARP_MUDFISH_USERNAME` and `WAYWARP_MUDFISH_PASSWORD`. Create it with mode `0600`.
 
