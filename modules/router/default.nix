@@ -25,7 +25,7 @@
   # Previously provided by nixos-router.
   environment.systemPackages = [
     pkgs.conntrack-tools
-    pkgs.dig.dnsutils
+    pkgs.bind.dnsutils
     pkgs.ethtool
     pkgs.tcpdump
   ];
