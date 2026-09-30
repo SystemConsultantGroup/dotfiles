@@ -60,7 +60,7 @@ Imported registrations live in `/var/lib/waywarp/{0,1}/registration`; the old co
 
 Waywarp's default `nat = "auto"` follows the live connector configuration. The `mesh` node advertises `10.0.0.0/16` with connector NAT disabled, so LAN-started connections keep their real LAN source addresses. Sources outside advertised routes are SNATed only to the device's assigned WARP addresses; `warp-jp` translates all sources. Dashboard edits update namespace NAT rules automatically, while host routes and firewall remain declarative. Existing connections retain their conntrack mappings and may need reconnecting after a route removal or address change.
 
-`warp-jp` bootstraps through Mudfish's Osaka Azure nodes (`mudfish:osakaazure`) and requires `geo4=JP/Osaka+edge=KIX`. Waywarp paces Mudfish authentication across instances to avoid login throttling. The service starts once `/var/lib/secrets/waywarp-mudfish.env` provides `WAYWARP_MUDFISH_USERNAME` and `WAYWARP_MUDFISH_PASSWORD`. Create it with mode `0600`.
+`warp-jp` bootstraps through Mudfish's Osaka Azure nodes (`mudfish:city=osaka&provider=azure`) and requires `geo4=JP/Osaka+edge=KIX`. Waywarp paces Mudfish authentication across instances to avoid login throttling. The service starts once `/var/lib/secrets/waywarp-mudfish.env` provides `WAYWARP_MUDFISH_USERNAME` and `WAYWARP_MUDFISH_PASSWORD`. Create it with mode `0600`.
 
 ## Deployment
 
