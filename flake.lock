@@ -29,15 +29,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1790783234,
-        "narHash": "sha256-5PDhDb+rf26aCy+tcnc+XkUgBQa7dbVWkIeu53tRKyw=",
+        "lastModified": 1791242927,
+        "narHash": "sha256-oN5fXg7IkYYV/HLOfWV6R6Kgn5eVIJ2OPy/0jfAKCq0=",
         "owner": "apersomany",
         "repo": "waywarp",
-        "rev": "d3d80e9d43e54e716b01f7ec4089dc8e2793f8a4",
+        "rev": "88d87822829e70217c5cdf20efa84ea8ee76e53d",
         "type": "github"
       },
       "original": {
         "owner": "apersomany",
+        "ref": "v0.1.2",
         "repo": "waywarp",
         "type": "github"
       }
