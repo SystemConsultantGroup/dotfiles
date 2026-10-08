@@ -12,7 +12,8 @@
 
   boot.kernel.sysctl = {
     "net.ipv4.conf.all.forwarding" = true;
-    "net.ipv6.conf.all.forwarding" = false;
+    # The inet firewall permits IPv6 forwarding only on the Japanese path.
+    "net.ipv6.conf.all.forwarding" = true;
   };
 
   networking = {

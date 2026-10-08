@@ -8,6 +8,9 @@ let
   inherit (config.dotfiles.router) meshCidr warp;
   ip = lib.getExe' pkgs.iproute2 "ip";
 
+  # Cloudflare's reserved IPv6 device range is not account-configurable.
+  meshCidr6 = "2606:4700:cf1:1000::/64";
+
   # Policy-routing table for Mesh clients that exit in Japan.
   japanTable = "201";
 
@@ -21,7 +24,7 @@ let
 
   # Extra unit settings layered on the upstream Waywarp units.
   mkUnit =
-    name: instance: routes:
+    name: instance: routes4: routes6:
     lib.nameValuePair "waywarp-${name}" {
       unitConfig = {
         # Imported Mesh registrations must exist before the first start;
@@ -34,9 +37,15 @@ let
       # the instance reports ready.
       serviceConfig.ExecStartPost = [
         (pkgs.writeShellScript "waywarp-${name}-routes" (
-          lib.concatMapStrings (route: ''
+          ''
+            set -eu
+          ''
+          + lib.concatMapStrings (route: ''
             ${ip} -4 route replace ${route} via ${instance.gateway} dev ${instance.link} onlink
-          '') routes
+          '') routes4
+          + lib.concatMapStrings (route: ''
+            ${ip} -6 route replace ${route} via ${instance.gateway6} dev ${instance.link} onlink
+          '') routes6
         ))
       ];
     };
@@ -46,11 +55,16 @@ in
 
   systemd.services =
     lib.listToAttrs [
-      # Mesh clients and the office LAN reach each other through the main table.
-      (mkUnit "mesh" warp.mesh [ meshCidr ])
-      # Replies from warp-jp return to the Japanese Mesh node.
-      (mkUnit "mesh-jp" warp.mesh-jp [ "${meshCidr} table ${japanTable}" ])
-      (mkUnit "warp-jp" warp.warp-jp [ "default table ${japanTable}" ])
+      # The main table also returns router-generated ICMP errors to Mesh clients.
+      (mkUnit "mesh" warp.mesh [ meshCidr ] [ meshCidr6 ])
+      # Replies from warp-jp return to the Japanese Mesh node in both families.
+      (mkUnit "mesh-jp" warp.mesh-jp
+        [ "${meshCidr} table ${japanTable}" ]
+        [
+          "${meshCidr6} table ${japanTable}"
+        ]
+      )
+      (mkUnit "warp-jp" warp.warp-jp [ "default table ${japanTable}" ] [ "default table ${japanTable}" ])
     ]
     // {
       router-policy-routing = {
@@ -71,17 +85,21 @@ in
         # Traffic entering from either Japanese link uses only the Japanese
         # table. The blackhole keeps it off the WAN while warp-jp is down.
         script = ''
-          ${ip} -4 route replace blackhole default table ${japanTable} metric 4096
-          for link in ${warp.mesh-jp.link} ${warp.warp-jp.link}; do
-            while ${ip} -4 rule del iif "$link" lookup ${japanTable} 2>/dev/null; do :; done
-            ${ip} -4 rule add pref 1000 iif "$link" lookup ${japanTable}
+          for family in -4 -6; do
+            ${ip} "$family" route replace blackhole default table ${japanTable} metric 4096
+            for link in ${warp.mesh-jp.link} ${warp.warp-jp.link}; do
+              while ${ip} "$family" rule del iif "$link" lookup ${japanTable} 2>/dev/null; do :; done
+              ${ip} "$family" rule add pref 1000 iif "$link" lookup ${japanTable}
+            done
           done
         '';
         preStop = ''
-          for link in ${warp.mesh-jp.link} ${warp.warp-jp.link}; do
-            while ${ip} -4 rule del iif "$link" lookup ${japanTable} 2>/dev/null; do :; done
+          for family in -4 -6; do
+            for link in ${warp.mesh-jp.link} ${warp.warp-jp.link}; do
+              while ${ip} "$family" rule del iif "$link" lookup ${japanTable} 2>/dev/null; do :; done
+            done
+            ${ip} "$family" route flush table ${japanTable} 2>/dev/null || true
           done
-          ${ip} -4 route flush table ${japanTable} 2>/dev/null || true
         '';
       };
     };

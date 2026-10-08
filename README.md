@@ -62,6 +62,14 @@ Waywarp's default `nat = "auto"` follows the live connector configuration. The `
 
 `warp-jp` bootstraps through Mudfish's Osaka Azure nodes (`mudfish:city=osaka+provider=azure`) and requires `geo4=JP/Osaka+edge=KIX`. Waywarp paces Mudfish authentication across instances to avoid login throttling. The service starts once `/var/lib/secrets/waywarp-mudfish.env` provides `WAYWARP_MUDFISH_USERNAME` and `WAYWARP_MUDFISH_PASSWORD`. Create it with mode `0600`.
 
+### Japanese hostname routing
+
+Cloudflare-side hostname routes select which traffic reaches `mesh-jp`; the router then forwards it through `warp-jp`. Cloudflare returns synthetic IPv4 **and IPv6** addresses for these names. Both families therefore need working host forwarding, Japan policy routes, and return routes to Mesh clients. The IPv6 device range is Cloudflare's fixed `2606:4700:cf1:1000::/64` ([reserved IP ranges](https://developers.cloudflare.com/cloudflare-one/networks/routes/reserved-ips/)).
+
+Table `201` carries the Japanese default and Mesh return routes for both families. A blackhole default prevents fallback to the WAN when the Japan exit is unavailable. IPv6 forwarding is allowed only between the Japanese links; ordinary LAN/WAN and LAN/Mesh forwarding stays IPv4-only. The main table also has a Mesh IPv6 return route so router-generated ICMP errors can reach clients.
+
+When investigating a routed hostname, compare `curl -4` and `curl -6` from an enrolled client using Cloudflare DNS. Requests sent straight through `waywarp2` test only the exit, not Cloudflare's hostname-routing path. An IPv4-only host can make native apps stall on IPv6 while browsers fall back to IPv4, even when video and thumbnails on other hostnames work.
+
 ## Deployment
 
 Review and build changes before activating them. Apply the validated configuration with:

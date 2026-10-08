@@ -2,8 +2,8 @@
 let
   inherit (lib) mkOption types;
 
-  # A Waywarp bridge instance. Waywarp derives the host link name and its IPv4
-  # /30 from the index; the namespace side of the /30 is the gateway.
+  # A Waywarp bridge instance. Waywarp derives the link name and IPv4 /30 and
+  # IPv6 /126 subnets from the index; the namespace side is the gateway.
   warpInstance = types.submodule (
     { config, ... }:
     {
@@ -42,10 +42,16 @@ let
           readOnly = true;
           description = "Namespace-side IPv4 address of the bridge link";
         };
+        gateway6 = mkOption {
+          type = types.str;
+          readOnly = true;
+          description = "Namespace-side IPv6 address of the bridge link";
+        };
       };
       config = {
         link = "waywarp${toString config.index}";
         gateway = "169.254.1.${toString (4 * config.index + 1)}";
+        gateway6 = "fd77:6179:7761:7270::${lib.toHexString (4 * config.index + 1)}";
       };
     }
   );
