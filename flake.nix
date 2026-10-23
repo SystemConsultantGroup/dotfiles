@@ -4,7 +4,7 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     waywarp = {
-      url = "github:apersomany/waywarp/v0.1.2";
+      url = "github:apersomany/waywarp/v0.1.4";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
