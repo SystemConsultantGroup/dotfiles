@@ -112,6 +112,7 @@ function Registration({ device }: { device: Device }) {
   const mutation = useSetting("/api/me/dns");
   return (
     <form
+      className="min-w-0 lg:sticky lg:top-8 lg:self-start"
       onSubmit={(event) => {
         event.preventDefault();
         mutation.mutate({ name });
@@ -190,35 +191,40 @@ function Records({ device }: { device: Device }) {
       .includes(search.trim().toLowerCase()),
   );
   return (
-    <div className="space-y-8">
+    <div className="grid gap-10 lg:grid-cols-[20rem_minmax(0,1fr)] lg:gap-12">
       <Registration
         key={`${device.ip}:${device.dns?.name}:${device.dns?.custom}`}
         device={device}
       />
-      <section className="space-y-4" aria-labelledby="records-heading">
-        <h2 id="records-heading" className="text-base font-medium">
-          DNS records
-        </h2>
-        <Field>
-          <FieldLabel className="sr-only" htmlFor="record-search">
-            Search DNS records
-          </FieldLabel>
-          <Input
-            id="record-search"
-            type="search"
-            placeholder="Search by name or IP"
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-          />
-        </Field>
+      <section
+        className="min-w-0 space-y-4 border-t pt-6 lg:border-t-0 lg:border-l lg:pt-0 lg:pl-12"
+        aria-labelledby="records-heading"
+      >
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <h2 id="records-heading" className="shrink-0 text-base font-medium">
+            DNS records
+          </h2>
+          <Field className="sm:max-w-64">
+            <FieldLabel className="sr-only" htmlFor="record-search">
+              Search DNS records
+            </FieldLabel>
+            <Input
+              id="record-search"
+              type="search"
+              placeholder="Search by name or IP"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+            />
+          </Field>
+        </div>
         <ItemGroup aria-label="Internal DNS records" className="gap-0 divide-y">
           {records.map((record) => (
             <Item key={record.ip} role="listitem" className="rounded-none px-0">
-              <ItemContent className="min-w-0">
-                <ItemTitle className="block w-full line-clamp-none break-all font-mono font-normal">
+              <ItemContent className="min-w-0 gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
+                <ItemTitle className="block min-w-0 flex-1 line-clamp-none break-all font-mono font-normal">
                   {record.fqdn}
                 </ItemTitle>
-                <ItemDescription className="font-mono text-xs">
+                <ItemDescription className="shrink-0 font-mono text-xs sm:text-sm">
                   {record.ip}
                 </ItemDescription>
               </ItemContent>
@@ -245,9 +251,14 @@ function RouteSetting({ device, route }: { device: Device; route: Route }) {
   const mutation = useSetting("/api/me/routes");
   const upstream = device.upstreams.find((item) => item.id === selected);
   return (
-    <Field>
-      <FieldLabel htmlFor={`route-${route.id}`}>{route.label}</FieldLabel>
-      <FieldContent className="gap-2">
+    <Field orientation="responsive" className="gap-3 py-5 first:pt-0 last:pb-0">
+      <FieldLabel
+        htmlFor={`route-${route.id}`}
+        className="@md/field-group:pt-2"
+      >
+        {route.label}
+      </FieldLabel>
+      <FieldContent className="min-w-0 gap-2 @md/field-group:max-w-md">
         <div className="flex gap-2">
           <Select
             value={selected}
@@ -300,7 +311,7 @@ function Routes({ device }: { device: Device }) {
   return (
     <FieldSet>
       <FieldLegend className="sr-only">Internet routes</FieldLegend>
-      <FieldGroup>
+      <FieldGroup className="gap-0 divide-y">
         {device.routes.map((route) => (
           <RouteSetting
             key={`${device.ip}:${route.id}:${route.selected}`}
@@ -336,7 +347,7 @@ export default function App() {
   });
   const device = query.data;
   return (
-    <div className="mx-auto min-h-screen max-w-2xl px-4 sm:px-6">
+    <div className="mx-auto min-h-screen max-w-6xl px-4 sm:px-8 lg:px-10">
       <header className="flex items-center justify-between gap-4 py-5">
         <span className="text-lg font-semibold tracking-tight">SCG Router</span>
         <ThemeControl />
@@ -360,7 +371,7 @@ export default function App() {
           </a>
         ))}
       </nav>
-      <main className="space-y-5 pb-12">
+      <main className="space-y-6 pb-12 lg:space-y-8">
         <h1 className="text-2xl font-semibold tracking-tight">
           {page === "routes" ? "Routes" : "DDNS"}
         </h1>
