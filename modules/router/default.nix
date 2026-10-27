@@ -59,9 +59,9 @@ let
   cloudflareCredential = {
     LoadCredential = [ "cloudflare-env:${cfg.be.environmentFile}" ];
     LimitCORE = 0;
-    # An empty, non-secret fallback keeps local policy available if the source
-    # is missing. ACME additionally checks that the source file exists.
-    SetCredential = [ "cloudflare-env:" ];
+    # A comment-only, non-secret fallback keeps local policy available if the
+    # source is missing. Unit-file syntax does not accept an empty value.
+    SetCredential = [ "cloudflare-env:#unavailable" ];
   };
   loadCloudflare = ''
     set +x
@@ -153,6 +153,9 @@ in
     acceptTerms = true;
     certs.${cfg.be.hostname} = {
       dnsProvider = "cloudflare";
+      # Local DNS serves this hostname privately; propagation checks must use
+      # the public DNS view rather than its locally authoritative subtree.
+      dnsResolver = "1.1.1.1:53";
       group = "router-tls";
       # Start the HTTPS service after the first real issuance as well as
       # restarting it on renewal. Never serve the preliminary self-signed cert.
