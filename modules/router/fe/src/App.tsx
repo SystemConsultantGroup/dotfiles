@@ -443,7 +443,7 @@ export default function App() {
   return (
     <div className="mx-auto min-h-screen max-w-6xl px-4 sm:px-8 lg:px-10">
       <header className="flex items-center justify-between gap-4 py-5">
-        <div className="flex min-w-0 flex-wrap items-baseline gap-x-4 gap-y-1">
+        <div className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-1">
           <span className="shrink-0 text-lg font-semibold tracking-tight">
             SCG Router
           </span>
