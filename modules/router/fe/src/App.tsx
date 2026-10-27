@@ -444,9 +444,28 @@ export default function App() {
   const device = query.data;
   return (
     <div className="mx-auto min-h-screen max-w-6xl px-4 sm:px-8 lg:px-10">
-      <header className="flex items-center justify-between gap-4 py-5">
-        <span className="text-lg font-semibold tracking-tight">SCG Router</span>
-        <ThemeControl />
+      <header className="flex items-start justify-between gap-4 py-5">
+        <div className="min-w-0 space-y-1">
+          <span className="text-lg font-semibold tracking-tight">
+            SCG Router
+          </span>
+          {device && (
+            <p className="flex flex-wrap items-baseline gap-x-1.5 text-xs text-muted-foreground">
+              <span>{device.kind === "office" ? "Office" : "WARP"}</span>
+              <span aria-hidden="true">/</span>
+              <span className="font-mono">{device.identifier}</span>
+              {device.kind === "office" && (
+                <>
+                  <span aria-hidden="true">/</span>
+                  <span className="font-mono">{device.ip}</span>
+                </>
+              )}
+            </p>
+          )}
+        </div>
+        <div className="shrink-0">
+          <ThemeControl />
+        </div>
       </header>
       <nav className="mb-8 flex gap-6 border-b" aria-label="Main navigation">
         {[
@@ -493,17 +512,6 @@ export default function App() {
         )}
         {device && (
           <>
-            <p className="text-sm text-muted-foreground">
-              {device.kind === "office" ? "Office" : "WARP"}
-              {" / "}
-              <span className="font-mono">{device.identifier}</span>
-              {device.kind === "office" && (
-                <>
-                  {" / "}
-                  <span className="font-mono">{device.ip}</span>
-                </>
-              )}
-            </p>
             {device.inventory_warning && (
               <p
                 role="status"
