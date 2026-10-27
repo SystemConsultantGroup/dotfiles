@@ -17,7 +17,7 @@ let
 in
 {
   # Nix owns the fixed safety envelope. The be owns only inet router_be, whose
-  # packet/connection marks select exits; Waywarp owns its namespace tables.
+  # connection labels restore packet marks; Waywarp owns its namespace tables.
   networking.nftables.tables.filter = {
     family = "inet";
     content = ''
@@ -41,7 +41,7 @@ in
 
       chain selected_exit {
         ${lib.concatMapStrings (upstream: ''
-          ct mark & 0x00ff0000 == ${toString (upstream.id * 65536)} oifname "${upstream.interface}" return
+          meta mark & 0x00ff0000 == ${toString (upstream.id * 65536)} oifname "${upstream.interface}" return
         '') (lib.attrValues upstreams)}
         # This check precedes established/related acceptance: a lost policy
         # lookup must not let an existing WARP connection leak onto the WAN.
@@ -55,7 +55,8 @@ in
         ${lib.concatMapStrings (ingress: ''
           iifname "${ingress.interface}" ip saddr != ${ingress.network} drop
         '') (lib.attrValues ingresses)}
-        ct direction original ct mark & 0x00ff0000 != 0 jump selected_exit
+        meta mark & 0x00ff0000 == 0x00ff0000 drop
+        ct direction original meta mark & 0x00ff0000 != 0 jump selected_exit
         ct state vmap { established : accept, related : accept, invalid : drop }
 
         # Internal destinations bypass the chosen Internet exit.
@@ -65,7 +66,7 @@ in
         ${lib.concatMapStrings (
           ingress:
           lib.concatMapStrings (upstream: ''
-            iifname "${ingress.interface}" ct mark & 0x00ff0000 == ${toString (upstream.id * 65536)} oifname "${upstream.interface}" accept
+            iifname "${ingress.interface}" meta mark & 0x00ff0000 == ${toString (upstream.id * 65536)} oifname "${upstream.interface}" accept
           '') (lib.attrValues upstreams)
         ) (lib.attrValues ingresses)}
       }

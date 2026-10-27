@@ -47,7 +47,7 @@
       pkgs.zip
     ];
     variables.SSL_CERT_FILE = "/etc/ssl/certs/ca-certificates.crt";
-    sessionVariables.NH_OS_FLAKE = "/home/${username}/dotfiles";
+    sessionVariables.NH_OS_FLAKE = "/home/${username}/dotfiles-private";
   };
 
   programs = {

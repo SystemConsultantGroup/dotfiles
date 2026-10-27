@@ -77,6 +77,6 @@ in
       ${ip} -6 route flush table 201 2>/dev/null || true
     '';
     # Do not tear down rules or blackholes on a service restart: connections
-    # retain their marks, and losing a lookup must never leak to the main table.
+    # retain their routing labels, and losing a lookup must never leak to the main table.
   };
 }

@@ -1,4 +1,4 @@
-use crate::config::{Config, OWN_MASK, RETURN_MASK, UPSTREAM_MASK};
+use crate::config::{Config, OWN_MASK};
 use anyhow::{Context, Result, ensure};
 use rusqlite::Connection;
 use serde::Serialize;
@@ -76,8 +76,20 @@ pub async fn command(program: &Path, arguments: &[&str], input: Option<&str>) ->
     Ok(output.stdout)
 }
 
+// Conntrack labels isolate routing from programs that own the entire ct mark.
+// Bit 111 tags our entries; bits 112..127 encode exit and ingress IDs. nft's
+// ct_label literals are bit numbers, not integer masks.
+fn label_flags(upstream: u8, ingress: u8) -> String {
+    let value = u16::from(upstream) | (u16::from(ingress) << 8);
+    (0..16)
+        .filter(|bit| value & (1 << bit) != 0)
+        .map(|bit| (112 + bit).to_string())
+        .collect::<Vec<_>>()
+        .join(" | ")
+}
+
 pub fn rules(config: &Config, db: &Connection) -> Result<String> {
-    let mut elements = Vec::new();
+    let mut selections = Vec::new();
     let mut statement = db.prepare(
         "SELECT r.ip, r.ingress, r.upstream FROM routes r JOIN assignments a ON a.ip = r.ip",
     )?;
@@ -94,86 +106,96 @@ pub fn rules(config: &Config, db: &Connection) -> Result<String> {
             if config.kind(ip) != Some(ingress.kind.as_str()) {
                 continue;
             }
-            // ID 255 is deliberately absent from routing policy and the fixed
-            // forwarding allowlist. Removed exits must not become the default.
             let id = config
                 .upstreams
                 .get(&upstream_id)
                 .map_or(255, |upstream| upstream.id);
-            elements.push(format!("\"{}\" . {ip} : jump exit_{id}", ingress.interface));
+            selections.push(format!(
+                "\"{}\" . {ip} : jump select_{}_{}",
+                ingress.interface, ingress.return_id, id
+            ));
         }
     }
+    let ids: Vec<_> = std::iter::once(0)
+        .chain(config.upstreams.values().map(|upstream| upstream.id))
+        .chain(std::iter::once(255))
+        .collect();
     let mut output = String::from(
         "add table inet router_be\ndelete table inet router_be\ntable inet router_be {\n",
     );
-    for id in config
-        .upstreams
-        .values()
-        .map(|upstream| upstream.id)
-        .chain(std::iter::once(255))
-    {
+    for id in &ids {
         output.push_str(&format!(
-            "    chain exit_{id} {{ ct mark set (ct mark & {}) | {}; }}\n",
-            !UPSTREAM_MASK,
-            u32::from(id) << 16
+            "    chain exit_{id} {{ meta mark set (meta mark & {}) | {}; }}\n",
+            !OWN_MASK,
+            u32::from(*id) << 16
         ));
     }
-    let entries = if elements.is_empty() {
+    let mut exits = Vec::new();
+    let mut replies = Vec::new();
+    for ingress in config.ingresses.values() {
+        let return_id = ingress.return_id;
+        output.push_str(&format!(
+            "    chain reply_{return_id} {{ meta mark set (meta mark & {}) | {}; }}\n",
+            !OWN_MASK,
+            u32::from(return_id) << 24
+        ));
+        for id in &ids {
+            let flags = label_flags(*id, return_id);
+            output.push_str(&format!(
+                "    chain select_{return_id}_{id} {{ ct label set ct label | (111 | {flags}); }}\n"
+            ));
+            exits.push(format!("({flags}) : jump exit_{id}"));
+            replies.push(format!("({flags}) : jump reply_{return_id}"));
+        }
+    }
+    let entries = if selections.is_empty() {
         String::new()
     } else {
-        format!("elements = {{ {} }}", elements.join(", "))
+        format!("elements = {{ {} }};", selections.join(", "))
     };
     output.push_str(&format!(
-        r#"    map selections {{
-        type ifname . ipv4_addr : verdict
-        {entries}
-    }}
-    chain prerouting {{
-        type filter hook prerouting priority mangle; policy accept;
-        meta nfproto != ipv4 return
-        ct direction reply ct mark & {RETURN_MASK} != 0 meta mark set (meta mark & {}) | (ct mark & {RETURN_MASK})
-        ct direction reply return
-"#,
-        !OWN_MASK
+        "    map selections {{ type ifname . ipv4_addr : verdict; {entries} }}\n"
     ));
+    output.push_str(&format!(
+        "    map exit_labels {{ type ct_label : verdict; elements = {{ {} }}; }}\n",
+        exits.join(", ")
+    ));
+    output.push_str(&format!(
+        "    map reply_labels {{ type ct_label : verdict; elements = {{ {} }}; }}\n",
+        replies.join(", ")
+    ));
+    let mask = (112..128)
+        .map(|bit| bit.to_string())
+        .collect::<Vec<_>>()
+        .join(" | ");
+    for (chain, map) in [
+        ("restore_exit", "exit_labels"),
+        ("restore_reply", "reply_labels"),
+    ] {
+        // Unknown/removed route labels fail closed instead of falling through
+        // to the main table, even for an already established connection.
+        output.push_str(&format!("    chain {chain} {{\n        ct label & 111 != 111 return\n        meta mark set (meta mark & {}) | {}\n        ct label & ({mask}) vmap @{map}\n    }}\n", !OWN_MASK, 255_u32 << 16));
+    }
+    output.push_str("    chain prerouting {\n        type filter hook prerouting priority mangle; policy accept;\n        meta nfproto != ipv4 return\n        ct direction reply jump restore_reply\n        ct direction reply return\n");
     let internal = config.internal_networks.join(", ");
     for ingress in config.ingresses.values() {
-        let upstream = &config.upstreams[&ingress.default_upstream];
-        let base = u32::from(ingress.return_id) << 24;
-        let default_mark = base | (u32::from(upstream.id) << 16);
         let prefix = format!(
             "iifname \"{}\" ip saddr {}",
             ingress.interface, ingress.network
         );
-        // Internal connections still remember their ingress so replies return to
-        // the same Mesh node. Only their Internet-exit bits remain zero.
+        let internal_flags = label_flags(0, ingress.return_id);
+        let default_flags = label_flags(
+            config.upstreams[&ingress.default_upstream].id,
+            ingress.return_id,
+        );
+        output.push_str(&format!("        {prefix} ct label & 111 != 111 ip daddr {{ {internal} }} ct label set ct label | (111 | {internal_flags})\n"));
         output.push_str(&format!(
-            "        {prefix} ct mark & {OWN_MASK} == 0 ip daddr {{ {internal} }} ct mark set (ct mark & {}) | {base}\n",
-            !OWN_MASK,
+            "        {prefix} ct label & 111 != 111 iifname . ip saddr vmap @selections\n"
         ));
-        output.push_str(&format!(
-            "        {prefix} ct mark & {OWN_MASK} == 0 iifname . ip saddr vmap @selections\n",
-        ));
-        output.push_str(&format!(
-            "        {prefix} ct mark & {OWN_MASK} == 0 ct mark set (ct mark & {}) | {default_mark}\n",
-            !OWN_MASK,
-        ));
-        output.push_str(&format!(
-            "        {prefix} ct mark & {RETURN_MASK} == 0 ct mark set (ct mark & {}) | {base}\n",
-            !RETURN_MASK,
-        ));
-        output.push_str(&format!(
-            "        {prefix} meta mark set (meta mark & {}) | (ct mark & {UPSTREAM_MASK})\n",
-            !OWN_MASK,
-        ));
+        output.push_str(&format!("        {prefix} ct label & 111 != 111 ct label set ct label | (111 | {default_flags})\n"));
+        output.push_str(&format!("        {prefix} jump restore_exit\n"));
     }
-    output.push_str(&format!(r#"    }}
-    chain output {{
-        type route hook output priority mangle; policy accept;
-        meta nfproto ipv4 ct direction reply ct mark & {RETURN_MASK} != 0 meta mark set (meta mark & {}) | (ct mark & {RETURN_MASK})
-    }}
-}}
-"#, !OWN_MASK));
+    output.push_str("    }\n    chain output {\n        type route hook output priority mangle; policy accept;\n        meta nfproto ipv4 ct direction reply jump restore_reply\n    }\n}\n");
     Ok(output)
 }
 

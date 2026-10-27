@@ -80,9 +80,9 @@ Waywarp's default `nat = "auto"` follows the live connector configuration. The `
 
 Cloudflare-side routes decide whether traffic reaches `mesh` or `mesh-yt`. The router independently selects an Internet exit for each `(ingress interface, source IPv4)` pair. Office and ordinary Mesh traffic default to SKKU; `mesh-yt` defaults to WARP Japan. The application cannot affect traffic that Cloudflare does not deliver to the router.
 
-Upstream tables `200` (SKKU) and `201` (WARP Japan) have blackhole defaults, preventing fallback when an exit is unavailable. Return tables `210`, `211`, and `212` preserve the office, Mesh, and mesh-yt reply paths. Connection marks retain the selected exit for existing connections; changes apply to new connections. Internal office/Mesh destinations bypass Internet-exit selection. IDs and tables are declared in `hosts/router/network.nix`; ingress defaults live in `site.toml`.
+Upstream tables `200` (SKKU) and `201` (WARP Japan) have blackhole defaults, preventing fallback when an exit is unavailable. Return tables `210`, `211`, and `212` preserve the office, Mesh, and mesh-yt reply paths. Connection labels retain the selected exit for existing connections; changes apply to new connections. Internal office/Mesh destinations bypass Internet-exit selection. IDs and tables are declared in `hosts/router/network.nix`; ingress defaults live in `site.toml`.
 
-Nix owns the fixed firewall, NAT, routing rules, and fail-closed defaults. Networkd installs physical-interface routes; Waywarp installs bridge routes when each instance is ready. The be owns only the `inet router_be` classification table, which survives Nix-owned table reloads. Internet-exit and return marks occupy `0x00ff0000` and `0xff000000`; the low 16 bits are preserved. Do not reuse these mark fields or globally flush nftables.
+Nix owns the fixed firewall, NAT, routing rules, and fail-closed defaults. Networkd installs physical-interface routes; Waywarp installs bridge routes when each instance is ready. The be owns only the `inet router_be` classification table, which survives Nix-owned table reloads. Routing state reserves conntrack-label bit `111` and bits `112..127`, leaving connection marks entirely untouched for legacy consumers such as Laminar. Per-packet Internet-exit and return marks occupy `0x00ff0000` and `0xff000000`; the low 16 packet-mark bits and other conntrack-label bits are preserved. Do not reuse these fields or globally flush nftables.
 
 Downstream forwarding is IPv4-only. Router DNS filters AAAA answers, but WARP clients using Cloudflare DNS may still receive synthetic IPv6 answers. IPv6 bridge neighbor discovery and a Mesh return route remain solely for internal operation and router-generated errors, not IPv6 Internet forwarding. Check IPv4 access and prompt rejection/fallback of IPv6 from enrolled clients before activation; querying through `waywarp2` alone does not exercise Cloudflare hostname routing.
 
@@ -110,14 +110,25 @@ NixOS ACME uses DNS-01; no public inbound HTTP/HTTPS listener is required. Its w
 
 ## Deployment
 
-Review and build changes before activating them. Apply the validated configuration with:
+Deploy through the machine-private wrapper at `~/dotfiles-private`, which extends this public configuration and retains Laminar and its tunnel. `NH_OS_FLAKE` defaults to that wrapper after activation and a fresh login. An explicit target also works from existing shells.
+
+Keep the wrapper's public input on `git+file:///home/scg/dotfiles`. Its lock pins a committed public revision, so commit public changes and refresh that input before building:
 
 ```bash
-nh os switch .
+nix flake update dotfiles --flake ~/dotfiles-private
+nh os build ~/dotfiles-private
 ```
 
-For installation or recovery, select the host explicitly:
+Do not replace that input with `path:/home/scg/dotfiles`: a directory snapshot can include gitignored `.envrc.local`, dependency directories, and build outputs in the world-readable Nix store. `file:` fetches a file/archive rather than a directory flake. The wrapper itself is a local directory flake; keep credentials outside its source tree and reference runtime files instead.
+
+Review the wrapper's build diff before activating it. Switching the public flake directly bypasses the private services.
 
 ```bash
-sudo nixos-rebuild switch --flake .#router
+nh os switch ~/dotfiles-private
+```
+
+For installation or recovery, select the wrapper and host explicitly:
+
+```bash
+sudo nixos-rebuild switch --flake /home/scg/dotfiles-private#router
 ```
