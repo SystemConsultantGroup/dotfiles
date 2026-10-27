@@ -3,7 +3,28 @@ import { useQuery } from "@tanstack/react-query";
 import { Check, LoaderCircle, Monitor, Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+  FieldLegend,
+  FieldSet,
+} from "@/components/ui/field";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+  InputGroupText,
+} from "@/components/ui/input-group";
+import {
+  Item,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemTitle,
+} from "@/components/ui/item";
 import {
   Select,
   SelectContent,
@@ -86,52 +107,52 @@ function Feedback({ error, saved }: { error: Error | null; saved: boolean }) {
   );
 }
 
-function RegistrationRow({ device }: { device: Device }) {
+function Registration({ device }: { device: Device }) {
   const [name, setName] = useState(device.dns?.name ?? "");
   const mutation = useSetting("/api/me/dns");
   return (
-    <tr className="bg-muted/30">
-      <td>
-        <form
-          id="registration-form"
-          onSubmit={(event) => {
-            event.preventDefault();
-            mutation.mutate({ name });
-          }}
-        >
-          <Label className="sr-only" htmlFor="dns-name">
-            Your DNS name
-          </Label>
-          <div className="flex items-center gap-2">
-            <Input
-              id="dns-name"
-              value={name}
-              onChange={(event) => {
-                setName(event.target.value.toLowerCase());
-                mutation.reset();
-              }}
-              required
-              maxLength={63}
-              pattern="[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?"
-              autoComplete="off"
-              spellCheck={false}
-              disabled={!device.editable || mutation.isPending}
-              className="w-40 font-mono"
-            />
-            <span className="text-muted-foreground">.{device.domain}</span>
-          </div>
-        </form>
-      </td>
-      <td>
-        <span className="font-mono">{device.ip}</span>
-        <span className="ml-2 text-xs text-muted-foreground">You</span>
-      </td>
-      <td>
-        <div className="space-y-2">
-          <div className="flex gap-2">
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        mutation.mutate({ name });
+      }}
+    >
+      <FieldSet>
+        <FieldLegend>Your registration</FieldLegend>
+        <FieldGroup>
+          <Field>
+            <FieldLabel htmlFor="dns-name">DNS name</FieldLabel>
+            <InputGroup>
+              <InputGroupInput
+                id="dns-name"
+                value={name}
+                onChange={(event) => {
+                  setName(event.target.value.toLowerCase());
+                  mutation.reset();
+                }}
+                required
+                maxLength={63}
+                pattern="[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?"
+                autoComplete="off"
+                spellCheck={false}
+                disabled={!device.editable || mutation.isPending}
+                className="font-mono"
+                aria-describedby="registration-address"
+              />
+              <InputGroupAddon align="inline-end">
+                <InputGroupText>.{device.domain}</InputGroupText>
+              </InputGroupAddon>
+            </InputGroup>
+            <FieldDescription
+              id="registration-address"
+              className="font-mono text-xs"
+            >
+              {device.ip}
+            </FieldDescription>
+          </Field>
+          <div className="flex flex-wrap gap-2">
             <Button
               type="submit"
-              form="registration-form"
               disabled={
                 !device.editable ||
                 mutation.isPending ||
@@ -151,98 +172,83 @@ function RegistrationRow({ device }: { device: Device }) {
               }
               onClick={() => mutation.mutate({ name: null })}
             >
-              Automatic
+              Use automatic name
             </Button>
           </div>
           <Feedback error={mutation.error} saved={mutation.isSuccess} />
-        </div>
-      </td>
-    </tr>
+        </FieldGroup>
+      </FieldSet>
+    </form>
   );
 }
 
 function Records({ device }: { device: Device }) {
   const [search, setSearch] = useState("");
-  const records = device.records.filter(
-    (record) =>
-      record.ip !== device.ip &&
-      `${record.fqdn} ${record.ip}`
-        .toLowerCase()
-        .includes(search.trim().toLowerCase()),
+  const records = device.records.filter((record) =>
+    `${record.fqdn} ${record.ip}`
+      .toLowerCase()
+      .includes(search.trim().toLowerCase()),
   );
   return (
-    <div className="space-y-4">
-      <Label className="sr-only" htmlFor="record-search">
-        Search DNS records
-      </Label>
-      <Input
-        id="record-search"
-        type="search"
-        placeholder="Search by name or IP"
-        value={search}
-        onChange={(event) => setSearch(event.target.value)}
-        className="sm:max-w-xs"
+    <div className="space-y-8">
+      <Registration
+        key={`${device.ip}:${device.dns?.name}:${device.dns?.custom}`}
+        device={device}
       />
-      <div
-        className="overflow-x-auto rounded-lg border"
-        role="region"
-        aria-label="DNS records"
-        tabIndex={0}
-      >
-        <table className="data-table">
-          <caption className="sr-only">
-            Internal DNS records. Your editable registration is pinned first;
-            search filters the other records.
-          </caption>
-          <thead>
-            <tr>
-              <th scope="col">DNS name</th>
-              <th scope="col">IPv4 address</th>
-              <th scope="col">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <RegistrationRow
-              key={`${device.ip}:${device.dns?.name}:${device.dns?.custom}`}
-              device={device}
-            />
-            {records.map((record) => (
-              <tr key={record.ip}>
-                <td className="font-mono">{record.fqdn}</td>
-                <td className="font-mono">{record.ip}</td>
-                <td>
-                  <span className="sr-only">Read only</span>
-                  <span aria-hidden="true" className="text-muted-foreground">
-                    —
-                  </span>
-                </td>
-              </tr>
-            ))}
-            {records.length === 0 && (
-              <tr>
-                <td colSpan={3} className="text-center text-muted-foreground">
-                  {search ? "No matching records." : "No other records."}
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+      <section className="space-y-4" aria-labelledby="records-heading">
+        <h2 id="records-heading" className="text-base font-medium">
+          DNS records
+        </h2>
+        <Field>
+          <FieldLabel className="sr-only" htmlFor="record-search">
+            Search DNS records
+          </FieldLabel>
+          <Input
+            id="record-search"
+            type="search"
+            placeholder="Search by name or IP"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+          />
+        </Field>
+        <ItemGroup aria-label="Internal DNS records" className="gap-0 divide-y">
+          {records.map((record) => (
+            <Item key={record.ip} role="listitem" className="rounded-none px-0">
+              <ItemContent className="min-w-0">
+                <ItemTitle className="block w-full line-clamp-none break-all font-mono font-normal">
+                  {record.fqdn}
+                </ItemTitle>
+                <ItemDescription className="font-mono text-xs">
+                  {record.ip}
+                </ItemDescription>
+              </ItemContent>
+              {record.ip === device.ip && (
+                <span className="shrink-0 text-xs text-muted-foreground">
+                  You
+                </span>
+              )}
+            </Item>
+          ))}
+        </ItemGroup>
+        {records.length === 0 && (
+          <p role="status" className="py-4 text-sm text-muted-foreground">
+            {search ? "No matching records." : "No records yet."}
+          </p>
+        )}
+      </section>
     </div>
   );
 }
 
-function RouteRow({ device, route }: { device: Device; route: Route }) {
+function RouteSetting({ device, route }: { device: Device; route: Route }) {
   const [selected, setSelected] = useState(route.selected);
   const mutation = useSetting("/api/me/routes");
   const upstream = device.upstreams.find((item) => item.id === selected);
   return (
-    <tr>
-      <th scope="row" className="font-medium">
-        <Label htmlFor={`route-${route.id}`}>{route.label}</Label>
-      </th>
-      <td>
-        <div className="min-w-44 space-y-2">
+    <Field>
+      <FieldLabel htmlFor={`route-${route.id}`}>{route.label}</FieldLabel>
+      <FieldContent className="gap-2">
+        <div className="flex gap-2">
           <Select
             value={selected}
             onValueChange={(value) => {
@@ -251,7 +257,7 @@ function RouteRow({ device, route }: { device: Device; route: Route }) {
             }}
             disabled={!device.editable || mutation.isPending}
           >
-            <SelectTrigger id={`route-${route.id}`} className="w-full">
+            <SelectTrigger id={`route-${route.id}`} className="min-w-0 flex-1">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -262,15 +268,6 @@ function RouteRow({ device, route }: { device: Device; route: Route }) {
               ))}
             </SelectContent>
           </Select>
-          {upstream?.health?.ready === false && (
-            <p className="max-w-64 text-xs text-amber-700 dark:text-amber-400">
-              Unavailable. Traffic will not fall back to another exit.
-            </p>
-          )}
-        </div>
-      </td>
-      <td>
-        <div className="space-y-2">
           <Button
             aria-label={`Apply ${route.label}`}
             disabled={
@@ -287,48 +284,35 @@ function RouteRow({ device, route }: { device: Device; route: Route }) {
             )}
             Apply
           </Button>
-          <Feedback error={mutation.error} saved={mutation.isSuccess} />
         </div>
-      </td>
-    </tr>
+        {upstream?.health?.ready === false && (
+          <p className="text-xs text-amber-700 dark:text-amber-400">
+            Unavailable. Traffic will not fall back to another exit.
+          </p>
+        )}
+        <Feedback error={mutation.error} saved={mutation.isSuccess} />
+      </FieldContent>
+    </Field>
   );
 }
 
 function Routes({ device }: { device: Device }) {
   return (
-    <div className="space-y-3">
-      <div
-        className="overflow-x-auto rounded-lg border"
-        role="region"
-        aria-label="Internet exits"
-        tabIndex={0}
-      >
-        <table className="data-table">
-          <caption className="sr-only">
-            Internet exit for each of your connection paths.
-          </caption>
-          <thead>
-            <tr>
-              <th scope="col">Connection</th>
-              <th scope="col">Internet exit</th>
-              <th scope="col">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {device.routes.map((route) => (
-              <RouteRow
-                key={`${device.ip}:${route.id}:${route.selected}`}
-                device={device}
-                route={route}
-              />
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <p className="text-xs text-muted-foreground">
+    <FieldSet>
+      <FieldLegend className="sr-only">Internet exits</FieldLegend>
+      <FieldGroup>
+        {device.routes.map((route) => (
+          <RouteSetting
+            key={`${device.ip}:${route.id}:${route.selected}`}
+            device={device}
+            route={route}
+          />
+        ))}
+      </FieldGroup>
+      <FieldDescription className="text-xs">
         Changes apply to new connections.
-      </p>
-    </div>
+      </FieldDescription>
+    </FieldSet>
   );
 }
 
@@ -352,7 +336,7 @@ export default function App() {
   });
   const device = query.data;
   return (
-    <div className="mx-auto min-h-screen max-w-5xl px-4 sm:px-6">
+    <div className="mx-auto min-h-screen max-w-2xl px-4 sm:px-6">
       <header className="flex items-center justify-between gap-4 py-5">
         <span className="text-lg font-semibold tracking-tight">SCG Router</span>
         <ThemeControl />
