@@ -1,5 +1,7 @@
+mod activity;
 mod config;
 mod controller;
+mod device;
 mod inventory;
 mod network;
 mod web;
@@ -82,8 +84,8 @@ async fn main() -> Result<()> {
         } => inventory::prepare_leases(&lease_file, &directory),
         Mode::Render { config } => {
             let config = config::Config::load(&config)?;
-            let db = rusqlite::Connection::open_in_memory()?;
-            db.execute_batch(include_str!("../migrations/001.sql"))?;
+            let mut db = rusqlite::Connection::open_in_memory()?;
+            device::migrate(&mut db)?;
             print!("{}", network::rules(&config, &db)?);
             Ok(())
         }

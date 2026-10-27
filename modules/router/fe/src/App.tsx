@@ -193,7 +193,7 @@ function Records({ device }: { device: Device }) {
   return (
     <div className="grid gap-10 lg:grid-cols-[20rem_minmax(0,1fr)] lg:gap-12">
       <Registration
-        key={`${device.ip}:${device.dns?.name}:${device.dns?.custom}`}
+        key={`${device.id}:${device.dns?.name}:${device.dns?.custom}`}
         device={device}
       />
       <section
@@ -314,7 +314,7 @@ function Routes({ device }: { device: Device }) {
       <FieldGroup className="gap-0 divide-y">
         {device.routes.map((route) => (
           <RouteSetting
-            key={`${device.ip}:${route.id}:${route.selected}`}
+            key={`${device.id}:${route.id}:${route.selected}`}
             device={device}
             route={route}
           />
@@ -327,23 +327,140 @@ function Routes({ device }: { device: Device }) {
   );
 }
 
-export default function App() {
-  const [page, setPage] = useState(() =>
-    location.hash === "#/routes" ? "routes" : "registration",
+function duration(seconds: number) {
+  const minutes = Math.floor(Math.max(0, seconds) / 60);
+  if (minutes < 1) return "Less than a minute";
+  if (minutes < 60) return `${minutes} min`;
+  return `${Math.floor(minutes / 60)} hr ${minutes % 60} min`;
+}
+
+function timestamp(seconds: number | null) {
+  return seconds === null
+    ? "Not observed yet"
+    : new Date(seconds * 1000).toLocaleString();
+}
+
+function ActivityHistory({ device }: { device: Device }) {
+  const activity = device.activity;
+  if (!activity) {
+    return (
+      <p className="text-sm text-muted-foreground">
+        Activity tracking is enabled only for office devices, not WARP devices.
+      </p>
+    );
+  }
+  return (
+    <section className="space-y-6" aria-label="Your activity history">
+      <p className="text-sm text-muted-foreground">
+        Estimated LAN presence based on outgoing IPv4 traffic, not Wi-Fi
+        association. Online time includes a{" "}
+        {Math.round(activity.idle_seconds / 60)}-minute inactivity window.
+        History is retained for {activity.retention_days} days and is visible
+        only to this device.
+      </p>
+      {activity.warning && (
+        <p role="status" className="text-sm text-amber-700 dark:text-amber-400">
+          {activity.warning}
+        </p>
+      )}
+      <dl className="grid gap-6 rounded-lg border p-5 sm:grid-cols-2 lg:grid-cols-4">
+        {[
+          [
+            "Status",
+            activity.status === "online"
+              ? "Online"
+              : activity.status === "offline"
+                ? "Offline"
+                : "Unknown",
+          ],
+          ["Last activity", timestamp(activity.last_activity)],
+          ["Estimated online · last 24 hours", duration(activity.totals.day)],
+          ["Estimated online · last 7 days", duration(activity.totals.week)],
+        ].map(([label, value]) => (
+          <div key={label} className="space-y-1">
+            <dt className="text-xs text-muted-foreground">{label}</dt>
+            <dd className="text-sm font-medium">{value}</dd>
+          </div>
+        ))}
+      </dl>
+      {activity.status === "online" && activity.session_started_at !== null && (
+        <p className="text-sm">
+          Current estimated session:{" "}
+          {duration(activity.sampled_at - activity.session_started_at)}, since{" "}
+          {timestamp(activity.session_started_at)}.
+        </p>
+      )}
+      <div>
+        <h2 className="mb-3 text-base font-medium">Recent sessions</h2>
+        <p className="mb-3 text-xs text-muted-foreground">
+          Latest 50 sessions. Monitoring gaps end at the last observed activity;
+          unavailable time is not counted.
+        </p>
+        <ItemGroup className="gap-0 divide-y">
+          {activity.sessions.map((session, index) => {
+            const end =
+              session.ended_at ??
+              Math.min(
+                activity.sampled_at,
+                session.last_activity + activity.idle_seconds,
+              );
+            return (
+              <Item
+                key={`${device.id}:${session.started_at}:${index}`}
+                className="rounded-none px-0"
+              >
+                <ItemContent>
+                  <ItemTitle className="text-sm font-normal">
+                    {timestamp(session.started_at)} —{" "}
+                    {session.ended_at === null
+                      ? "In progress"
+                      : timestamp(session.ended_at)}
+                  </ItemTitle>
+                  <ItemDescription className="text-xs">
+                    {duration(end - session.started_at)} · Last activity{" "}
+                    {timestamp(session.last_activity)}
+                    {session.end_reason === "monitoring_gap" &&
+                      " · Monitoring gap"}
+                  </ItemDescription>
+                </ItemContent>
+              </Item>
+            );
+          })}
+        </ItemGroup>
+        {activity.sessions.length === 0 && (
+          <p className="py-4 text-sm text-muted-foreground">
+            No activity has been recorded yet.
+          </p>
+        )}
+      </div>
+    </section>
   );
+}
+
+function currentPage() {
+  return location.hash === "#/routes"
+    ? "routes"
+    : location.hash === "#/activity"
+      ? "activity"
+      : "registration";
+}
+
+export default function App() {
+  const [page, setPage] = useState(currentPage);
+  const title =
+    page === "routes" ? "Routes" : page === "activity" ? "Activity" : "DDNS";
   useEffect(() => {
-    const navigate = () =>
-      setPage(location.hash === "#/routes" ? "routes" : "registration");
+    const navigate = () => setPage(currentPage());
     addEventListener("hashchange", navigate);
     return () => removeEventListener("hashchange", navigate);
   }, []);
   useEffect(() => {
-    document.title = `${page === "routes" ? "Routes" : "DDNS"} · SCG Router`;
-  }, [page]);
+    document.title = `${title} · SCG Router`;
+  }, [title]);
   const query = useQuery({
     queryKey: ["me"],
     queryFn: () => api(),
-    refetchInterval: 30_000,
+    refetchInterval: 15_000,
   });
   const device = query.data;
   return (
@@ -360,6 +477,7 @@ export default function App() {
             href: "#/registration",
           },
           { id: "routes", label: "Routes", href: "#/routes" },
+          { id: "activity", label: "Activity", href: "#/activity" },
         ].map((item) => (
           <a
             key={item.id}
@@ -372,9 +490,7 @@ export default function App() {
         ))}
       </nav>
       <main className="space-y-6 pb-12 lg:space-y-8">
-        <h1 className="text-2xl font-semibold tracking-tight">
-          {page === "routes" ? "Routes" : "DDNS"}
-        </h1>
+        <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
         {query.isPending && (
           <p
             className="flex items-center gap-2 text-sm text-muted-foreground"
@@ -398,6 +514,33 @@ export default function App() {
         )}
         {device && (
           <>
+            <div className="space-y-1 text-sm text-muted-foreground">
+              <p>
+                {device.kind === "office"
+                  ? "Office · MAC identity"
+                  : "WARP · IP identity"}
+                : <span className="font-mono">{device.identifier}</span>
+                {device.kind === "office" && (
+                  <>
+                    {" "}
+                    · Current IP <span className="font-mono">{device.ip}</span>
+                  </>
+                )}
+              </p>
+              <p className="text-xs">
+                {device.kind === "office"
+                  ? "DNS names, route preferences, and activity history follow this MAC across IP changes. A changed private Wi-Fi MAC appears as a new device."
+                  : "DNS names and route preferences follow this stable WARP IP. Activity is not tracked."}
+              </p>
+            </div>
+            {device.inventory_warning && (
+              <p
+                role="status"
+                className="text-sm text-amber-700 dark:text-amber-400"
+              >
+                {device.inventory_warning}
+              </p>
+            )}
             {!device.editable && (
               <p role="alert" className="text-sm text-destructive">
                 {device.edit_error ?? "This address cannot change settings."}
@@ -414,8 +557,10 @@ export default function App() {
             )}
             {page === "registration" ? (
               <Records device={device} />
-            ) : (
+            ) : page === "routes" ? (
               <Routes device={device} />
+            ) : (
+              <ActivityHistory device={device} />
             )}
           </>
         )}

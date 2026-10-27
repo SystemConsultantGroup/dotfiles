@@ -11,7 +11,26 @@ export type Route = {
   selected: string;
   default: string;
 };
+export type Activity = {
+  status: "online" | "offline" | "unknown";
+  warning: string | null;
+  last_activity: number | null;
+  session_started_at: number | null;
+  idle_seconds: number;
+  retention_days: number;
+  sampled_at: number;
+  totals: { day: number; week: number };
+  sessions: {
+    started_at: number;
+    last_activity: number;
+    ended_at: number | null;
+    end_reason: "inactivity" | "monitoring_gap" | null;
+  }[];
+};
 export type Device = {
+  id: string;
+  identifier: string;
+  activity: Activity | null;
   ip: string;
   kind: "office" | "mesh";
   domain: string;

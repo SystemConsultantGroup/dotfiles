@@ -22,10 +22,18 @@ pub struct Config {
     pub lease_file: PathBuf,
     pub ip: PathBuf,
     pub nft: PathBuf,
+    pub activity: Activity,
     pub reserved_names: Vec<String>,
     pub internal_networks: Vec<String>,
     pub ingresses: BTreeMap<String, Ingress>,
     pub upstreams: BTreeMap<String, Upstream>,
+}
+
+#[derive(Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct Activity {
+    pub idle_seconds: u32,
+    pub retention_days: u32,
 }
 
 #[derive(Clone, Deserialize, Serialize)]
@@ -58,6 +66,11 @@ impl Config {
         ensure!(
             valid_domain(&config.hostname) && valid_domain(&config.domain),
             "invalid DNS configuration"
+        );
+        ensure!(
+            (60..=86400).contains(&config.activity.idle_seconds)
+                && (1..=3650).contains(&config.activity.retention_days),
+            "invalid activity retention or timeout"
         );
         ensure!(
             !config.ingresses.is_empty() && !config.upstreams.is_empty(),

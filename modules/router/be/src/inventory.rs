@@ -12,6 +12,7 @@ use std::{
 pub struct Assignment {
     pub ip: Ipv4Addr,
     pub kind: String,
+    pub identifier: String,
     pub generation: String,
     pub reported_name: Option<String>,
     pub expires: Option<i64>,
@@ -90,6 +91,7 @@ pub fn office(config: &Config) -> Result<Vec<Assignment>> {
         result.push(Assignment {
             ip,
             kind: "office".into(),
+            identifier: crate::device::mac(fields[1]).context("invalid DHCP MAC")?,
             generation,
             reported_name: reported_name(&name, &config.domain),
             expires: (expires != 0).then_some(expires),
@@ -310,6 +312,7 @@ impl Cloudflare {
                         Assignment {
                             ip,
                             kind: "mesh".into(),
+                            identifier: ip.to_string(),
                             generation: registration.id,
                             reported_name: reported_name(&registration.device.name, &config.domain),
                             expires: None,

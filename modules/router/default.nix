@@ -21,6 +21,10 @@ let
       lease_file = "/var/lib/dnsmasq/dnsmasq.leases";
       ip = lib.getExe' pkgs.iproute2 "ip";
       nft = lib.getExe pkgs.nftables;
+      activity = {
+        idle_seconds = cfg.be.activity.idleSeconds;
+        retention_days = cfg.be.activity.retentionDays;
+      };
       reserved_names = [
         "localhost"
         "router"

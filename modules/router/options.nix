@@ -121,6 +121,18 @@ in
     };
 
     be = {
+      activity = {
+        idleSeconds = mkOption {
+          type = types.ints.between 60 86400;
+          default = 300;
+          description = "Office activity session inactivity window in seconds";
+        };
+        retentionDays = mkOption {
+          type = types.ints.between 1 3650;
+          default = 365;
+          description = "Retention of completed office activity sessions in days";
+        };
+      };
       package = mkOption {
         type = types.package;
         default = pkgs.callPackage ./be { };

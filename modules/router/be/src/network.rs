@@ -91,7 +91,7 @@ fn label_flags(upstream: u8, ingress: u8) -> String {
 pub fn rules(config: &Config, db: &Connection) -> Result<String> {
     let mut selections = Vec::new();
     let mut statement = db.prepare(
-        "SELECT r.ip, r.ingress, r.upstream FROM routes r JOIN assignments a ON a.ip = r.ip",
+        "SELECT a.ip, r.ingress, r.upstream FROM routes r JOIN assignments a ON a.device_id = r.device_id",
     )?;
     for row in statement.query_map([], |row| {
         Ok((
@@ -210,7 +210,7 @@ pub async fn reconcile(config: &Config, db: &Connection, applied: &mut String) -
         *applied = desired;
     }
     let mut statement = db.prepare(
-        "SELECT a.ip, n.name FROM names n JOIN assignments a ON a.ip = n.ip ORDER BY n.name",
+        "SELECT a.ip, n.name FROM names n JOIN assignments a ON a.device_id = n.device_id ORDER BY n.name, a.ip",
     )?;
     let mut hosts = format!("{} {}\n", config.address, config.hostname);
     for row in statement.query_map([], |row| {
