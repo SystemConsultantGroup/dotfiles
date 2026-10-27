@@ -6,7 +6,7 @@
 - Change system configuration only when the task explicitly calls for it.
 - Use `nix run` or `nix shell` for temporary tools.
 - Do not install global packages with system package managers, `nix-env`, npm, or pip.
-- Do not activate a NixOS generation unless explicitly requested.
+- Do not activate a NixOS generation unless explicitly requested. Standing operator authorization covers validated UI-only changes: activate them automatically through `~/dotfiles-private`, preserving private services. It does not cover networking or other system changes.
 
 ## Service safety
 
