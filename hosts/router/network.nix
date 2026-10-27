@@ -43,7 +43,7 @@ in
 
     ingresses = {
       office = {
-        label = "Office Internet exit";
+        label = "Office";
         interface = site.lan.interface;
         network = site.lan.cidr;
         kind = "office";
@@ -52,7 +52,7 @@ in
         returnTable = 210;
       };
       mesh = {
-        label = "Base Internet exit";
+        label = "Base";
         interface = config.dotfiles.router.warp.mesh.link;
         gateway = config.dotfiles.router.warp.mesh.gateway;
         network = config.dotfiles.router.meshCidr;
@@ -62,7 +62,7 @@ in
         returnTable = 211;
       };
       mesh-yt = {
-        label = "mesh-yt Internet exit";
+        label = "YouTube";
         interface = config.dotfiles.router.warp.mesh-yt.link;
         gateway = config.dotfiles.router.warp.mesh-yt.gateway;
         network = config.dotfiles.router.meshCidr;

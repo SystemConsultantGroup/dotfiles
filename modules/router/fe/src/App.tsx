@@ -287,7 +287,7 @@ function RouteSetting({ device, route }: { device: Device; route: Route }) {
         </div>
         {upstream?.health?.ready === false && (
           <p className="text-xs text-amber-700 dark:text-amber-400">
-            Unavailable. Traffic will not fall back to another exit.
+            Unavailable. Traffic will not fall back to another route.
           </p>
         )}
         <Feedback error={mutation.error} saved={mutation.isSuccess} />
@@ -299,7 +299,7 @@ function RouteSetting({ device, route }: { device: Device; route: Route }) {
 function Routes({ device }: { device: Device }) {
   return (
     <FieldSet>
-      <FieldLegend className="sr-only">Internet exits</FieldLegend>
+      <FieldLegend className="sr-only">Internet routes</FieldLegend>
       <FieldGroup>
         {device.routes.map((route) => (
           <RouteSetting
