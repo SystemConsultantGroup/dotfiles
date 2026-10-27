@@ -51,6 +51,8 @@ in
     description = "Fail-closed IPv4 exit and return routing tables";
     wantedBy = [ "multi-user.target" ];
     after = [ "network.target" ];
+    reloadIfChanged = true;
+    reload = config.systemd.services.router-policy-routing.script;
     before = map (name: "waywarp-${name}.service") (lib.attrNames warp);
     serviceConfig = {
       Type = "oneshot";

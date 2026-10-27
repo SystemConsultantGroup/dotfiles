@@ -25,6 +25,13 @@ in
         table = 200;
         id = 1;
       };
+      warp = {
+        label = "WARP";
+        interface = config.dotfiles.router.warp.mesh.link;
+        gateway = config.dotfiles.router.warp.mesh.gateway;
+        table = 202;
+        id = 3;
+      };
       warp-jp = {
         label = "WARP Japan";
         interface = config.dotfiles.router.warp.warp-jp.link;

@@ -40,6 +40,15 @@ in
         iifname { ${restrictedSet} } ct state != { established, related } drop
       }
 
+      chain ingress_source {
+        # A Mesh link can also be an Internet exit. Its tracked replies have
+        # public source addresses, unlike new connections from Mesh clients.
+        ct direction reply ct state { established, related } return
+        ${lib.concatMapStrings (ingress: ''
+          iifname "${ingress.interface}" ip saddr != ${ingress.network} drop
+        '') (lib.attrValues ingresses)}
+      }
+
       chain selected_exit {
         ${lib.concatMapStrings (upstream: ''
           meta mark & 0x00ff0000 == ${toString (upstream.id * 65536)} oifname "${upstream.interface}" return
@@ -53,9 +62,7 @@ in
         type filter hook forward priority filter; policy drop;
 
         meta nfproto ipv6 reject with icmpv6 type admin-prohibited
-        ${lib.concatMapStrings (ingress: ''
-          iifname "${ingress.interface}" ip saddr != ${ingress.network} drop
-        '') (lib.attrValues ingresses)}
+        jump ingress_source
         # During first activation the controller may not have installed its
         # classifier yet. Even old established Internet flows must fail closed
         # until their packet has a selected exit; internal traffic is exempt.

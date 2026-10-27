@@ -59,7 +59,7 @@ direnv allow
 
 | Instance | Link | Role |
 | --- | --- | --- |
-| `mesh` | `waywarp0` | Mesh node `scg-skku-router`, joined with the office LAN |
+| `mesh` | `waywarp0` | Mesh node `scg-skku-router`, joined with the office LAN; also the standard `WARP` Internet exit |
 | `mesh-yt` | `waywarp1` | Selective-service Mesh ingress; defaults to `warp-jp` and retains the imported `scg-skku-router-jp` registration |
 | `warp-jp` | `waywarp2` | WARP client that exits in Osaka, Japan (KIX), bootstrapped through Azure relays |
 
@@ -80,9 +80,9 @@ Waywarp's default `nat = "auto"` follows the live connector configuration. The `
 
 Cloudflare-side routes decide whether traffic reaches `mesh` or `mesh-yt`. The router independently selects an Internet exit for each `(ingress interface, source IPv4)` pair. Office and ordinary Mesh traffic default to SKKU; `mesh-yt` defaults to WARP Japan. The application cannot affect traffic that Cloudflare does not deliver to the router.
 
-Upstream tables `200` (SKKU) and `201` (WARP Japan) have blackhole defaults, preventing fallback when an exit is unavailable. Return tables `210`, `211`, and `212` preserve the office, Mesh, and mesh-yt reply paths. Connection labels retain the selected exit for existing connections; changes apply to new connections. Internal office/Mesh destinations bypass Internet-exit selection. IDs and tables are declared in `hosts/router/network.nix`; ingress defaults live in `site.toml`.
+Upstream tables `200` (SKKU), `201` (WARP Japan), and `202` (WARP through the existing Mesh instance) have blackhole defaults, preventing fallback when an exit is unavailable. The standard WARP exit reuses `mesh` without creating another Waywarp instance or registration; its location follows that existing connection rather than the Japan constraints. Return tables `210`, `211`, and `212` preserve the office, Mesh, and mesh-yt reply paths. Connection labels retain the selected exit for existing connections; changes apply to new connections. Internal office/Mesh destinations bypass Internet-exit selection. IDs and tables are declared in `hosts/router/network.nix`; ingress defaults live in `site.toml`.
 
-Nix owns the fixed firewall, NAT, routing rules, and fail-closed defaults. Networkd installs physical-interface routes; Waywarp installs bridge routes when each instance is ready. The be owns only the `inet router_be` classification table, which survives Nix-owned table reloads. Routing state reserves conntrack-label bit `111` and bits `112..127`, leaving connection marks entirely untouched for legacy consumers such as Laminar. Per-packet Internet-exit and return marks occupy `0x00ff0000` and `0xff000000`; the low 16 packet-mark bits and other conntrack-label bits are preserved. Do not reuse these fields or globally flush nftables.
+Nix owns the fixed firewall, NAT, routing rules, and fail-closed defaults. Networkd installs physical-interface routes; Waywarp installs bridge routes when each instance is ready. Policy-rule updates reload without stopping dependent tunnels. A shared ingress/exit link admits public-source replies only for tracked reply traffic, while retaining source-prefix checks for new client connections. The be owns only the `inet router_be` classification table, which survives Nix-owned table reloads. Routing state reserves conntrack-label bit `111` and bits `112..127`, leaving connection marks entirely untouched for legacy consumers such as Laminar. Per-packet Internet-exit and return marks occupy `0x00ff0000` and `0xff000000`; the low 16 packet-mark bits and other conntrack-label bits are preserved. Do not reuse these fields or globally flush nftables.
 
 Downstream forwarding is IPv4-only. Router DNS filters AAAA answers, but WARP clients using Cloudflare DNS may still receive synthetic IPv6 answers. IPv6 bridge neighbor discovery and a Mesh return route remain solely for internal operation and router-generated errors, not IPv6 Internet forwarding. Check IPv4 access and prompt rejection/fallback of IPv6 from enrolled clients before activation; querying through `waywarp2` alone does not exercise Cloudflare hostname routing.
 
