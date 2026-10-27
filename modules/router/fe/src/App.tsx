@@ -349,6 +349,10 @@ function ActivityHistory({ device }: { device: Device }) {
       </p>
     );
   }
+  const sessions = activity.sessions.filter(
+    (session): session is typeof session & { ended_at: number } =>
+      session.ended_at !== null,
+  );
   return (
     <section className="space-y-6" aria-label="Your activity history">
       {activity.warning && (
@@ -379,13 +383,7 @@ function ActivityHistory({ device }: { device: Device }) {
       <div>
         <h2 className="mb-3 text-base font-medium">Recent sessions</h2>
         <ItemGroup className="gap-0 divide-y">
-          {activity.sessions.map((session, index) => {
-            const end =
-              session.ended_at ??
-              Math.min(
-                activity.sampled_at,
-                session.last_activity + activity.idle_seconds,
-              );
+          {sessions.map((session, index) => {
             return (
               <Item
                 key={`${device.id}:${session.started_at}:${index}`}
@@ -394,12 +392,10 @@ function ActivityHistory({ device }: { device: Device }) {
                 <ItemContent>
                   <ItemTitle className="text-sm font-normal">
                     {timestamp(session.started_at)} to{" "}
-                    {session.ended_at === null
-                      ? "In progress"
-                      : timestamp(session.ended_at)}
+                    {timestamp(session.ended_at)}
                   </ItemTitle>
                   <ItemDescription className="text-xs">
-                    {duration(end - session.started_at)}
+                    {duration(session.ended_at - session.started_at)}
                     {session.end_reason === "monitoring_gap" &&
                       " (monitoring gap)"}
                   </ItemDescription>
@@ -408,8 +404,10 @@ function ActivityHistory({ device }: { device: Device }) {
             );
           })}
         </ItemGroup>
-        {activity.sessions.length === 0 && (
-          <p className="py-4 text-sm text-muted-foreground">No sessions yet.</p>
+        {sessions.length === 0 && (
+          <p className="py-4 text-sm text-muted-foreground">
+            No completed sessions yet.
+          </p>
         )}
       </div>
     </section>
