@@ -61,7 +61,7 @@ environmentFile = "/home/scg/dotfiles/.envrc.local"
 [routingDefaults]
 office = "skku"
 mesh = "skku"
-mesh-yt = "warp-jp"
+mesh-yt = "warp"
 
 [officeDetection]
 address = "10.255.0.1"
