@@ -444,9 +444,9 @@ export default function App() {
   const device = query.data;
   return (
     <div className="mx-auto min-h-screen max-w-6xl px-4 sm:px-8 lg:px-10">
-      <header className="flex items-start justify-between gap-4 py-5">
-        <div className="min-w-0 space-y-1">
-          <span className="text-lg font-semibold tracking-tight">
+      <header className="flex items-center justify-between gap-4 py-5">
+        <div className="flex min-w-0 flex-wrap items-baseline gap-x-4 gap-y-1">
+          <span className="shrink-0 text-lg font-semibold tracking-tight">
             SCG Router
           </span>
           {device && (
