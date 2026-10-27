@@ -1,25 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import {
-  ArrowRight,
-  Check,
-  CircleAlert,
-  Globe2,
-  LoaderCircle,
-  Network,
-  RefreshCw,
-  ShieldCheck,
-} from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
+import { Check, LoaderCircle, Monitor, Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -29,112 +12,222 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 import { api, useSetting } from "@/lib/api";
 import type { Device, Route } from "@/lib/api";
 
+type Theme = "system" | "light" | "dark";
+
+function ThemeControl() {
+  const [theme, setTheme] = useState<Theme>(() => {
+    try {
+      const saved = localStorage.getItem("router-theme");
+      if (saved === "light" || saved === "dark") return saved;
+    } catch {
+      /* Use the OS preference when storage is unavailable. */
+    }
+    return "system";
+  });
+  useEffect(() => {
+    const media = matchMedia("(prefers-color-scheme: dark)");
+    const apply = () => {
+      const dark = theme === "dark" || (theme === "system" && media.matches);
+      document.documentElement.classList.toggle("dark", dark);
+      document.documentElement.style.colorScheme = dark ? "dark" : "light";
+    };
+    apply();
+    media.addEventListener("change", apply);
+    try {
+      localStorage.setItem("router-theme", theme);
+    } catch {
+      /* Optional preference persistence. */
+    }
+    return () => media.removeEventListener("change", apply);
+  }, [theme]);
+  return (
+    <div
+      className="flex gap-1 rounded-lg border p-1"
+      role="group"
+      aria-label="Appearance"
+    >
+      {(
+        [
+          { value: "system", label: "System theme", icon: Monitor },
+          { value: "light", label: "Light theme", icon: Sun },
+          { value: "dark", label: "Dark theme", icon: Moon },
+        ] as const
+      ).map(({ value, label, icon: Icon }) => (
+        <Button
+          key={value}
+          variant={theme === value ? "secondary" : "ghost"}
+          size="icon"
+          aria-label={label}
+          aria-pressed={theme === value}
+          title={label}
+          onClick={() => setTheme(value)}
+        >
+          <Icon className="size-4" />
+        </Button>
+      ))}
+    </div>
+  );
+}
+
 function Feedback({ error, saved }: { error: Error | null; saved: boolean }) {
   return (
-    <div className="min-h-5 text-sm" aria-live="polite">
+    <div className="text-sm" aria-live="polite">
       {error ? (
         <p className="text-destructive">{error.message}</p>
       ) : saved ? (
-        <p className="flex items-center gap-1.5 text-emerald-700">
-          <Check className="size-4" /> Saved
+        <p className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400">
+          <Check className="size-4" />
+          Saved
         </p>
       ) : null}
     </div>
   );
 }
 
-function Dns({ device }: { device: Device }) {
+function Registration({ device }: { device: Device }) {
   const [name, setName] = useState(device.dns?.name ?? "");
   const mutation = useSetting("/api/me/dns");
-  const pending = mutation.isPending;
   return (
     <Card>
       <CardHeader>
-        <div className="mb-3 flex size-10 items-center justify-center rounded-xl bg-blue-50 text-blue-700">
-          <Globe2 className="size-5" />
-        </div>
-        <CardTitle>Internal DNS</CardTitle>
-        <CardDescription>
-          A name for this address, reachable from the office and WARP through
-          router DNS.
-        </CardDescription>
+        <CardTitle>Your registration</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-5">
-        <div className="rounded-lg border bg-muted/40 px-4 py-3">
-          <p className="mb-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            Current A record
-          </p>
-          <p className="break-all font-mono text-sm">
-            {device.dns?.fqdn ?? "Not registered"}
-          </p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            {device.dns?.custom ? "Custom name" : "Automatic name"} ·{" "}
-            {device.ip}
-          </p>
-        </div>
+      <CardContent className="space-y-4">
+        <p className="font-mono text-sm text-muted-foreground">{device.ip}</p>
         <form
-          className="space-y-3"
+          className="space-y-4"
           onSubmit={(event) => {
             event.preventDefault();
             mutation.mutate({ name });
           }}
         >
-          <Label htmlFor="dns-name">Device name</Label>
-          <div className="flex items-center gap-2">
-            <Input
-              id="dns-name"
-              value={name}
-              onChange={(event) => {
-                setName(event.target.value.toLowerCase());
-                mutation.reset();
-              }}
-              required
-              maxLength={63}
-              pattern="[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?"
-              autoComplete="off"
-              spellCheck={false}
-              disabled={!device.editable || pending}
-              className="min-w-0 font-mono"
-              aria-describedby="dns-help"
-            />
-            <span className="shrink-0 text-sm text-muted-foreground">
-              .{device.domain}
-            </span>
+          <div className="space-y-2">
+            <Label htmlFor="dns-name">DNS name</Label>
+            <div className="flex flex-wrap items-center gap-2">
+              <Input
+                id="dns-name"
+                value={name}
+                onChange={(event) => {
+                  setName(event.target.value.toLowerCase());
+                  mutation.reset();
+                }}
+                required
+                maxLength={63}
+                pattern="[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?"
+                autoComplete="off"
+                spellCheck={false}
+                disabled={!device.editable || mutation.isPending}
+                className="min-w-0 flex-1 basis-40 font-mono"
+                aria-describedby="dns-help"
+              />
+              <span className="text-sm text-muted-foreground">
+                .{device.domain}
+              </span>
+            </div>
+            <p id="dns-help" className="text-xs text-muted-foreground">
+              Letters, numbers, and hyphens.
+            </p>
           </div>
-          <p
-            id="dns-help"
-            className="text-xs leading-relaxed text-muted-foreground"
-          >
-            Lowercase letters, numbers, and hyphens. Names are unique.
-            DHCP-reported names are used automatically when available.
-          </p>
-          <div className="flex flex-wrap gap-2 pt-1">
+          <div className="flex flex-wrap gap-2">
             <Button
               type="submit"
               disabled={
                 !device.editable ||
-                pending ||
+                mutation.isPending ||
                 (name === device.dns?.name && device.dns.custom)
               }
             >
-              {pending && <LoaderCircle className="size-4 animate-spin" />}Save
-              name
+              {mutation.isPending && (
+                <LoaderCircle className="size-4 animate-spin" />
+              )}
+              Save
             </Button>
             <Button
               type="button"
               variant="outline"
-              disabled={!device.editable || pending || !device.dns?.custom}
+              disabled={
+                !device.editable || mutation.isPending || !device.dns?.custom
+              }
               onClick={() => mutation.mutate({ name: null })}
             >
-              Use automatic
+              Use automatic name
             </Button>
           </div>
         </form>
         <Feedback error={mutation.error} saved={mutation.isSuccess} />
+      </CardContent>
+    </Card>
+  );
+}
+
+function Records({ device }: { device: Device }) {
+  const [search, setSearch] = useState("");
+  const records = device.records.filter((record) =>
+    `${record.fqdn} ${record.ip}`
+      .toLowerCase()
+      .includes(search.trim().toLowerCase()),
+  );
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>DNS records</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <Label className="sr-only" htmlFor="record-search">
+          Search DNS records
+        </Label>
+        <Input
+          id="record-search"
+          type="search"
+          placeholder="Search by name or IP"
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+        />
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <caption className="sr-only">
+              All internal IPv4 DNS records. Only your own registration is
+              editable.
+            </caption>
+            <thead>
+              <tr className="border-b text-muted-foreground">
+                <th scope="col" className="pb-3 pr-4 font-medium">
+                  Name
+                </th>
+                <th scope="col" className="pb-3 font-medium">
+                  IPv4 address
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {records.map((record) => (
+                <tr key={record.ip} className="border-b last:border-0">
+                  <td className="py-3 pr-4">
+                    <span className="break-all font-mono text-xs sm:text-sm">
+                      {record.fqdn}
+                    </span>
+                    {record.ip === device.ip && (
+                      <span className="ml-2 text-xs text-muted-foreground">
+                        You
+                      </span>
+                    )}
+                  </td>
+                  <td className="py-3 font-mono text-xs sm:text-sm">
+                    {record.ip}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {records.length === 0 && (
+          <p className="py-4 text-center text-sm text-muted-foreground">
+            {search ? "No matching records." : "No records yet."}
+          </p>
+        )}
       </CardContent>
     </Card>
   );
@@ -146,14 +239,7 @@ function RouteSetting({ device, route }: { device: Device; route: Route }) {
   const upstream = device.upstreams.find((item) => item.id === selected);
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between gap-3">
-        <Label htmlFor={`route-${route.id}`}>{route.label}</Label>
-        <span className="text-xs text-muted-foreground">
-          Default:{" "}
-          {device.upstreams.find((item) => item.id === route.default)?.label ??
-            route.default}
-        </span>
-      </div>
+      <Label htmlFor={`route-${route.id}`}>{route.label}</Label>
       <div className="flex gap-2">
         <Select
           value={selected}
@@ -184,201 +270,134 @@ function RouteSetting({ device, route }: { device: Device; route: Route }) {
             mutation.mutate({ ingress: route.id, upstream: selected })
           }
         >
-          {mutation.isPending ? (
+          {mutation.isPending && (
             <LoaderCircle className="size-4 animate-spin" />
-          ) : (
-            <ArrowRight className="size-4" />
           )}
-          <span className="sr-only">Apply {route.label}</span>
+          Apply
         </Button>
       </div>
-      <p
-        className={`flex items-center gap-1.5 text-xs ${upstream?.health?.ready ? "text-emerald-700" : "text-amber-700"}`}
-      >
-        <span
-          className={`size-1.5 shrink-0 rounded-full ${upstream?.health?.ready ? "bg-emerald-600" : "bg-amber-500"}`}
-        />
-        {upstream?.health?.detail ?? "Availability not yet known"}
-      </p>
+      {upstream?.health?.ready === false && (
+        <p className="text-sm text-amber-700 dark:text-amber-400">
+          This exit is unavailable. Traffic will not fall back to another exit.
+        </p>
+      )}
       <Feedback error={mutation.error} saved={mutation.isSuccess} />
     </div>
   );
 }
 
-function Routes({ device }: { device: Device }) {
-  return (
-    <Card>
-      <CardHeader>
-        <div className="mb-3 flex size-10 items-center justify-center rounded-xl bg-violet-50 text-violet-700">
-          <Network className="size-5" />
-        </div>
-        <CardTitle>Internet exits</CardTitle>
-        <CardDescription>
-          Choose where traffic leaves the router for each of your connection
-          paths.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-5">
-        {device.routes.map((route, index) => (
-          <div key={`${route.id}:${route.selected}`}>
-            {index > 0 && <Separator className="mb-5" />}
-            <RouteSetting device={device} route={route} />
-          </div>
-        ))}
-        <div className="flex gap-2.5 rounded-lg bg-muted/50 p-3 text-xs leading-relaxed text-muted-foreground">
-          <ShieldCheck className="mt-0.5 size-4 shrink-0" />
-          <p>
-            Fail closed: unavailable exits never fall back to another upstream.
-            Changes affect new connections. Office and Mesh destinations stay
-            internal. Availability reflects the local link and route, not an
-            end-to-end connectivity probe.
-          </p>
-        </div>
-        {device.kind === "mesh" && (
-          <p className="text-xs leading-relaxed text-muted-foreground">
-            These settings affect traffic Cloudflare delivers to the router.
-            Cloudflare routing decides whether traffic uses the base Mesh path
-            or mesh-yt.
-          </p>
-        )}
-      </CardContent>
-    </Card>
-  );
-}
-
 export default function App() {
+  const [page, setPage] = useState(() =>
+    location.hash === "#/routes" ? "routes" : "registration",
+  );
+  useEffect(() => {
+    const navigate = () =>
+      setPage(location.hash === "#/routes" ? "routes" : "registration");
+    addEventListener("hashchange", navigate);
+    return () => removeEventListener("hashchange", navigate);
+  }, []);
+  useEffect(() => {
+    document.title = `${page === "routes" ? "Routes" : "Registration / DDNS"} · SCG Router`;
+  }, [page]);
   const query = useQuery({
     queryKey: ["me"],
     queryFn: () => api(),
-    refetchInterval: 10_000,
-    retry: 1,
+    refetchInterval: 30_000,
   });
   const device = query.data;
   return (
-    <div className="min-h-screen bg-stone-50/70">
-      <header className="border-b bg-white">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-5 py-4 sm:px-8">
-          <div className="flex items-center gap-3">
-            <div className="flex size-9 items-center justify-center rounded-xl bg-zinc-900 text-white">
-              <Network className="size-5" />
-            </div>
-            <span className="font-semibold tracking-tight">
-              SCG{" "}
-              <span className="font-normal text-muted-foreground">
-                / router
-              </span>
-            </span>
-          </div>
-          <Badge variant="outline" className="gap-1.5">
-            <ShieldCheck className="size-3.5" />
-            IPv4 self-service
-          </Badge>
-        </div>
+    <div className="mx-auto min-h-screen max-w-3xl px-4 sm:px-6">
+      <header className="flex items-center justify-between gap-4 py-5">
+        <span className="text-lg font-semibold tracking-tight">SCG Router</span>
+        <ThemeControl />
       </header>
-      <main className="mx-auto max-w-5xl space-y-7 px-5 py-10 sm:px-8 sm:py-14">
-        <section className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <p className="mb-2 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-              Your device
-            </p>
-            <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-              Your connection.
-            </h1>
-            <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
-              Manage the name and Internet exits for your current source
-              address. No account or sign-in required.
-            </p>
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              void query.refetch();
-            }}
-            disabled={query.isFetching}
+      <nav className="mb-8 flex gap-6 border-b" aria-label="Main navigation">
+        {[
+          {
+            id: "registration",
+            label: "Registration / DDNS",
+            href: "#/registration",
+          },
+          { id: "routes", label: "Routes", href: "#/routes" },
+        ].map((item) => (
+          <a
+            key={item.id}
+            href={item.href}
+            aria-current={page === item.id ? "page" : undefined}
+            className={`border-b-2 px-1 py-3 text-sm font-medium transition-colors ${page === item.id ? "border-foreground text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
           >
-            <RefreshCw
-              className={`size-3.5 ${query.isFetching ? "animate-spin" : ""}`}
-            />
-            Refresh
-          </Button>
-        </section>
-        {query.error && (
-          <Alert variant="destructive">
-            <CircleAlert />
-            <AlertTitle>Unable to refresh your connection</AlertTitle>
-            <AlertDescription>{query.error.message}</AlertDescription>
-          </Alert>
-        )}
-        {!device && query.isPending && (
-          <div
-            className="flex items-center gap-3 py-16 text-sm text-muted-foreground"
+            {item.label}
+          </a>
+        ))}
+      </nav>
+      <main className="space-y-5 pb-12">
+        <h1 className="text-2xl font-semibold tracking-tight">
+          {page === "routes" ? "Routes" : "Registration / DDNS"}
+        </h1>
+        {query.isPending && (
+          <p
+            className="flex items-center gap-2 text-sm text-muted-foreground"
             role="status"
           >
-            <LoaderCircle className="size-5 animate-spin" />
-            Loading your connection…
+            <LoaderCircle className="size-4 animate-spin" />
+            Loading…
+          </p>
+        )}
+        {query.isError && (
+          <div role="alert" className="space-y-3 rounded-lg border p-4">
+            <p className="text-sm text-destructive">{query.error.message}</p>
+            <Button
+              variant="outline"
+              onClick={() => void query.refetch()}
+              disabled={query.isFetching}
+            >
+              Retry
+            </Button>
           </div>
         )}
         {device && (
           <>
-            <div className="flex flex-wrap items-center gap-3 rounded-xl border bg-white px-5 py-4">
-              <span className="font-mono text-base font-medium">
-                {device.ip}
-              </span>
-              <Badge variant="secondary">
-                {device.kind === "office" ? "Office LAN" : "WARP Mesh"}
-              </Badge>
-              {device.reported_name && (
-                <span className="text-sm text-muted-foreground">
-                  {device.reported_name}
-                </span>
-              )}
-              <span
-                className={`ml-auto flex items-center gap-1.5 text-xs ${device.applied ? "text-emerald-700" : "text-amber-700"}`}
-              >
-                {device.applied ? (
-                  <Check className="size-3.5" />
-                ) : (
-                  <LoaderCircle className="size-3.5 animate-spin" />
-                )}
-                {device.applied ? "Policy applied" : "Changes pending"}
-              </span>
-            </div>
-            {(!device.editable ||
-              device.inventory_warning ||
-              !device.applied) && (
-              <Alert>
-                <CircleAlert />
-                <AlertTitle>
-                  {!device.editable
-                    ? "Settings are read-only"
-                    : !device.applied
-                      ? "Waiting for reconciliation"
-                      : "Inventory temporarily unavailable"}
-                </AlertTitle>
-                <AlertDescription>
-                  {device.edit_error ??
-                    device.inventory_warning ??
-                    "Saved changes will be retried automatically. The last applied policy remains in effect."}
-                </AlertDescription>
-              </Alert>
+            {!device.editable && (
+              <p role="alert" className="text-sm text-destructive">
+                {device.edit_error ?? "This address cannot change settings."}
+              </p>
             )}
-            <div className="grid items-start gap-5 md:grid-cols-2">
-              <Dns
-                key={`${device.ip}:${device.dns?.name}:${device.dns?.custom}`}
-                device={device}
-              />
-              <Routes key={device.ip} device={device} />
-            </div>
-            <p className="text-xs leading-relaxed text-muted-foreground">
-              Settings belong to this IPv4 address. Known DHCP and Mesh
-              assignments are cleared when inventory confirms they have ended;
-              untracked static addresses retain their settings. Connecting
-              through another address gives you a separate identity.
-              {device.expires
-                ? ` Current DHCP lease expires ${new Date(device.expires * 1000).toLocaleString()}.`
-                : ""}
-            </p>
+            {!device.applied && (
+              <p
+                role="alert"
+                className="text-sm text-amber-700 dark:text-amber-400"
+              >
+                Changes could not be applied. The previous configuration is
+                still active.
+              </p>
+            )}
+            {page === "registration" ? (
+              <>
+                <Registration
+                  key={`${device.ip}:${device.dns?.name}:${device.dns?.custom}`}
+                  device={device}
+                />
+                <Records device={device} />
+              </>
+            ) : (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Internet exits</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {device.routes.map((route) => (
+                    <RouteSetting
+                      key={`${device.ip}:${route.id}:${route.selected}`}
+                      device={device}
+                      route={route}
+                    />
+                  ))}
+                  <p className="text-xs text-muted-foreground">
+                    Changes apply to new connections.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
           </>
         )}
       </main>

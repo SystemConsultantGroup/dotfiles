@@ -247,12 +247,23 @@ impl Controller {
                 upstreams.push(json!({"id": id, "label": format!("{id} (removed)"), "health": {"ready": false, "detail": "Selected exit was removed; no fallback"}}));
             }
         }
+        let mut statement = self
+            .db
+            .prepare("SELECT name, ip FROM names ORDER BY name")?;
+        let records = statement
+            .query_map([], |row| {
+                let name: String = row.get(0)?;
+                let address: String = row.get(1)?;
+                Ok(json!({"fqdn": format!("{name}.{}", self.config.domain), "ip": address}))
+            })?
+            .collect::<rusqlite::Result<Vec<_>>>()?;
         let edit_error = self.editable(ip).err().map(|error| error.1);
         Ok(json!({
             "ip": ip, "kind": kind, "domain": self.config.domain,
             "reported_name": assignment.as_ref().and_then(|(name, _)| name.clone()),
             "expires": assignment.as_ref().and_then(|(_, expires)| *expires),
             "dns": name.map(|(name, custom)| json!({"fqdn": format!("{name}.{}", self.config.domain), "name": name, "custom": custom})),
+            "records": records,
             "routes": routes, "upstreams": upstreams,
             "editable": edit_error.is_none(), "edit_error": edit_error,
             "inventory_warning": self.inventory_error.get(kind),

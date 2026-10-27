@@ -18,6 +18,7 @@ export type Device = {
   reported_name: string | null;
   expires: number | null;
   dns: { name: string; fqdn: string; custom: boolean } | null;
+  records: { fqdn: string; ip: string }[];
   routes: Route[];
   upstreams: Upstream[];
   editable: boolean;
