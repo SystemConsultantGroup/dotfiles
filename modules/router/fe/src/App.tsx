@@ -419,13 +419,21 @@ function currentPage() {
     ? "routes"
     : location.hash === "#/activity"
       ? "activity"
-      : "registration";
+      : location.hash === "#/reverse-proxy"
+        ? "reverse-proxy"
+        : "registration";
 }
 
 export default function App() {
   const [page, setPage] = useState(currentPage);
   const title =
-    page === "routes" ? "Routes" : page === "activity" ? "Activity" : "DDNS";
+    page === "routes"
+      ? "Routes"
+      : page === "activity"
+        ? "Activity"
+        : page === "reverse-proxy"
+          ? "Reverse Proxy"
+          : "DDNS";
   useEffect(() => {
     const navigate = () => setPage(currentPage());
     addEventListener("hashchange", navigate);
@@ -465,7 +473,10 @@ export default function App() {
           <ThemeControl />
         </div>
       </header>
-      <nav className="mb-8 flex gap-6 border-b" aria-label="Main navigation">
+      <nav
+        className="mb-8 flex gap-6 overflow-x-auto border-b"
+        aria-label="Main navigation"
+      >
         {[
           {
             id: "registration",
@@ -474,12 +485,17 @@ export default function App() {
           },
           { id: "routes", label: "Routes", href: "#/routes" },
           { id: "activity", label: "Activity", href: "#/activity" },
+          {
+            id: "reverse-proxy",
+            label: "Reverse Proxy",
+            href: "#/reverse-proxy",
+          },
         ].map((item) => (
           <a
             key={item.id}
             href={item.href}
             aria-current={page === item.id ? "page" : undefined}
-            className={`border-b-2 px-1 py-3 text-sm font-medium transition-colors ${page === item.id ? "border-foreground text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+            className={`shrink-0 border-b-2 px-1 py-3 text-sm font-medium transition-colors ${page === item.id ? "border-foreground text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
           >
             {item.label}
           </a>
@@ -487,7 +503,22 @@ export default function App() {
       </nav>
       <main className="space-y-6 pb-12 lg:space-y-8">
         <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
-        {query.isPending && (
+        {page === "reverse-proxy" && (
+          <ItemGroup
+            className="gap-0 divide-y"
+            aria-label="Reverse proxy services"
+          >
+            {["HTTP", "Minecraft"].map((service) => (
+              <Item key={service} className="rounded-none px-0">
+                <ItemContent>
+                  <ItemTitle>{service}</ItemTitle>
+                  <ItemDescription>Coming soon</ItemDescription>
+                </ItemContent>
+              </Item>
+            ))}
+          </ItemGroup>
+        )}
+        {page !== "reverse-proxy" && query.isPending && (
           <p
             className="flex items-center gap-2 text-sm text-muted-foreground"
             role="status"
@@ -496,7 +527,7 @@ export default function App() {
             Loading...
           </p>
         )}
-        {query.isError && (
+        {page !== "reverse-proxy" && query.isError && (
           <div role="alert" className="space-y-3 rounded-lg border p-4">
             <p className="text-sm text-destructive">{query.error.message}</p>
             <Button
@@ -508,7 +539,7 @@ export default function App() {
             </Button>
           </div>
         )}
-        {device && (
+        {page !== "reverse-proxy" && device && (
           <>
             {device.inventory_warning && (
               <p
