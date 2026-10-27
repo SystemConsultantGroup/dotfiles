@@ -6,7 +6,9 @@ Declarative NixOS configuration for the SCG router and container host.
 
 - `hosts/router/` contains host-specific composition, hardware, networking, and storage. Operator values such as addresses and WARP instances live in `hosts/router/site.toml`.
 - `modules/base/` contains shared operating-system and user configuration.
-- `modules/router/` contains interfaces, DHCP, DNS, nftables, and WARP networking.
+- `modules/router/` contains interfaces, DHCP, DNS, nftables, WARP networking, and service composition in `default.nix`.
+- `modules/router/fe/` contains the React/shadcn/Vite application and its Nix package.
+- `modules/router/be/` contains the Rust application, SQLite migrations, and its Nix package.
 - `modules/server/` contains remote-administration services.
 
 ## Development
@@ -21,7 +23,19 @@ nix flake check --no-build
 nh os build .
 ```
 
-A build evaluates and compiles the configuration without changing the running system.
+A build evaluates and compiles the configuration without changing the running system. The development shell also provides Rust, Node.js, and pnpm. Build the application packages independently with `nix build .#fe .#be`.
+
+For application iteration:
+
+```bash
+pnpm --dir modules/router/fe install --frozen-lockfile
+pnpm --dir modules/router/fe build
+pnpm --dir modules/router/fe lint
+cargo fmt --manifest-path modules/router/be/Cargo.toml --check
+cargo clippy --manifest-path modules/router/be/Cargo.toml -- -D warnings
+```
+
+Use package managers to add or update dependencies; keep their generated lockfiles committed.
 
 ## Local environment
 
@@ -46,7 +60,7 @@ direnv allow
 | Instance | Link | Role |
 | --- | --- | --- |
 | `mesh` | `waywarp0` | Mesh node `scg-skku-router`, joined with the office LAN |
-| `mesh-jp` | `waywarp1` | Mesh node `scg-skku-router-jp`, whose clients exit through `warp-jp` |
+| `mesh-yt` | `waywarp1` | Selective-service Mesh ingress; defaults to `warp-jp` and retains the imported `scg-skku-router-jp` registration |
 | `warp-jp` | `waywarp2` | WARP client that exits in Osaka, Japan (KIX), bootstrapped through Azure relays |
 
 Mesh nodes use registrations enrolled with the Cloudflare client. Import each one before its unit starts; the unit is skipped until the registration exists:
@@ -62,13 +76,35 @@ Waywarp's default `nat = "auto"` follows the live connector configuration. The `
 
 `warp-jp` bootstraps through Mudfish's Osaka Azure nodes (`mudfish:city=osaka+provider=azure`) and requires `geo4=JP/Osaka+edge=KIX`. Waywarp paces Mudfish authentication across instances to avoid login throttling. The service starts once `/var/lib/secrets/waywarp-mudfish.env` provides `WAYWARP_MUDFISH_USERNAME` and `WAYWARP_MUDFISH_PASSWORD`. Create it with mode `0600`.
 
-### Japanese hostname routing
+### IPv4 routing
 
-Cloudflare-side hostname routes select which traffic reaches `mesh-jp`; the router then forwards it through `warp-jp`. Cloudflare returns synthetic IPv4 **and IPv6** addresses for these names. Both families therefore need working host forwarding, Japan policy routes, and return routes to Mesh clients. The IPv6 device range is Cloudflare's fixed `2606:4700:cf1:1000::/64` ([reserved IP ranges](https://developers.cloudflare.com/cloudflare-one/networks/routes/reserved-ips/)).
+Cloudflare-side routes decide whether traffic reaches `mesh` or `mesh-yt`. The router independently selects an Internet exit for each `(ingress interface, source IPv4)` pair. Office and ordinary Mesh traffic default to SKKU; `mesh-yt` defaults to WARP Japan. The application cannot affect traffic that Cloudflare does not deliver to the router.
 
-Table `201` carries the Japanese default and Mesh return routes for both families. A blackhole default prevents fallback to the WAN when the Japan exit is unavailable. IPv6 forwarding is allowed only between the Japanese links; ordinary LAN/WAN and LAN/Mesh forwarding stays IPv4-only. The main table also has a Mesh IPv6 return route so router-generated ICMP errors can reach clients.
+Upstream tables `200` (SKKU) and `201` (WARP Japan) have blackhole defaults, preventing fallback when an exit is unavailable. Return tables `210`, `211`, and `212` preserve the office, Mesh, and mesh-yt reply paths. Connection marks retain the selected exit for existing connections; changes apply to new connections. Internal office/Mesh destinations bypass Internet-exit selection. IDs and tables are declared in `hosts/router/network.nix`; ingress defaults live in `site.toml`.
 
-When investigating a routed hostname, compare `curl -4` and `curl -6` from an enrolled client using Cloudflare DNS. Requests sent straight through `waywarp2` test only the exit, not Cloudflare's hostname-routing path. An IPv4-only host can make native apps stall on IPv6 while browsers fall back to IPv4, even when video and thumbnails on other hostnames work.
+Nix owns the fixed firewall, NAT, routing rules, and fail-closed defaults. Networkd installs physical-interface routes; Waywarp installs bridge routes when each instance is ready. The be owns only the `inet router_be` classification table, which survives Nix-owned table reloads. Internet-exit and return marks occupy `0x00ff0000` and `0xff000000`; the low 16 bits are preserved. Do not reuse these mark fields or globally flush nftables.
+
+Downstream forwarding is IPv4-only. Router DNS filters AAAA answers, but WARP clients using Cloudflare DNS may still receive synthetic IPv6 answers. IPv6 bridge neighbor discovery and a Mesh return route remain solely for internal operation and router-generated errors, not IPv6 Internet forwarding. Check IPv4 access and prompt rejection/fallback of IPv6 from enrolled clients before activation; querying through `waywarp2` alone does not exercise Cloudflare hostname routing.
+
+## Device self-service
+
+The canonical URL is `https://router.scg.sh`. Its public Cloudflare record is a DNS-only A record for `10.0.0.1`, with no AAAA record or Cloudflare proxy. Clients still need office or Mesh routing to that private address. Router DNS also serves the same address locally, with a narrowly scoped rebinding exception.
+
+The fe is a static application served by `router-be`, which terminates HTTPS directly. The request's actual source IPv4 is its identity and authorization: no accounts, cookies, sessions, or trusted forwarding headers. Exact hostname checks, same-origin JSON mutations, browser-origin protections, and downstream-only access protect the API. This model assumes downstream source-address integrity; TLS does not prevent source-IP impersonation on a compromised local network.
+
+The application offers internal DNS naming under `home.arpa` and a named upstream selector for each applicable ingress. Office addresses get one selector; Mesh addresses get base and mesh-yt selectors. There is no device merging across addresses. Firewall controls and HTTP/Minecraft publication are not implemented.
+
+`router-be-controller` serializes SQLite updates and reconciles nftables and a dnsmasq hosts directory. It has `CAP_NET_ADMIN`; the HTTPS service has only `CAP_NET_BIND_SERVICE`. Their Unix socket is private to the be group, while certificate access uses a separate TLS group. The HTTPS service remains available across controller restarts and reports temporary API failures until the socket returns.
+
+Runtime state lives in `/var/lib/router-be/`: `state.sqlite` holds assignments and settings, `dns/hosts` holds generated DNS records, and `leases/` preserves DHCP-reported names and new-assignment markers captured by the existing neighbor hook. Dnsmasq's independent DHCP-name registration is disabled so the controller can enforce unique names, reserved names, and explicit overrides. Valid reported names are automatic defaults; collisions receive an address-derived suffix. Back up the state directory separately from the repository.
+
+DHCP assignments are reconciled every five seconds. Mesh registrations and their `virtual_ipv4` addresses are fetched through the paginated Cloudflare registrations API approximately every minute. Confirmed expiry, removal, or reassignment clears associated preferences and DNS ownership. Inventory failures retain the last known state and do not revoke source-IP authorization. Static or otherwise untracked sources can use self-service immediately; their settings persist until an authoritative assignment is learned and subsequently ends. Being offline is not evidence of assignment expiry. If the controller is down, the last applied forwarding policy remains, but assignment cleanup pauses until recovery.
+
+### TLS and Cloudflare credentials
+
+Provision `/var/lib/secrets/cloudflare.env` through machine-local secret management, owned by root with mode `0600`. It supplies `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` to the controller. The token needs access to read WARP registrations for the intended account and to discover the DNS zone and edit challenge TXT records for certificate issuance. Do not commit credentials or interpolate their values into Nix expressions.
+
+NixOS ACME uses DNS-01; no public inbound HTTP/HTTPS listener is required. A runtime wrapper maps the token's environment-variable name to lego's Cloudflare provider interface without generating another credential file. The HTTPS service never serves ACME's preliminary self-signed certificate: it waits for a successful issuance marker, and issuance/renewal starts or restarts it with the trusted certificate. Missing credentials do not stop forwarding or source-IP self-service when a previously issued certificate is available, but Mesh cleanup and new certificate issuance require them.
 
 ## Deployment
 

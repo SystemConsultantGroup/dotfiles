@@ -1,6 +1,11 @@
-{ config, ... }:
+{ config, lib, ... }:
 let
-  inherit (config.dotfiles.router) lan wan;
+  inherit (config.dotfiles.router)
+    lan
+    wan
+    upstreams
+    ingresses
+    ;
 in
 {
   networking.useNetworkd = true;
@@ -27,7 +32,12 @@ in
             Gateway = wan.gateway;
             PreferredSource = builtins.head wan.addresses;
           }
-        ];
+        ]
+        ++ map (upstream: {
+          Gateway = upstream.gateway;
+          GatewayOnLink = true;
+          Table = upstream.table;
+        }) (lib.filter (upstream: upstream.interface == wan.interface) (lib.attrValues upstreams));
         networkConfig = {
           IPv6AcceptRA = false;
           LinkLocalAddressing = "ipv6";
@@ -38,6 +48,11 @@ in
       "10-lan" = {
         matchConfig.Name = lan.interface;
         address = [ "${lan.address}/${toString lan.prefixLength}" ];
+        routes = map (ingress: {
+          Destination = ingress.network;
+          Scope = "link";
+          Table = ingress.returnTable;
+        }) (lib.filter (ingress: ingress.interface == lan.interface) (lib.attrValues ingresses));
         networkConfig = {
           IPv6AcceptRA = false;
           LinkLocalAddressing = "ipv6";

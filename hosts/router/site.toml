@@ -43,8 +43,8 @@ end = "10.0.255.239"
 index = 0
 imported = true
 
-# Mesh node scg-skku-router-jp.
-[warp.mesh-jp]
+# Selective-service Mesh node; retains its imported Cloudflare registration.
+[warp.mesh-yt]
 index = 1
 imported = true
 
@@ -53,6 +53,15 @@ index = 2
 location = "geo4=JP/Osaka+edge=KIX"
 via = ["mudfish:city=osaka+provider=azure"]
 environmentFile = "/var/lib/secrets/waywarp-mudfish.env"
+
+[be]
+hostname = "router.scg.sh"
+environmentFile = "/var/lib/secrets/cloudflare.env"
+
+[routingDefaults]
+office = "skku"
+mesh = "skku"
+mesh-yt = "warp-jp"
 
 [officeDetection]
 address = "10.255.0.1"

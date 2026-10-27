@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ lib, pkgs, ... }:
 let
   inherit (lib) mkOption types;
 
@@ -120,19 +120,66 @@ in
       description = "IPv4 range Cloudflare assigns to Mesh clients";
     };
 
-    warp = {
-      mesh = mkOption {
-        type = warpInstance;
-        description = "Mesh node joined with the office LAN; its clients may also exit through the WAN";
+    be = {
+      package = mkOption {
+        type = types.package;
+        default = pkgs.callPackage ./be { };
+        description = "Router be package";
       };
-      mesh-jp = mkOption {
-        type = warpInstance;
-        description = "Mesh node whose clients exit only through warp-jp";
+      hostname = mkOption {
+        type = types.str;
+        description = "Canonical HTTPS hostname for device self-service";
       };
-      warp-jp = mkOption {
-        type = warpInstance;
-        description = "WARP client that exits in Japan";
+      environmentFile = mkOption {
+        type = types.str;
+        description = "Root-only environment file supplying CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID";
       };
+    };
+
+    upstreams = mkOption {
+      description = "Named IPv4 Internet exits available to downstream devices";
+      type = types.attrsOf (
+        types.submodule {
+          options = {
+            label = mkOption { type = types.str; };
+            interface = mkOption { type = types.str; };
+            gateway = mkOption { type = types.str; };
+            table = mkOption { type = types.ints.between 1 2147483647; };
+            id = mkOption { type = types.ints.between 1 254; };
+          };
+        }
+      );
+    };
+
+    ingresses = mkOption {
+      description = "Source-address scopes and return paths for device routing";
+      type = types.attrsOf (
+        types.submodule {
+          options = {
+            label = mkOption { type = types.str; };
+            interface = mkOption { type = types.str; };
+            network = mkOption { type = types.str; };
+            gateway = mkOption {
+              type = types.nullOr types.str;
+              default = null;
+            };
+            kind = mkOption {
+              type = types.enum [
+                "office"
+                "mesh"
+              ];
+            };
+            defaultUpstream = mkOption { type = types.str; };
+            returnId = mkOption { type = types.ints.between 1 255; };
+            returnTable = mkOption { type = types.ints.between 1 2147483647; };
+          };
+        }
+      );
+    };
+
+    warp = mkOption {
+      type = types.attrsOf warpInstance;
+      description = "Named Waywarp Mesh nodes and exit instances";
     };
 
     officeDetection = {

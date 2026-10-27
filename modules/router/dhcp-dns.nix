@@ -5,8 +5,10 @@
   ...
 }:
 let
-  inherit (config.dotfiles.router) lan;
-  meshLink = config.dotfiles.router.warp.mesh.link;
+  inherit (config.dotfiles.router) lan be;
+  meshLinks = map (ingress: ingress.interface) (
+    lib.filter (ingress: ingress.kind == "mesh") (lib.attrValues config.dotfiles.router.ingresses)
+  );
 
   neighborHook = pkgs.writeShellScript "dnsmasq-neighbor-hook" ''
     action="$1"
@@ -31,6 +33,11 @@ let
           "$address" lladdr "$mac" dev ${lib.escapeShellArg lan.interface} 2>/dev/null || true
         ;;
     esac
+
+    # Keep the supplied name even though dnsmasq's automatic DHCP DNS names are
+    # disabled. The be owns name allocation and collision handling.
+    ${lib.getExe be.package} observe --directory /var/lib/router-be/leases \
+      -- "$action" "$mac" "$address" "''${4:-*}"
   '';
 in
 {
@@ -39,17 +46,18 @@ in
     resolveLocalQueries = true;
     settings = {
       inherit (lan) domain;
-      interface = [
-        lan.interface
-        meshLink
-      ];
+      interface = [ lan.interface ] ++ meshLinks;
       # Mesh clients use the router for DNS but get addresses from Cloudflare.
-      no-dhcp-interface = meshLink;
+      no-dhcp-interface = meshLinks;
+      hostsdir = "/var/lib/router-be/dns";
+      dhcp-ignore-names = true;
 
       local = "/${lan.domain}/";
       domain-needed = true;
       bogus-priv = true;
       stop-dns-rebind = true;
+      rebind-domain-ok = [ be.hostname ];
+      filter-AAAA = true;
 
       no-resolv = true;
       server = [
@@ -71,5 +79,14 @@ in
       ];
       dhcp-script = toString neighborHook;
     };
+  };
+
+  systemd.services.dnsmasq = {
+    preStart = lib.mkAfter ''
+      ${lib.getExe be.package} prepare-leases \
+        --lease-file /var/lib/dnsmasq/dnsmasq.leases \
+        --directory /var/lib/router-be/leases
+    '';
+    serviceConfig.ReadWritePaths = [ "/var/lib/router-be/leases" ];
   };
 }

@@ -36,6 +36,11 @@
         ];
       };
 
+      packages.${system} = {
+        fe = pkgs.callPackage ./modules/router/fe { };
+        be = pkgs.callPackage ./modules/router/be { };
+      };
+
       formatter.${system} = pkgs.writeShellApplication {
         name = "treefmt";
         runtimeInputs = [
@@ -51,6 +56,12 @@
         packages = [
           pkgs.statix
           pkgs.deadnix
+          pkgs.cargo
+          pkgs.rustc
+          pkgs.rustfmt
+          pkgs.clippy
+          pkgs.nodejs
+          pkgs.pnpm
         ];
       };
     };
