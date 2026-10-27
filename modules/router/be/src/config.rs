@@ -55,6 +55,8 @@ pub struct Ingress {
 pub struct Upstream {
     pub label: String,
     pub interface: String,
+    #[serde(rename = "forcedDestinations")]
+    pub forced_destinations: Vec<String>,
     pub gateway: Ipv4Addr,
     pub table: u32,
     pub id: u8,
@@ -77,7 +79,30 @@ impl Config {
             "empty routing catalog"
         );
         let mut ids = std::collections::BTreeSet::new();
+        let mut forced_networks: Vec<Ipv4Net> = Vec::new();
         for upstream in config.upstreams.values() {
+            for network in &upstream.forced_destinations {
+                let network: Ipv4Net = network
+                    .parse()
+                    .context("invalid forced destination network")?;
+                ensure!(
+                    !forced_networks
+                        .iter()
+                        .any(|existing| existing.contains(&network.network())
+                            || network.contains(&existing.network())),
+                    "overlapping forced destination networks"
+                );
+                ensure!(
+                    !config
+                        .internal_networks
+                        .iter()
+                        .filter_map(|value| value.parse::<Ipv4Net>().ok())
+                        .any(|internal| internal.contains(&network.network())
+                            || network.contains(&internal.network())),
+                    "forced destinations must not overlap internal networks"
+                );
+                forced_networks.push(network);
+            }
             ensure!(
                 upstream.id != 0 && upstream.id != 255 && ids.insert(upstream.id),
                 "duplicate or zero upstream ID"

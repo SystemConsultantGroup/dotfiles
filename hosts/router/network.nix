@@ -20,6 +20,7 @@ in
     upstreams = {
       skku = {
         label = "SKKU";
+        forcedDestinations = [ "115.145.0.0/16" ];
         interface = site.wan.interface;
         gateway = site.wan.gateway;
         table = 200;
@@ -43,7 +44,7 @@ in
 
     ingresses = {
       office = {
-        label = "Office";
+        label = "Internet";
         interface = site.lan.interface;
         network = site.lan.cidr;
         kind = "office";
@@ -52,7 +53,7 @@ in
         returnTable = 210;
       };
       mesh = {
-        label = "Base";
+        label = "Internet";
         interface = config.dotfiles.router.warp.mesh.link;
         gateway = config.dotfiles.router.warp.mesh.gateway;
         network = config.dotfiles.router.meshCidr;

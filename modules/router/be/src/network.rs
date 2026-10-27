@@ -183,6 +183,21 @@ pub fn rules(config: &Config, db: &Connection) -> Result<String> {
             "iifname \"{}\" ip saddr {}",
             ingress.interface, ingress.network
         );
+        // Pin new flows before considering device preferences. Existing labels
+        // remain intact: nft's ct label setter adds bits rather than replacing
+        // them, and the reply path still needs the original ingress identity.
+        for upstream in config
+            .upstreams
+            .values()
+            .filter(|upstream| !upstream.forced_destinations.is_empty())
+        {
+            output.push_str(&format!(
+                "        {prefix} ct label & 111 != 111 ip daddr {{ {} }} jump select_{}_{}\n",
+                upstream.forced_destinations.join(", "),
+                ingress.return_id,
+                upstream.id
+            ));
+        }
         let internal_flags = label_flags(0, ingress.return_id);
         let default_flags = label_flags(
             config.upstreams[&ingress.default_upstream].id,
@@ -194,6 +209,20 @@ pub fn rules(config: &Config, db: &Connection) -> Result<String> {
         ));
         output.push_str(&format!("        {prefix} ct label & 111 != 111 ct label set ct label | (111 | {default_flags})\n"));
         output.push_str(&format!("        {prefix} jump restore_exit\n"));
+        // Apply destination policy to every original-direction packet too, so
+        // a previously selected WARP/removed exit cannot override it. Reply
+        // restoration above continues to use the original ingress label.
+        for upstream in config
+            .upstreams
+            .values()
+            .filter(|upstream| !upstream.forced_destinations.is_empty())
+        {
+            output.push_str(&format!(
+                "        {prefix} ip daddr {{ {} }} jump exit_{}\n",
+                upstream.forced_destinations.join(", "),
+                upstream.id
+            ));
+        }
     }
     output.push_str("    }\n    chain output {\n        type route hook output priority mangle; policy accept;\n        meta nfproto ipv4 ct direction reply jump restore_reply\n    }\n}\n");
     Ok(output)

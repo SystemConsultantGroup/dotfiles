@@ -156,6 +156,11 @@ in
             label = mkOption { type = types.str; };
             interface = mkOption { type = types.str; };
             gateway = mkOption { type = types.str; };
+            forcedDestinations = mkOption {
+              type = types.listOf types.str;
+              default = [ ];
+              description = "IPv4 destination networks that always use this upstream instead of device route preferences";
+            };
             table = mkOption { type = types.ints.between 1 2147483647; };
             id = mkOption { type = types.ints.between 1 254; };
           };
