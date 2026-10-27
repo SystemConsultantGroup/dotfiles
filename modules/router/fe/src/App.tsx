@@ -327,7 +327,7 @@ export default function App() {
     return () => removeEventListener("hashchange", navigate);
   }, []);
   useEffect(() => {
-    document.title = `${page === "routes" ? "Routes" : "Registration / DDNS"} · SCG Router`;
+    document.title = `${page === "routes" ? "Routes" : "DDNS"} · SCG Router`;
   }, [page]);
   const query = useQuery({
     queryKey: ["me"],
@@ -345,7 +345,7 @@ export default function App() {
         {[
           {
             id: "registration",
-            label: "Registration / DDNS",
+            label: "DDNS",
             href: "#/registration",
           },
           { id: "routes", label: "Routes", href: "#/routes" },
@@ -362,7 +362,7 @@ export default function App() {
       </nav>
       <main className="space-y-5 pb-12">
         <h1 className="text-2xl font-semibold tracking-tight">
-          {page === "routes" ? "Routes" : "Registration / DDNS"}
+          {page === "routes" ? "Routes" : "DDNS"}
         </h1>
         {query.isPending && (
           <p
