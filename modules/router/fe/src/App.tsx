@@ -345,19 +345,12 @@ function ActivityHistory({ device }: { device: Device }) {
   if (!activity) {
     return (
       <p className="text-sm text-muted-foreground">
-        Activity tracking is enabled only for office devices, not WARP devices.
+        Activity tracking is unavailable for WARP devices.
       </p>
     );
   }
   return (
     <section className="space-y-6" aria-label="Your activity history">
-      <p className="text-sm text-muted-foreground">
-        Estimated LAN presence based on outgoing IPv4 traffic, not Wi-Fi
-        association. Online time includes a{" "}
-        {Math.round(activity.idle_seconds / 60)}-minute inactivity window.
-        History is retained for {activity.retention_days} days and is visible
-        only to this device.
-      </p>
       {activity.warning && (
         <p role="status" className="text-sm text-amber-700 dark:text-amber-400">
           {activity.warning}
@@ -374,8 +367,8 @@ function ActivityHistory({ device }: { device: Device }) {
                 : "Unknown",
           ],
           ["Last activity", timestamp(activity.last_activity)],
-          ["Estimated online · last 24 hours", duration(activity.totals.day)],
-          ["Estimated online · last 7 days", duration(activity.totals.week)],
+          ["Estimated online (24h)", duration(activity.totals.day)],
+          ["Estimated online (7d)", duration(activity.totals.week)],
         ].map(([label, value]) => (
           <div key={label} className="space-y-1">
             <dt className="text-xs text-muted-foreground">{label}</dt>
@@ -383,19 +376,8 @@ function ActivityHistory({ device }: { device: Device }) {
           </div>
         ))}
       </dl>
-      {activity.status === "online" && activity.session_started_at !== null && (
-        <p className="text-sm">
-          Current estimated session:{" "}
-          {duration(activity.sampled_at - activity.session_started_at)}, since{" "}
-          {timestamp(activity.session_started_at)}.
-        </p>
-      )}
       <div>
         <h2 className="mb-3 text-base font-medium">Recent sessions</h2>
-        <p className="mb-3 text-xs text-muted-foreground">
-          Latest 50 sessions. Monitoring gaps end at the last observed activity;
-          unavailable time is not counted.
-        </p>
         <ItemGroup className="gap-0 divide-y">
           {activity.sessions.map((session, index) => {
             const end =
@@ -411,16 +393,15 @@ function ActivityHistory({ device }: { device: Device }) {
               >
                 <ItemContent>
                   <ItemTitle className="text-sm font-normal">
-                    {timestamp(session.started_at)} —{" "}
+                    {timestamp(session.started_at)} to{" "}
                     {session.ended_at === null
                       ? "In progress"
                       : timestamp(session.ended_at)}
                   </ItemTitle>
                   <ItemDescription className="text-xs">
-                    {duration(end - session.started_at)} · Last activity{" "}
-                    {timestamp(session.last_activity)}
+                    {duration(end - session.started_at)}
                     {session.end_reason === "monitoring_gap" &&
-                      " · Monitoring gap"}
+                      " (monitoring gap)"}
                   </ItemDescription>
                 </ItemContent>
               </Item>
@@ -428,9 +409,7 @@ function ActivityHistory({ device }: { device: Device }) {
           })}
         </ItemGroup>
         {activity.sessions.length === 0 && (
-          <p className="py-4 text-sm text-muted-foreground">
-            No activity has been recorded yet.
-          </p>
+          <p className="py-4 text-sm text-muted-foreground">No sessions yet.</p>
         )}
       </div>
     </section>
@@ -455,7 +434,7 @@ export default function App() {
     return () => removeEventListener("hashchange", navigate);
   }, []);
   useEffect(() => {
-    document.title = `${title} · SCG Router`;
+    document.title = `${title} | SCG Router`;
   }, [title]);
   const query = useQuery({
     queryKey: ["me"],
@@ -497,7 +476,7 @@ export default function App() {
             role="status"
           >
             <LoaderCircle className="size-4 animate-spin" />
-            Loading…
+            Loading...
           </p>
         )}
         {query.isError && (
@@ -514,25 +493,17 @@ export default function App() {
         )}
         {device && (
           <>
-            <div className="space-y-1 text-sm text-muted-foreground">
-              <p>
-                {device.kind === "office"
-                  ? "Office · MAC identity"
-                  : "WARP · IP identity"}
-                : <span className="font-mono">{device.identifier}</span>
-                {device.kind === "office" && (
-                  <>
-                    {" "}
-                    · Current IP <span className="font-mono">{device.ip}</span>
-                  </>
-                )}
-              </p>
-              <p className="text-xs">
-                {device.kind === "office"
-                  ? "DNS names, route preferences, and activity history follow this MAC across IP changes. A changed private Wi-Fi MAC appears as a new device."
-                  : "DNS names and route preferences follow this stable WARP IP. Activity is not tracked."}
-              </p>
-            </div>
+            <p className="text-sm text-muted-foreground">
+              {device.kind === "office" ? "Office" : "WARP"}
+              {" / "}
+              <span className="font-mono">{device.identifier}</span>
+              {device.kind === "office" && (
+                <>
+                  {" / "}
+                  <span className="font-mono">{device.ip}</span>
+                </>
+              )}
+            </p>
             {device.inventory_warning && (
               <p
                 role="status"

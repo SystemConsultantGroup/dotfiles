@@ -24,6 +24,11 @@ Keep machine-specific values in `hosts/router/` and reusable behavior in `module
 - Do not activate a NixOS generation unless explicitly requested.
 - Perform actual deployments through `~/dotfiles-private`, never by switching this public flake directly: the private wrapper preserves Laminar and its tunnel. After committing public changes, update its `dotfiles` input, build the wrapper, and review the diff before any authorized switch. Keep its input on `git+file:///home/scg/dotfiles`, not `path:`, to exclude gitignored secrets.
 
+## UI and writing
+
+- Keep frontend copy minimal. Prefer concise labels and useful status or error messages; do not add explanatory text blocks unless requested or necessary to complete an action safely.
+- Use plain ASCII punctuation in UI copy, documentation, and responses. Do not use en dashes, em dashes, typographic quotes, Unicode ellipses, decorative separators, or similar stylistic characters. Preserve non-ASCII text when it is actual user data or required language content.
+
 ## Secrets and local state
 
 Keep machine-local environment variables in the gitignored `.envrc.local`. The file must remain untracked and should have mode `0600`. Never place credentials, private keys, tokens, or session data in tracked files or Nix expressions.
