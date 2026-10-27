@@ -22,6 +22,7 @@ Keep machine-specific values in `hosts/router/` and reusable behavior in `module
 - Treat networking, firewall, DHCP, storage, and SSH changes as service-impacting.
 - Preserve remote access and established forwarding behavior unless a requested change requires otherwise.
 - Do not activate a NixOS generation unless explicitly requested.
+- Perform actual deployments through `~/dotfiles-private`, never by switching this public flake directly: the private wrapper preserves Laminar and its tunnel. After committing public changes, update its `dotfiles` input, build the wrapper, and review the diff before any authorized switch. Keep its input on `git+file:///home/scg/dotfiles`, not `path:`, to exclude gitignored secrets.
 
 ## Secrets and local state
 

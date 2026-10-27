@@ -77,7 +77,7 @@ The self-service portal is available at [router.scg.sh](https://router.scg.sh) f
 
 ## Deployment
 
-Deploy through `~/dotfiles-private`, which extends this configuration with Laminar and its tunnel. NH defaults to that wrapper; explicit paths also work from older shells.
+Deploy through `~/dotfiles-private`, which extends this configuration with Laminar and its tunnel. NH defaults to that wrapper; explicit paths also work from older shells. Activation requires explicit operator approval; `nh os build .` above validates the public configuration only and must not be followed by a switch of the public flake.
 
 Keep its public input on `git+file:///home/scg/dotfiles`. Commit public changes, update the wrapper's pin, and build before activating:
 
