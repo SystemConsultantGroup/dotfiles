@@ -132,7 +132,7 @@ in
       };
       environmentFile = mkOption {
         type = types.str;
-        description = "Root-only environment file supplying CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID";
+        description = "Trusted private shell environment source for CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID, loaded at runtime through systemd credentials";
       };
     };
 

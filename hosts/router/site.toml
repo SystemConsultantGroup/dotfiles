@@ -56,7 +56,7 @@ environmentFile = "/var/lib/secrets/waywarp-mudfish.env"
 
 [be]
 hostname = "router.scg.sh"
-environmentFile = "/var/lib/secrets/cloudflare.env"
+environmentFile = "/home/scg/dotfiles/.envrc.local"
 
 [routingDefaults]
 office = "skku"

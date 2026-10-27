@@ -54,12 +54,43 @@ let
     Restart = "on-failure";
     RestartSec = 3;
   };
-  # lego uses a provider-specific variable. Keep our operator-facing credential
-  # names consistent without generating another credential file.
-  acmeLego = pkgs.writeShellScriptBin "lego" ''
-    export CLOUDFLARE_DNS_API_TOKEN="''${CLOUDFLARE_API_TOKEN:?CLOUDFLARE_API_TOKEN is required}"
-    exec ${lib.getExe pkgs.lego} "$@"
+  # PID 1 reads the existing private source before service sandboxing. Only
+  # protected, non-persistent credential memory is made available to each unit.
+  cloudflareCredential = {
+    LoadCredential = [ "cloudflare-env:${cfg.be.environmentFile}" ];
+    LimitCORE = 0;
+    # An empty, non-secret fallback keeps local policy available if the source
+    # is missing. ACME additionally checks that the source file exists.
+    SetCredential = [ "cloudflare-env:" ];
+  };
+  loadCloudflare = ''
+    set +x
+    set -euo pipefail
+    if [ -n "''${CREDENTIALS_DIRECTORY:-}" ] && [ -r "$CREDENTIALS_DIRECTORY/cloudflare-env" ]; then
+      set -a
+      if ! . "$CREDENTIALS_DIRECTORY/cloudflare-env" >/dev/null 2>&1; then
+        echo "Unable to load Cloudflare credential source" >&2
+        exit 1
+      fi
+      set +x
+      set +a
+    fi
+    export CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID
   '';
+  withCloudflare = pkgs.writeShellScript "router-cloudflare-env" (
+    loadCloudflare
+    + ''
+      exec "$@"
+    ''
+  );
+  # lego uses a provider-specific variable; its alias exists only in memory.
+  acmeLego = pkgs.writeShellScriptBin "lego" (
+    loadCloudflare
+    + ''
+      export CLOUDFLARE_DNS_API_TOKEN="''${CLOUDFLARE_API_TOKEN:?CLOUDFLARE_API_TOKEN is required}"
+      exec ${lib.getExe pkgs.lego} "$@"
+    ''
+  );
 in
 {
   imports = [
@@ -122,7 +153,6 @@ in
     acceptTerms = true;
     certs.${cfg.be.hostname} = {
       dnsProvider = "cloudflare";
-      environmentFile = cfg.be.environmentFile;
       group = "router-tls";
       # Start the HTTPS service after the first real issuance as well as
       # restarting it on renewal. Never serve the preliminary self-signed cert.
@@ -134,6 +164,7 @@ in
     "acme-order-renew-${cfg.be.hostname}" = {
       path = lib.mkBefore [ acmeLego ];
       unitConfig.ConditionPathExists = cfg.be.environmentFile;
+      serviceConfig = cloudflareCredential;
     };
     router-be-controller = {
       description = "Router be device-policy reconciler";
@@ -144,24 +175,26 @@ in
         "systemd-tmpfiles-setup.service"
       ];
       requires = [ "router-policy-routing.service" ];
-      serviceConfig = hardening // {
-        User = "router-controller";
-        Group = "router-be";
-        ExecStart = "${lib.getExe be} controller --config ${settings}";
-        EnvironmentFile = "-${cfg.be.environmentFile}";
-        StateDirectory = "router-be";
-        StateDirectoryMode = "0755";
-        RuntimeDirectory = "router-be";
-        RuntimeDirectoryMode = "0750";
-        AmbientCapabilities = [ "CAP_NET_ADMIN" ];
-        CapabilityBoundingSet = [ "CAP_NET_ADMIN" ];
-        RestrictAddressFamilies = [
-          "AF_UNIX"
-          "AF_INET"
-          "AF_INET6"
-          "AF_NETLINK"
-        ];
-      };
+      serviceConfig =
+        hardening
+        // cloudflareCredential
+        // {
+          User = "router-controller";
+          Group = "router-be";
+          ExecStart = "${withCloudflare} ${lib.getExe be} controller --config ${settings}";
+          StateDirectory = "router-be";
+          StateDirectoryMode = "0755";
+          RuntimeDirectory = "router-be";
+          RuntimeDirectoryMode = "0750";
+          AmbientCapabilities = [ "CAP_NET_ADMIN" ];
+          CapabilityBoundingSet = [ "CAP_NET_ADMIN" ];
+          RestrictAddressFamilies = [
+            "AF_UNIX"
+            "AF_INET"
+            "AF_INET6"
+            "AF_NETLINK"
+          ];
+        };
     };
     router-be = {
       description = "Router be HTTPS API and fe assets";
