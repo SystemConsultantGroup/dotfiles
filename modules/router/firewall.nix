@@ -6,6 +6,7 @@ let
     officeDetection
     ingresses
     upstreams
+    meshCidr
     ;
   meshLinks = map (ingress: ingress.interface) (
     lib.filter (ingress: ingress.kind == "mesh") (lib.attrValues ingresses)
@@ -54,6 +55,12 @@ in
         meta nfproto ipv6 reject with icmpv6 type admin-prohibited
         ${lib.concatMapStrings (ingress: ''
           iifname "${ingress.interface}" ip saddr != ${ingress.network} drop
+        '') (lib.attrValues ingresses)}
+        # During first activation the controller may not have installed its
+        # classifier yet. Even old established Internet flows must fail closed
+        # until their packet has a selected exit; internal traffic is exempt.
+        ${lib.concatMapStrings (ingress: ''
+          ct direction original iifname "${ingress.interface}" ip daddr != { ${lan.cidr}, ${meshCidr}, ${officeDetection.cidr} } meta mark & 0x00ff0000 == 0 drop
         '') (lib.attrValues ingresses)}
         meta mark & 0x00ff0000 == 0x00ff0000 drop
         ct direction original meta mark & 0x00ff0000 != 0 jump selected_exit
