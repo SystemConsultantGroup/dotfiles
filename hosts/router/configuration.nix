@@ -3,6 +3,7 @@
   imports = [
     ./hardware-configuration.nix
     ./network.nix
+    ./printer.nix
     ./storage.nix
     ../../modules/base
     ../../modules/router
