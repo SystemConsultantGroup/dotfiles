@@ -41,8 +41,14 @@ pub fn ensure_device(db: &Connection, kind: &str, identifier: &str) -> Result<i6
 pub fn migrate(db: &mut Connection) -> Result<()> {
     db.execute_batch("PRAGMA foreign_keys = ON;")?;
     let version: i64 = db.query_row("PRAGMA user_version", [], |row| row.get(0))?;
-    ensure!(version <= 2, "database schema is newer than this be");
+    ensure!(version <= 3, "database schema is newer than this be");
+    if version == 3 {
+        return Ok(());
+    }
     if version == 2 {
+        let tx = db.transaction()?;
+        tx.execute_batch(include_str!("../migrations/003.sql"))?;
+        tx.commit()?;
         return Ok(());
     }
     let tx = db.transaction()?;
@@ -82,6 +88,7 @@ pub fn migrate(db: &mut Connection) -> Result<()> {
     tx.execute_batch(
         "DROP TABLE legacy_routes; DROP TABLE legacy_names; PRAGMA user_version = 2;",
     )?;
+    tx.execute_batch(include_str!("../migrations/003.sql"))?;
     tx.commit()?;
     Ok(())
 }

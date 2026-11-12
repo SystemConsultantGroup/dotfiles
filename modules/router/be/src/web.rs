@@ -5,7 +5,7 @@ use crate::{
 use anyhow::Result;
 use axum::{
     Json, Router,
-    extract::{ConnectInfo, DefaultBodyLimit, Request, State},
+    extract::{ConnectInfo, DefaultBodyLimit, Path, Query, Request, State},
     http::{HeaderValue, StatusCode, header},
     middleware::{self, Next},
     response::{IntoResponse, Response},
@@ -32,7 +32,12 @@ struct WebState {
 }
 
 fn error(status: StatusCode, message: &'static str) -> Response {
-    (status, Json(json!({"error": message}))).into_response()
+    (
+        status,
+        [(header::CACHE_CONTROL, "no-store")],
+        Json(json!({"error": message})),
+    )
+        .into_response()
 }
 
 async fn guard(State(state): State<WebState>, request: Request, next: Next) -> Response {
@@ -125,8 +130,8 @@ async fn guard(State(state): State<WebState>, request: Request, next: Next) -> R
     response
 }
 
-async fn control(state: &WebState, ip: Ipv4Addr, operation: Operation) -> Response {
-    let result: Result<Reply> = async {
+async fn controller_reply(state: &WebState, ip: Ipv4Addr, operation: Operation) -> Result<Reply> {
+    tokio::time::timeout(Duration::from_secs(25), async {
         let mut stream = UnixStream::connect(&state.config.socket).await?;
         let mut bytes = serde_json::to_vec(&ControlRequest { ip, operation })?;
         bytes.push(b'\n');
@@ -139,9 +144,14 @@ async fn control(state: &WebState, ip: Ipv4Addr, operation: Operation) -> Respon
             "invalid controller response"
         );
         Ok(serde_json::from_slice(&bytes)?)
-    }
-    .await;
-    match result {
+    })
+    .await
+    .map_err(|_| anyhow::anyhow!("controller timeout"))?
+}
+
+async fn control(state: &WebState, ip: Ipv4Addr, operation: Operation) -> Response {
+    match controller_reply(state, ip, operation).await {
+        Ok(reply) if reply.status == 204 => StatusCode::NO_CONTENT.into_response(),
         Ok(reply) => (
             StatusCode::from_u16(reply.status).unwrap_or(StatusCode::INTERNAL_SERVER_ERROR),
             Json(reply.data),
@@ -207,6 +217,172 @@ async fn route(
     .await
 }
 
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct Registration {
+    url: String,
+}
+
+fn hook(operation: crate::webhooks::Operation) -> Operation {
+    Operation::Webhook { operation }
+}
+
+async fn hooks_list(
+    State(state): State<WebState>,
+    ConnectInfo(peer): ConnectInfo<SocketAddr>,
+) -> Response {
+    request(state, peer, hook(crate::webhooks::Operation::List)).await
+}
+
+async fn hooks_delete(
+    State(state): State<WebState>,
+    ConnectInfo(peer): ConnectInfo<SocketAddr>,
+    Path(id): Path<String>,
+) -> Response {
+    request(state, peer, hook(crate::webhooks::Operation::Delete { id })).await
+}
+
+async fn hooks_register(
+    State(state): State<WebState>,
+    ConnectInfo(peer): ConnectInfo<SocketAddr>,
+    body: Result<Json<Registration>, axum::extract::rejection::JsonRejection>,
+) -> Response {
+    let Ok(Json(body)) = body else {
+        return error(StatusCode::BAD_REQUEST, "Invalid registration body");
+    };
+    let IpAddr::V4(ip) = peer.ip() else {
+        return error(StatusCode::FORBIDDEN, "IPv4 is required");
+    };
+    let begin = controller_reply(
+        &state,
+        ip,
+        hook(crate::webhooks::Operation::Begin {
+            url: body.url.clone(),
+        }),
+    )
+    .await;
+    let Ok(reply) = begin else {
+        return error(
+            StatusCode::SERVICE_UNAVAILABLE,
+            "The controller is unavailable",
+        );
+    };
+    if reply.status != 200 {
+        return (
+            StatusCode::from_u16(reply.status).unwrap_or(StatusCode::INTERNAL_SERVER_ERROR),
+            Json(reply.data),
+        )
+            .into_response();
+    }
+    let Some(id) = reply.data["id"].as_str() else {
+        return error(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "Invalid subscription response",
+        );
+    };
+    if reply.data["existing"] == true {
+        return Json(json!({"id": id})).into_response();
+    }
+    // Continue verification even if the registering client disconnects. Pending
+    // records also expire if the HTTPS process exits during the handshake.
+    let id = id.to_owned();
+    let state_copy = state.clone();
+    let task = tokio::spawn(async move {
+        let accepted = crate::webhooks::callback(&body.url, Some(&id)).await;
+        control(
+            &state_copy,
+            ip,
+            hook(crate::webhooks::Operation::Finish { id, accepted }),
+        )
+        .await
+    });
+    task.await.unwrap_or_else(|_| {
+        error(
+            StatusCode::SERVICE_UNAVAILABLE,
+            "Callback verification interrupted",
+        )
+    })
+}
+
+async fn activity_current(
+    State(state): State<WebState>,
+    ConnectInfo(peer): ConnectInfo<SocketAddr>,
+    Path(id): Path<String>,
+    query: Result<Query<crate::webhooks::Query>, axum::extract::rejection::QueryRejection>,
+) -> Response {
+    let Ok(Query(query)) = query else {
+        return error(StatusCode::BAD_REQUEST, "Invalid activity query");
+    };
+    request(
+        state,
+        peer,
+        hook(crate::webhooks::Operation::Read {
+            id,
+            view: String::new(),
+            query,
+        }),
+    )
+    .await
+}
+
+async fn activity_read(
+    State(state): State<WebState>,
+    ConnectInfo(peer): ConnectInfo<SocketAddr>,
+    Path((id, view)): Path<(String, String)>,
+    query: Result<Query<crate::webhooks::Query>, axum::extract::rejection::QueryRejection>,
+) -> Response {
+    let Ok(Query(query)) = query else {
+        return error(StatusCode::BAD_REQUEST, "Invalid activity query");
+    };
+    request(
+        state,
+        peer,
+        hook(crate::webhooks::Operation::Read { id, view, query }),
+    )
+    .await
+}
+
+async fn delivery_worker(state: WebState) {
+    loop {
+        let jobs = controller_reply(
+            &state,
+            state.config.address,
+            hook(crate::webhooks::Operation::Jobs),
+        )
+        .await;
+        if let Ok(Reply { status: 200, data }) = jobs
+            && let Some(jobs) = data.as_array()
+        {
+            let mut tasks = tokio::task::JoinSet::new();
+            for job in jobs {
+                let (Some(id), Some(url), Some(revision)) = (
+                    job["id"].as_str(),
+                    job["url"].as_str(),
+                    job["revision"].as_i64(),
+                ) else {
+                    continue;
+                };
+                let (id, url, state) = (id.to_owned(), url.to_owned(), state.clone());
+                tasks.spawn(async move {
+                    let success = crate::webhooks::callback(&url, None).await;
+                    let _ = controller_reply(
+                        &state,
+                        state.config.address,
+                        hook(crate::webhooks::Operation::Delivered {
+                            id,
+                            revision,
+                            success,
+                        }),
+                    )
+                    .await;
+                });
+            }
+            while tasks.join_next().await.is_some() {}
+        }
+        tokio::time::sleep(Duration::from_secs(2)).await;
+    }
+}
+
 pub async fn run(
     config: Config,
     assets: PathBuf,
@@ -217,12 +393,22 @@ pub async fn run(
     let address = SocketAddr::from((config.address, port));
     let tls = RustlsConfig::from_pem_file(cert, key).await?;
     let state = WebState {
-        config: Arc::new(config),
+        config: Arc::new(config.clone()),
     };
     let api = Router::new()
         .route("/me", get(me))
         .route("/me/dns", axum::routing::patch(dns))
         .route("/me/routes", axum::routing::patch(route))
+        .route(
+            "/me/activity/webhooks",
+            get(hooks_list).post(hooks_register),
+        )
+        .route(
+            "/me/activity/webhooks/{id}",
+            axum::routing::delete(hooks_delete),
+        )
+        .route("/activity/{id}", get(activity_current))
+        .route("/activity/{id}/{view}", get(activity_read))
         .fallback(|| async {
             (
                 StatusCode::NOT_FOUND,
@@ -235,6 +421,9 @@ pub async fn run(
         .layer(DefaultBodyLimit::max(4096))
         .layer(middleware::from_fn_with_state(state.clone(), guard))
         .with_state(state);
+    let worker = tokio::spawn(delivery_worker(WebState {
+        config: Arc::new(config),
+    }));
     let handle = axum_server::Handle::new();
     let shutdown = handle.clone();
     tokio::spawn(async move {
@@ -249,5 +438,6 @@ pub async fn run(
         .handle(handle)
         .serve(app.into_make_service_with_connect_info::<SocketAddr>())
         .await?;
+    worker.abort();
     Ok(())
 }

@@ -5,6 +5,7 @@ mod device;
 mod inventory;
 mod network;
 mod web;
+mod webhooks;
 
 use anyhow::Result;
 use clap::{Parser, Subcommand};

@@ -1,3 +1,7 @@
+#[cfg(test)]
+#[path = "controller_tests.rs"]
+mod tests;
+
 use crate::{
     activity,
     config::{Config, valid_label},
@@ -31,8 +35,16 @@ pub struct Request {
 #[serde(tag = "type", rename_all = "snake_case", deny_unknown_fields)]
 pub enum Operation {
     View,
-    Dns { name: Option<String> },
-    Route { ingress: String, upstream: String },
+    Webhook {
+        operation: crate::webhooks::Operation,
+    },
+    Dns {
+        name: Option<String>,
+    },
+    Route {
+        ingress: String,
+        upstream: String,
+    },
 }
 
 #[derive(Deserialize, Serialize)]
@@ -362,12 +374,33 @@ impl Controller {
         }))
     }
 
-    async fn handle(&mut self, request: Request) -> ApiResult<Value> {
+    async fn handle(&mut self, request: Request) -> ApiResult<Reply> {
+        if let Operation::Webhook { operation } = request.operation {
+            let device = if operation.device_scoped() {
+                if self.config.kind(request.ip) != Some("office") {
+                    return Err(ApiError(403, "A MAC-bound LAN device is required"));
+                }
+                Some(self.observe_source(request.ip).await?)
+            } else {
+                // Only the trusted HTTPS process can access this private socket.
+                None
+            };
+            return crate::webhooks::handle(
+                &mut self.db,
+                device,
+                operation,
+                i64::from(self.config.activity.idle_seconds),
+                i64::from(self.config.activity.retention_days),
+                &self.activity,
+            )
+            .map_err(|(code, message)| ApiError(code, message));
+        }
         let id = self.observe_source(request.ip).await?;
         self.allocate_names()
             .map_err(|_| ApiError(500, "Unable to allocate the automatic name"))?;
         match request.operation {
             Operation::View => {}
+            Operation::Webhook { .. } => unreachable!("handled before device settings"),
             Operation::Dns { name } => match name {
                 Some(name) => {
                     if !valid_label(&name) {
@@ -418,12 +451,13 @@ impl Controller {
         }
         self.apply().await;
         self.view(request.ip, id)
+            .map(|data| Reply { status: 200, data })
     }
 }
 
 fn controller_backup(config: &Config, db: &Connection) -> Result<std::path::PathBuf> {
     let path = config.state_dir.join(format!(
-        "state-v1-{}-{}.sqlite",
+        "state-pre-v3-{}-{}.sqlite",
         inventory::now(),
         std::process::id()
     ));
@@ -449,7 +483,7 @@ pub async fn run(config: Config) -> Result<()> {
     std::fs::set_permissions(&db_path, std::fs::Permissions::from_mode(0o600))?;
     db.busy_timeout(Duration::from_secs(5))?;
     let version: i64 = db.query_row("PRAGMA user_version", [], |row| row.get(0))?;
-    if version == 1 {
+    if matches!(version, 1 | 2) {
         let backup = controller_backup(&config, &db)?;
         tracing::info!(path = %backup.display(), "saved pre-migration database backup");
     }
@@ -533,7 +567,7 @@ pub async fn run(config: Config) -> Result<()> {
                     Ok(request) => {
                         controller.office();
                         match controller.handle(request).await {
-                            Ok(data) => Reply { status: 200, data },
+                            Ok(reply) => reply,
                             Err(ApiError(status, error)) => Reply { status, data: json!({"error": error}) },
                         }
                     }

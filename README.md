@@ -75,6 +75,8 @@ IPv6 link-local and Mesh error-return plumbing remain for Waywarp internals, not
 
 The self-service portal is available at [router.scg.sh](https://router.scg.sh) from the office or Mesh network.
 
+MAC-bound office devices can register activity webhooks. Receiving backends use LAN/Mesh connectivity and a subscription token to read activity. See the [activity API](modules/router/be/API.md) for registration, verification, notifications, and read endpoints.
+
 ## Deployment
 
 Deploy through `~/dotfiles-private`, which extends this configuration with Laminar and its tunnel. NH defaults to that wrapper; explicit paths also work from older shells. Activation requires explicit operator approval; `nh os build .` above validates the public configuration only and must not be followed by a switch of the public flake.

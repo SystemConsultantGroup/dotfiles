@@ -12,6 +12,7 @@ pub struct Collector {
     previous_poll: i64,
     cleanup_at: i64,
     pub warning: Option<&'static str>,
+    pub sampled_at: Option<i64>,
 }
 
 impl Collector {
@@ -23,6 +24,7 @@ impl Collector {
             previous_poll: inventory::now(),
             cleanup_at: 0,
             warning: Some("Activity monitoring is starting"),
+            sampled_at: None,
         })
     }
 
@@ -79,7 +81,9 @@ impl Collector {
                 [now - i64::from(config.activity.retention_days) * 86400],
             )?;
         }
+        crate::webhooks::refresh(&tx, false, now, i64::from(config.activity.idle_seconds))?;
         tx.commit()?;
+        self.sampled_at = Some(now);
         if now >= self.cleanup_at {
             self.cleanup_at = now + 3600;
         }
@@ -89,7 +93,10 @@ impl Collector {
 }
 
 fn close_gap(db: &Connection) -> Result<()> {
-    db.execute("UPDATE activity_sessions SET ended_at = last_activity, end_reason = 'monitoring_gap' WHERE ended_at IS NULL", [])?;
+    let tx = db.unchecked_transaction()?;
+    tx.execute("UPDATE activity_sessions SET ended_at = last_activity, end_reason = 'monitoring_gap' WHERE ended_at IS NULL", [])?;
+    crate::webhooks::refresh(&tx, true, inventory::now(), 0)?;
+    tx.commit()?;
     Ok(())
 }
 
@@ -178,15 +185,29 @@ pub fn checkpoint(
     Ok(())
 }
 
-pub fn view(db: &Connection, id: i64, config: &Config, warning: Option<&str>) -> Result<Value> {
-    let now = inventory::now();
-    let idle = i64::from(config.activity.idle_seconds);
+pub fn snapshot(
+    db: &Connection,
+    id: i64,
+    idle: i64,
+    now: i64,
+    warning: Option<&str>,
+) -> Result<Value> {
     let last: Option<i64> = db.query_row(
         "SELECT MAX(last_activity) FROM activity_sessions WHERE device_id = ?1",
         [id],
         |row| row.get(0),
     )?;
     let current: Option<i64> = db.query_row("SELECT started_at FROM activity_sessions WHERE device_id = ?1 AND ended_at IS NULL AND last_activity + ?2 > ?3", params![id, idle, now], |row| row.get(0)).optional()?;
+    Ok(json!({
+        "status": if warning.is_some() || last.is_none() { "unknown" } else if current.is_some() { "online" } else { "offline" },
+        "warning": warning, "last_activity": last, "session_started_at": current,
+    }))
+}
+
+pub fn view(db: &Connection, id: i64, config: &Config, warning: Option<&str>) -> Result<Value> {
+    let now = inventory::now();
+    let idle = i64::from(config.activity.idle_seconds);
+    let snapshot = snapshot(db, id, idle, now, warning)?;
     let mut query = db.prepare("SELECT started_at, last_activity, ended_at, end_reason FROM activity_sessions WHERE device_id = ?1 ORDER BY started_at DESC, id DESC LIMIT 50")?;
     let sessions = query.query_map([id], |row| {
         Ok(json!({"started_at": row.get::<_, i64>(0)?, "last_activity": row.get::<_, i64>(1)?, "ended_at": row.get::<_, Option<i64>>(2)?, "end_reason": row.get::<_, Option<String>>(3)?}))
@@ -198,8 +219,8 @@ pub fn view(db: &Connection, id: i64, config: &Config, warning: Option<&str>) ->
         totals.insert(label, total);
     }
     Ok(json!({
-        "status": if warning.is_some() || last.is_none() { "unknown" } else if current.is_some() { "online" } else { "offline" },
-        "warning": warning, "last_activity": last, "session_started_at": current,
+        "status": snapshot["status"],
+        "warning": snapshot["warning"], "last_activity": snapshot["last_activity"], "session_started_at": snapshot["session_started_at"],
         "idle_seconds": idle, "retention_days": config.activity.retention_days,
         "totals": totals, "sessions": sessions, "sampled_at": now,
     }))
