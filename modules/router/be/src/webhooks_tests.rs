@@ -515,3 +515,38 @@ async fn callback_never_connects_to_loopback() {
             .is_err()
     );
 }
+
+#[test]
+fn callback_requires_public_answers_and_selects_ipv4() {
+    let ipv4: SocketAddr = "1.1.1.1:443".parse().unwrap();
+    let ipv6: SocketAddr = "[2606:4700:4700::1111]:443".parse().unwrap();
+    let mut stage = "url";
+    assert_eq!(
+        callback_addresses(vec![ipv6, ipv4], &mut stage).unwrap(),
+        vec![ipv4]
+    );
+    assert!(callback_addresses(vec![], &mut stage).is_err());
+    assert!(callback_addresses(vec![ipv6], &mut stage).is_err());
+    for private in ["127.0.0.1:443", "[::1]:443"] {
+        assert!(callback_addresses(vec![ipv4, private.parse().unwrap()], &mut stage).is_err());
+    }
+}
+
+#[tokio::test]
+async fn callback_reports_validation_failure_stages() {
+    for (url, expected) in [
+        ("https://user:secret@example.com/secret", "url"),
+        ("https://127.0.0.1/secret", "destination"),
+        ("https://[2606:4700:4700::1111]/secret", "ipv4"),
+    ] {
+        let mut stage = "url";
+        let mut status = None;
+        assert!(
+            callback_inner(url, Some("secret"), &mut stage, &mut status)
+                .await
+                .is_err()
+        );
+        assert_eq!(stage, expected);
+        assert_eq!(status, None);
+    }
+}

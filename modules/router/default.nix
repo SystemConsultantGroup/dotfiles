@@ -232,8 +232,8 @@ in
           "AF_UNIX"
           "AF_INET"
         ];
-        IPAddressDeny = "any";
-        IPAddressAllow = lib.unique (map (ingress: ingress.network) (lib.attrValues cfg.ingresses));
+        # IPAddressAllow/Deny also filter egress, blocking callback DNS and HTTPS.
+        # The input firewall restricts ingress; callbacks validate and pin public IPv4.
       };
     };
   };
