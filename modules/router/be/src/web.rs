@@ -6,7 +6,7 @@ use anyhow::Result;
 use axum::{
     Json, Router,
     extract::{ConnectInfo, DefaultBodyLimit, Path, Query, Request, State},
-    http::{HeaderValue, StatusCode, header},
+    http::{HeaderValue, Method, StatusCode, header},
     middleware::{self, Next},
     response::{IntoResponse, Response},
     routing::get,
@@ -24,7 +24,45 @@ use tokio::{
     io::{AsyncBufReadExt, AsyncWriteExt, BufReader},
     net::UnixStream,
 };
-use tower_http::services::ServeDir;
+use tower_http::{
+    cors::{AllowOrigin, CorsLayer},
+    services::ServeDir,
+};
+
+fn allowed_origin(origin: &HeaderValue) -> bool {
+    let Ok(origin) = origin.to_str() else {
+        return false;
+    };
+    let Ok(uri) = origin.parse::<axum::http::Uri>() else {
+        return false;
+    };
+    let (Some(scheme), Some(authority)) = (uri.scheme_str(), uri.authority()) else {
+        return false;
+    };
+    if !matches!(scheme, "http" | "https")
+        || origin != format!("{scheme}://{authority}")
+        || authority.as_str().contains('@')
+    {
+        return false;
+    }
+    let host = authority.host().to_ascii_lowercase();
+    ["skku.ac.kr", "scg.sh"]
+        .iter()
+        .any(|domain| host == *domain || host.ends_with(&format!(".{domain}")))
+}
+
+fn cors() -> CorsLayer {
+    CorsLayer::new()
+        .allow_origin(AllowOrigin::predicate(|origin, _| allowed_origin(origin)))
+        .allow_methods([
+            Method::GET,
+            Method::HEAD,
+            Method::POST,
+            Method::PATCH,
+            Method::DELETE,
+        ])
+        .allow_headers([header::CONTENT_TYPE])
+}
 
 #[derive(Clone)]
 struct WebState {
@@ -70,7 +108,12 @@ async fn guard(State(state): State<WebState>, request: Request, next: Next) -> R
             "This source address cannot use self-service",
         );
     }
+    let trusted_origin = request
+        .headers()
+        .get(header::ORIGIN)
+        .is_some_and(allowed_origin);
     if request.uri().path().starts_with("/api/")
+        && !trusted_origin
         && request
             .headers()
             .get("sec-fetch-site")
@@ -83,19 +126,14 @@ async fn guard(State(state): State<WebState>, request: Request, next: Next) -> R
     }
     if !matches!(
         *request.method(),
-        axum::http::Method::GET | axum::http::Method::HEAD
+        Method::GET | Method::HEAD | Method::OPTIONS
     ) {
-        let origin = request
-            .headers()
-            .get(header::ORIGIN)
-            .and_then(|value| value.to_str().ok());
-        let expected = format!("https://{}", state.config.hostname);
         let content_type = request
             .headers()
             .get(header::CONTENT_TYPE)
             .and_then(|value| value.to_str().ok())
             .unwrap_or_default();
-        if origin != Some(expected.as_str())
+        if !trusted_origin
             || !content_type
                 .split(';')
                 .next()
@@ -103,7 +141,7 @@ async fn guard(State(state): State<WebState>, request: Request, next: Next) -> R
         {
             return error(
                 StatusCode::FORBIDDEN,
-                "A same-origin JSON request is required",
+                "A trusted-origin JSON request is required",
             );
         }
     }
@@ -416,7 +454,7 @@ pub async fn run(
             )
         });
     let app = Router::new()
-        .nest("/api", api)
+        .nest("/api", api.layer(cors()))
         .fallback_service(ServeDir::new(assets))
         .layer(DefaultBodyLimit::max(4096))
         .layer(middleware::from_fn_with_state(state.clone(), guard))
@@ -440,4 +478,125 @@ pub async fn run(
         .await?;
     worker.abort();
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn cors_preflights_and_responses() {
+        let _ = rustls::crypto::ring::default_provider().install_default();
+        let app = Router::new()
+            .route(
+                "/api/me",
+                get(|| async { StatusCode::OK }).patch(|| async { StatusCode::NO_CONTENT }),
+            )
+            .layer(cors());
+        let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let url = format!("http://{}/api/me", listener.local_addr().unwrap());
+        let server = tokio::spawn(async move { axum::serve(listener, app).await.unwrap() });
+        // This loopback HTTP test must not depend on system CA roots in the Nix sandbox.
+        let client = reqwest::Client::builder()
+            .no_proxy()
+            .tls_certs_only([])
+            .build()
+            .unwrap();
+        for origin in [
+            "https://app.scg.sh",
+            "https://app.skku.ac.kr:8443",
+            "https://scg.sh.evil.example",
+        ] {
+            let allowed = allowed_origin(&HeaderValue::from_str(origin).unwrap());
+            let preflight = client
+                .request(Method::OPTIONS, &url)
+                .header(header::ORIGIN, origin)
+                .header(header::ACCESS_CONTROL_REQUEST_METHOD, "PATCH")
+                .header(header::ACCESS_CONTROL_REQUEST_HEADERS, "content-type")
+                .send()
+                .await
+                .unwrap();
+            assert_eq!(preflight.status(), StatusCode::OK);
+            assert_eq!(
+                preflight
+                    .headers()
+                    .get(header::ACCESS_CONTROL_ALLOW_ORIGIN)
+                    .and_then(|v| v.to_str().ok()),
+                allowed.then_some(origin)
+            );
+            assert!(
+                preflight.headers()[header::ACCESS_CONTROL_ALLOW_METHODS]
+                    .to_str()
+                    .unwrap()
+                    .contains("PATCH")
+            );
+            assert_eq!(
+                preflight.headers()[header::ACCESS_CONTROL_ALLOW_HEADERS],
+                "content-type"
+            );
+            for method in [Method::GET, Method::PATCH] {
+                let response = client
+                    .request(method, &url)
+                    .header(header::ORIGIN, origin)
+                    .send()
+                    .await
+                    .unwrap();
+                assert!(response.status().is_success());
+                assert_eq!(
+                    response
+                        .headers()
+                        .get(header::ACCESS_CONTROL_ALLOW_ORIGIN)
+                        .and_then(|v| v.to_str().ok()),
+                    allowed.then_some(origin)
+                );
+                assert!(
+                    !response
+                        .headers()
+                        .contains_key(header::ACCESS_CONTROL_ALLOW_CREDENTIALS)
+                );
+                assert!(response.headers().contains_key(header::VARY));
+            }
+        }
+        server.abort();
+    }
+
+    #[test]
+    fn cors_origin_domain_boundaries() {
+        for origin in [
+            "https://scg.sh",
+            "https://router.scg.sh",
+            "https://a.b.scg.sh",
+            "http://skku.ac.kr",
+            "https://portal.skku.ac.kr:8443",
+            "http://dev.scg.sh:5173",
+            "https://SCG.SH",
+        ] {
+            assert!(
+                allowed_origin(&HeaderValue::from_str(origin).unwrap()),
+                "{origin}"
+            );
+        }
+        for origin in [
+            "null",
+            "https://evilscg.sh",
+            "https://ev il.scg.sh",
+            "https://evilskku.ac.kr",
+            "https://scg.sh.evil.example",
+            "https://scg.sh@evil.example",
+            "https://evil.example@scg.sh",
+            "https://scg.sh/",
+            "https://scg.sh/path",
+            "https://scg.sh?query",
+            "https://scg.sh#fragment",
+            "ftp://scg.sh",
+            "scg.sh",
+            "https://localhost:5173",
+            "https://10.0.0.1",
+        ] {
+            assert!(
+                !allowed_origin(&HeaderValue::from_str(origin).unwrap()),
+                "{origin}"
+            );
+        }
+    }
 }

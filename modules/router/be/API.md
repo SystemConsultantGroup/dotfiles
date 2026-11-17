@@ -15,9 +15,16 @@ MAC binding (`office` devices). Mesh/IP-only devices cannot manage subscriptions
 Never send a device ID or MAC. A neighbor MAC is an identity hint within the
 existing trusted LAN model, not protection against a hostile LAN participant.
 
-Writes require `Content-Type: application/json` and an `Origin` header matching
-`https://router.scg.sh`, as with the existing self-service API. Cross-site browser
-API requests are forbidden.
+The API allows cross-origin browser requests from HTTP/HTTPS origins on
+`skku.ac.kr`, `scg.sh`, and their subdomains, including non-default ports.
+Other origins receive no CORS permission. Allowed methods are GET, HEAD, POST,
+PATCH, and DELETE; OPTIONS preflights allow the `Content-Type` header. Cookies
+and credentialed CORS are not enabled. The existing LAN/Mesh source restrictions
+still apply, including to preflights.
+
+Writes require `Content-Type: application/json` and an allowed `Origin` header.
+Allowed sites can read and change settings available to the visiting LAN device;
+caller identity remains based on the device's source IP, not the origin.
 
 ### POST /api/me/activity/webhooks
 
