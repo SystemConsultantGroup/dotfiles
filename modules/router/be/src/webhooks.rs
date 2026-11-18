@@ -8,7 +8,11 @@ use anyhow::{Context, Result, ensure};
 use rusqlite::{Connection, OptionalExtension, params};
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
-use std::{io::Read, net::IpAddr, time::Duration};
+use std::{
+    io::Read,
+    net::{IpAddr, SocketAddr},
+    time::{Duration, Instant},
+};
 
 #[derive(Debug, Default, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
@@ -337,18 +341,39 @@ pub fn public_ip(ip: IpAddr) -> bool {
     }
 }
 
-async fn callback_inner(value: &str, verification: Option<&str>) -> Result<()> {
+fn callback_addresses(
+    mut addresses: Vec<SocketAddr>,
+    stage: &mut &'static str,
+) -> Result<Vec<SocketAddr>> {
+    *stage = "destination";
+    ensure!(
+        !addresses.is_empty() && addresses.iter().all(|a| public_ip(a.ip())),
+        "non-public callback destination"
+    );
+    // router-be.service permits AF_INET only. Validate all answers before
+    // selecting A records; an AAAA-only destination fails without connecting.
+    *stage = "ipv4";
+    addresses.retain(SocketAddr::is_ipv4);
+    ensure!(!addresses.is_empty(), "IPv4 callback destination required");
+    Ok(addresses)
+}
+
+async fn callback_inner(
+    value: &str,
+    verification: Option<&str>,
+    stage: &mut &'static str,
+    status: &mut Option<u16>,
+) -> Result<()> {
     let url = callback_url(value)?;
     let host = url.host_str().context("missing callback host")?;
     let host = host.trim_start_matches('[').trim_end_matches(']');
     let port = url
         .port_or_known_default()
         .context("missing callback port")?;
-    let addresses: Vec<_> = tokio::net::lookup_host((host, port)).await?.collect();
-    ensure!(
-        !addresses.is_empty() && addresses.iter().all(|a| public_ip(a.ip())),
-        "non-public callback destination"
-    );
+    *stage = "dns";
+    let addresses = tokio::net::lookup_host((host, port)).await?.collect();
+    let addresses = callback_addresses(addresses, stage)?;
+    *stage = "client";
     let client = reqwest::Client::builder()
         .no_proxy()
         .redirect(reqwest::redirect::Policy::none())
@@ -361,12 +386,16 @@ async fn callback_inner(value: &str, verification: Option<&str>) -> Result<()> {
     } else {
         request = request.header(reqwest::header::CONTENT_LENGTH, "0");
     }
+    *stage = "request";
     let mut response = request.send().await?;
+    *status = Some(response.status().as_u16());
+    *stage = "http_status";
     if let Some(id) = verification {
         ensure!(
             response.status() == reqwest::StatusCode::OK,
             "verification status"
         );
+        *stage = "response_body";
         let mut body = Vec::new();
         while let Some(chunk) = response.chunk().await? {
             ensure!(
@@ -375,6 +404,7 @@ async fn callback_inner(value: &str, verification: Option<&str>) -> Result<()> {
             );
             body.extend_from_slice(&chunk);
         }
+        *stage = "acknowledgement";
         ensure!(acknowledges(&body, id), "verification acknowledgement");
     } else {
         ensure!(response.status().is_success(), "notification status");
@@ -396,9 +426,39 @@ fn acknowledges(body: &[u8], id: &str) -> bool {
 }
 
 pub async fn callback(value: &str, verification: Option<&str>) -> bool {
+    let started = Instant::now();
+    let mut stage = "url";
+    let mut status = None;
     // Includes DNS resolution, connection, TLS, and bounded response consumption.
-    matches!(
-        tokio::time::timeout(Duration::from_secs(5), callback_inner(value, verification)).await,
-        Ok(Ok(()))
+    let result = tokio::time::timeout(
+        Duration::from_secs(5),
+        callback_inner(value, verification, &mut stage, &mut status),
     )
+    .await;
+    let elapsed_ms = started.elapsed().as_millis() as u64;
+    // Errors may contain callback URLs or capabilities. Log only safe metadata.
+    match result {
+        Ok(Ok(())) => {
+            tracing::info!(
+                stage = "complete",
+                http_status = status,
+                elapsed_ms,
+                "callback succeeded"
+            );
+            true
+        }
+        Ok(Err(_)) => {
+            tracing::warn!(stage, http_status = status, elapsed_ms, "callback failed");
+            false
+        }
+        Err(_) => {
+            tracing::warn!(
+                stage,
+                http_status = status,
+                elapsed_ms,
+                "callback timed out"
+            );
+            false
+        }
+    }
 }
